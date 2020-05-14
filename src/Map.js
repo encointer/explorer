@@ -1,13 +1,18 @@
 import React, { useEffect, useState, createRef } from 'react';
-import { Map as LMap, Marker, Popup, TileLayer, Circle, Tooltip } from 'react-leaflet';
+import { Map as LMap, Marker, Popup, TileLayer, Circle, Tooltip, LayerGroup, FeatureGroup } from 'react-leaflet';
 import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
+import { CurrenciesLayer } from './CurrenciesLayer';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const initialPosition = L.latLng(51.509, -0.11);
-const parseFixPoint = raw => raw.toNumber() / 10 ** 9; // FIXME poor man fixed to float conversion
 
-const toLatLng = location => L.latLng(parseFixPoint(location.lat), parseFixPoint(location.lon));
+// FIXME small brain fixpoint to Number conversion
+const parseFixPoint = raw => parseInt(raw.toString(2).slice(0, -31), 2);
+
+const toLatLng = location => L.latLng(
+  parseFixPoint(location.lat),
+  parseFixPoint(location.lon));
 
 const tileSetup = {
   url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -21,39 +26,61 @@ function Main (props) {
   const [currencies, setCurrencies] = useState([]);
   const [selectedCurrency, setSelectedCurrency] = useState();
   const [locations, setLocations] = useState({});
+  const [details, setDetails] = useState({});
+
+  // Fetch locations for each currency sequentialy
+  const fetchGeodataSeq = async (cids) => {
+    for (let idx = 0, len = cids.length; idx < len; idx++) {
+      const cid = cids[idx];
+      const locs = await ec.locations(cid);
+      // convert I32F32 to LatLng
+      setLocations({ ...locations, [cid]: locs.map(toLatLng) });
+      const dets = await ec.currencyProperties(cid);
+      setDetails({ ...details, [cid]: dets.toJSON() });
+    }
+  };
+
+  // Fetch locations for each currency in paralel; Save to state once ready
+  const fetchGeodataPar = (cids) => {
+    Promise
+      .all(cids.map(cid => ec.locations(cid)))
+      .then(locsRes => { // Called when all currencies locatins loads
+        setLocations(
+          locsRes.reduce((acc, locs, idx) => {
+            const cid = cids[idx].toString();
+            acc[cid] = locs.map(toLatLng); // convert I32F32 to LatLng
+            return acc;
+          }, {})
+        );
+      });
+    Promise
+      .all(cids.map(cid => ec.currencyProperties(cid)))
+      .then(propRes => { // Called when all currencies locatins loads
+        setDetails(
+          propRes.reduce((acc, details, idx) => {
+            const cid = cids[idx].toString();
+            acc[cid] = details.toJSON();
+            return acc;
+          }, {})
+        );
+      });
+  };
 
   // Load currencies identifiers once
   useEffect(() => {
-    ec.currencyIdentifiers()
-      .then(setCurrencies)
-      .catch(err => console.error(err));
-  }, []);
-
-  // select first Currency, once
-  useEffect(() => {
-    if (currencies.length && !selectedCurrency) {
-      setSelectedCurrency({ raw: currencies[0] });
+    if (currencies.length === 0) {
+      ec.currencyIdentifiers()
+        .then(setCurrencies)
+        .catch(err => console.error(err));
     }
-  }, [currencies, selectedCurrency]);
+  }, [currencies.length, ec]);
 
   // Get locations
   useEffect(() => {
-    if (selectedCurrency && selectedCurrency.raw) {
-      const cid = selectedCurrency.raw.toString();
-      ec.locations(selectedCurrency.raw)
-        .then(locs => setLocations({ ...locations, [cid]: locs.map(toLatLng) }))
-        .catch(err => console.error(err));
+    if (currencies.length) {
+      fetchGeodataPar(currencies);
     }
-  }, [selectedCurrency]);
-
-  // set marker of first found location
-  useEffect(() => {
-    if (Object.values(locations).length) {
-      // console.log(locations);
-      const spot = Object.values(locations)[0][0];
-      setPosition(spot);
-    }
-  }, [locations]);
+  }, [currencies, fetchGeodataPar]);
 
   // attempt geolocation
   useEffect(() => {
@@ -61,7 +88,7 @@ function Main (props) {
     if (map != null) {
       map.leafletElement.locate();
     }
-  }, []);
+  }, [mapRef]);
 
   // restet marker to my position
   const handleLocationFound = e => {
@@ -70,22 +97,12 @@ function Main (props) {
   };
 
   return (
-    <LMap center={[0, 0]} zoom={2} ref={mapRef}
+    <LMap center={position} zoom={2} ref={mapRef}
       onLocationFound={handleLocationFound}
       onLocationfound={handleLocationFound}
     >
       <TileLayer {...tileSetup} />
-      <Circle
-        center={position}
-        fillColor="blue"
-        radius={2000}>
-        <Tooltip>test</Tooltip>
-      </Circle>
-      <Marker position={position}>
-        <Popup>
-          A pretty CSS3 popup. <br /> Easily customizable.
-        </Popup>
-      </Marker>
+      <CurrenciesLayer map={mapRef} locations={locations} details={details} onClick={(_) => console.log(_)} selectedCurrency={selectedCurrency} />
     </LMap>
   );
 }

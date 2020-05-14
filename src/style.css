@@ -1,23 +1,36 @@
-body{
+body {
     overflow-y: hidden;
 }
-#root{
+
+#root {
     height: 100vh;
     position: relative;
 }
-#root>.wrapper, #map-container{
+
+#root > .wrapper, #map-container {
     position: relative;
     height: 100%;
     width: 100%;
 }
-#map-container{
-    height: 90%;
+
+#map-container {
+    height: 100%;
+    z-index: 0;
 }
-#root>.wrapper>.container{
-    height: 10%;
+
+#root > .wrapper > .container {
+    height: 1%;
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    opacity: 70%;
+    z-index: 1;
+    right: 0;
+    left: 50px;
 }
+
 .leaflet-container {
     height: 100%;
     width: 100%;
     margin: 0;
-  }
+}
