@@ -1,29 +1,17 @@
-import React, { useState, createRef } from 'react';
-import { Container, Dimmer, Loader, Grid, Sticky } from 'semantic-ui-react';
+import React, { createRef } from 'react';
+import { Container, Dimmer, Loader, Grid } from 'semantic-ui-react';
 
 import 'semantic-ui-css/semantic.min.css';
 import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
 import { DeveloperConsole } from './substrate-lib/components';
 
-import AccountSelector from './AccountSelector';
-import Balances from './Balances';
 import BlockNumber from './BlockNumber';
-import ChainState from './ChainState';
-import Events from './Events';
-import Extrinsics from './Extrinsics';
-import Metadata from './Metadata';
 import NodeInfo from './NodeInfo';
-import TemplateModule from './TemplateModule';
-import Transfer from './Transfer';
-import Upgrade from './Upgrade';
+import Map from './Map';
+import './style.css';
 
 function Main () {
-  const [accountAddress, setAccountAddress] = useState(null);
   const { apiState, keyring, keyringState } = useSubstrate();
-  const accountPair =
-    accountAddress &&
-    keyringState === 'READY' &&
-    keyring.getPair(accountAddress);
 
   const loader = text => (
     <Dimmer active>
@@ -43,7 +31,8 @@ function Main () {
   const contextRef = createRef();
 
   return (
-    <div ref={contextRef}>
+    <div ref={contextRef} className='wrapper'>
+      <Map />
       <Container>
         <Grid stackable columns='equal'>
           <Grid.Row stretched>
