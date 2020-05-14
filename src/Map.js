@@ -42,6 +42,7 @@ function Main (props) {
 
   // Fetch locations for each currency in paralel; Save to state once ready
   const fetchGeodataPar = (cids) => {
+    console.log('FETCHING LOCATION');
     Promise
       .all(cids.map(cid => ec.locations(cid)))
       .then(locsRes => { // Called when all currencies locatins loads
@@ -53,6 +54,7 @@ function Main (props) {
           }, {})
         );
       });
+    console.log('FETCHING PROPERTIES');
     Promise
       .all(cids.map(cid => ec.currencyProperties(cid)))
       .then(propRes => { // Called when all currencies locatins loads
@@ -80,15 +82,15 @@ function Main (props) {
     if (currencies.length) {
       fetchGeodataPar(currencies);
     }
-  }, [currencies, fetchGeodataPar]);
+  }, [currencies]);
 
   // attempt geolocation
   useEffect(() => {
     const map = mapRef.current;
-    if (map != null) {
+    if (map != null && position === initialPosition) {
       map.leafletElement.locate();
     }
-  }, [mapRef]);
+  }, [mapRef, position]);
 
   // restet marker to my position
   const handleLocationFound = e => {
