@@ -44,31 +44,12 @@ function Main () {
 
   return (
     <div ref={contextRef}>
-      <Sticky context={contextRef}>
-        <AccountSelector setAccountAddress={setAccountAddress} />
-      </Sticky>
       <Container>
         <Grid stackable columns='equal'>
           <Grid.Row stretched>
             <NodeInfo />
-            <Metadata />
             <BlockNumber />
             <BlockNumber finalized />
-          </Grid.Row>
-          <Grid.Row stretched>
-            <Balances />
-          </Grid.Row>
-          <Grid.Row>
-            <Transfer accountPair={accountPair} />
-            <Upgrade accountPair={accountPair} />
-          </Grid.Row>
-          <Grid.Row>
-            <Extrinsics accountPair={accountPair} />
-            <ChainState />
-            <Events />
-          </Grid.Row>
-          <Grid.Row>
-            <TemplateModule accountPair={accountPair} />
           </Grid.Row>
         </Grid>
         <DeveloperConsole />
