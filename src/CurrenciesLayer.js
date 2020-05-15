@@ -1,6 +1,6 @@
 import React, { useEffect, useState, createRef } from 'react';
 import { Marker, Popup, TileLayer, Circle, Tooltip, LayerGroup, FeatureGroup } from 'react-leaflet';
-import * as L from 'leaflet';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 
 export function CurrenciesLayer (props) {
   const { locations, details } = props;
@@ -18,5 +18,5 @@ export function CurrenciesLayer (props) {
     layer.push(...markers);
   });
 
-  return layer;
+  return (<MarkerClusterGroup>{layer}</MarkerClusterGroup>);
 }

@@ -34,3 +34,7 @@ body {
     width: 100%;
     margin: 0;
 }
+
+.markercluster-map {
+    height: 100vh;
+}

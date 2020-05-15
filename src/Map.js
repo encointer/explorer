@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 import { parseFixPoint } from './utils';
 
 import 'leaflet/dist/leaflet.css';
+import 'react-leaflet-markercluster/dist/styles.min.css';
 
 const initialPosition = L.latLng(51.509, -0.11);
 
