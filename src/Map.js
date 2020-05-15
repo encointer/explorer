@@ -3,12 +3,11 @@ import { Map as LMap, Marker, Popup, TileLayer, Circle, Tooltip, LayerGroup, Fea
 import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
 import { CurrenciesLayer } from './CurrenciesLayer';
 import * as L from 'leaflet';
+import { parseFixPoint } from './utils';
+
 import 'leaflet/dist/leaflet.css';
 
 const initialPosition = L.latLng(51.509, -0.11);
-
-// FIXME small brain fixpoint to Number conversion
-const parseFixPoint = raw => parseInt(raw.toString(2).slice(0, -31), 2);
 
 const toLatLng = location => L.latLng(
   parseFixPoint(location.lat),
