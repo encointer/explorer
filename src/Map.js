@@ -1,18 +1,22 @@
 import React, { useEffect, useState, createRef } from 'react';
-import { Map as LMap, Marker, Popup, TileLayer, Circle, Tooltip, LayerGroup, FeatureGroup } from 'react-leaflet';
-import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
-import { CurrenciesLayer } from './CurrenciesLayer';
+import { Map as LMap, TileLayer } from 'react-leaflet';
 import * as L from 'leaflet';
-import { parseFixPoint } from './utils';
+import * as bs58 from 'bs58';
+
+import { CurrenciesLayer } from './CurrenciesLayer';
+import { useSubstrate } from './substrate-lib';
+
+import { parseFixPoint, batchFetch } from './utils';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 
-const initialPosition = L.latLng(51.509, -0.11);
+const initialPosition = L.latLng(47.166168, 8.515495);
 
 const toLatLng = location => L.latLng(
   parseFixPoint(location.lat),
-  parseFixPoint(location.lon));
+  parseFixPoint(location.lon)
+);
 
 const tileSetup = {
   url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -24,48 +28,32 @@ function Main (props) {
   const { api: { query: { encointerCurrencies: ec } } } = props;
   const [position, setPosition] = useState(initialPosition);
   const [currencies, setCurrencies] = useState([]);
-  const [selectedCurrency, setSelectedCurrency] = useState();
+  const [selectedCurrency, setSelectedCurrency] = useState('');
   const [locations, setLocations] = useState({});
   const [details, setDetails] = useState({});
 
-  // Fetch locations for each currency sequentialy
-  const fetchGeodataSeq = async (cids) => {
-    for (let idx = 0, len = cids.length; idx < len; idx++) {
-      const cid = cids[idx];
-      const locs = await ec.locations(cid);
-      // convert I32F32 to LatLng
-      setLocations({ ...locations, [cid]: locs.map(toLatLng) });
-      const dets = await ec.currencyProperties(cid);
-      setDetails({ ...details, [cid]: dets.toJSON() });
-    }
-  };
-
   // Fetch locations for each currency in paralel; Save to state once ready
-  const fetchGeodataPar = (cids) => {
-    console.log('FETCHING LOCATION');
-    Promise
-      .all(cids.map(cid => ec.locations(cid)))
-      .then(locsRes => { // Called when all currencies locatins loads
-        setLocations(
-          locsRes.reduce((acc, locs, idx) => {
-            const cid = cids[idx].toString();
-            acc[cid] = locs.map(toLatLng); // convert I32F32 to LatLng
-            return acc;
-          }, {})
-        );
-      });
+  const fetchGeodataPar = async (cids) => { /* eslint-disable no-multi-spaces */
+    const keysBase58 = cids.map(bs58.encode);
+    const kvReducer = (acc, data, idx) => { // conver array to key-value map
+      acc[keysBase58[idx]] = data;          // where key is BASE58 of cid
+      return acc;
+    };
+
+    console.log('FETCHING LOCATIONS');
+    setLocations(
+      await batchFetch(
+        ec.locations,           // method to call
+        cids,                   // array of parameters to method
+        _ => _.map(toLatLng),   // convert I32F32 to LatLng
+        kvReducer               // reduce to { CidInBase58: LatLng[], ... }
+      )
+    );
+
     console.log('FETCHING PROPERTIES');
-    Promise
-      .all(cids.map(cid => ec.currencyProperties(cid)))
-      .then(propRes => { // Called when all currencies locatins loads
-        setDetails(
-          propRes.reduce((acc, details, idx) => {
-            const cid = cids[idx].toString();
-            acc[cid] = details.toJSON();
-            return acc;
-          }, {})
-        );
-      });
+    setDetails(                 // same as locations
+      await batchFetch(ec.currencyProperties, cids, _ => _.toJSON(), kvReducer)
+    );
   };
 
   // Load currencies identifiers once
@@ -84,7 +72,7 @@ function Main (props) {
     }
   }, [currencies]);
 
-  // attempt geolocation
+  // Attempt geolocation
   useEffect(() => {
     const map = mapRef.current;
     if (map != null && position === initialPosition) {
@@ -92,24 +80,31 @@ function Main (props) {
     }
   }, [mapRef, position]);
 
-  // restet marker to my position
+  // Restet marker to my position
   const handleLocationFound = e => {
     setPosition(e.latlng);
+    const map = mapRef.current.leafletElement;
+    map.flyTo(e.latlng);
+    map.zoom(8);
     console.log(e);
   };
 
+  /// Handler for click on currency marker
+  const handleCurrencyMarkerClick = cid => {
+    setSelectedCurrency(cid);
+  };
   return (
-    <LMap center={position} zoom={2} ref={mapRef}
-      onLocationFound={handleLocationFound}
-      onLocationfound={handleLocationFound}
-    >
-      <TileLayer {...tileSetup} />
-      <CurrenciesLayer map={mapRef} locations={locations} details={details} onClick={(_) => console.log(_)} selectedCurrency={selectedCurrency} />
-    </LMap>
+    <div id="map-container" className={ selectedCurrency ? 'with-sidebar' : '' }>
+      <LMap center={position} zoom={2} ref={mapRef}
+        onLocationFound={handleLocationFound}>
+        <TileLayer {...tileSetup} />
+        <CurrenciesLayer map={mapRef} locations={locations} details={details} onClick={handleCurrencyMarkerClick} selectedCurrency={selectedCurrency} />
+      </LMap>
+    </div>
   );
 }
 
 export default function Map (props) {
   const { api } = useSubstrate();
-  return api.query ? (<div id="map-container"><Main api={api}/></div>) : null;
+  return api.query ? (<Main api={api}/>) : null;
 }
