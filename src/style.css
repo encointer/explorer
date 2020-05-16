@@ -38,3 +38,24 @@ body {
 .markercluster-map {
     height: 100vh;
 }
+
+.encoiner-community-icon {
+    text-align: center;
+    background-clip: padding-box;
+    border-radius: 20px;
+    width: 30px !important;
+    height: 30px !important;
+    border: 2px solid rgba(110,204,57,0.6);
+    background-color: rgba(181,226,140,0.6);
+}
+
+.encoiner-community-icon > i {
+    top: -2px;
+    display: block;
+    position: relative;
+    font-size: 18px;
+    line-height: 30px;
+    color: #fff;
+    font-weight: bold;
+    padding-bottom: 6px;
+}

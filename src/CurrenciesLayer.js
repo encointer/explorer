@@ -1,23 +1,52 @@
-import React from 'react';
-import { Marker, Circle, Tooltip } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-markercluster';
+import React, { useEffect } from 'react';
+import GeoJSON from 'geojson';
+import * as L from 'leaflet';
+
+import { Marker, Circle, Tooltip, TileLayer, withLeaflet } from 'react-leaflet';
+import DeflateDefault from 'react-leaflet-deflate';
+
+const Deflate = withLeaflet(DeflateDefault);
+
+const Point = 'Point';
+const Polygon = 'Polygon';
+const single = _ => _.length === 1;
+const pointOrPolygon = _ => single(_) ? Point : Polygon;
+
+const makeIcon = _ => L.divIcon({ className: 'encoiner-community-icon', html: '<i>$</i>' });
+const icon = makeIcon();
 
 export function CurrenciesLayer (props) {
-  const { locations, details, onClick } = props;
-  const layer = [];
+  const { locations, onClick, selectedCurrency } = props;
+  const cids = Object.keys(locations);
+  if (!cids.length) {
+    return null;
+  }
 
-  Object.keys(locations).forEach(cid => {
-    const handleMarkerClick = _ => onClick(cid);
-    const markers = locations[cid].map(
-      (latLng, key) => (
-        <Circle key={cid + '_' + key} center={latLng} fillColor="blue" radius={2000} onClick={handleMarkerClick}>
-          <Tooltip>{
-            details[cid] && details[cid].name_utf8
-          }</Tooltip>
-        </Circle>
-      ));
-    layer.push(...markers);
-  });
+  const markers = Object.keys(locations).map(cid => (
+    {
+      cid,
+      color: selectedCurrency === cid ? 'red' : 'blue',
+      lat: locations[cid][0][1],
+      lng: locations[cid][0][0],
+      [pointOrPolygon(locations[cid])]: [locations[cid]]
+    }));
 
-  return (<MarkerClusterGroup>{layer}</MarkerClusterGroup>);
+  const data = GeoJSON.parse(markers, { [Point]: ['lat', 'lng'], Polygon, include: ['cid'] });
+
+  const markerFn = (geoJsonPoint, latlng) => {
+    return L.marker(latlng, { icon });
+  };
+
+  const polygonStyleFn = feature => { console.debug(feature); return { className: 'a', fillColor: 'blue', fill: true }; };
+
+  return (
+    <Deflate data={ [data] } minSize={ 50 } markerCluster={ true } style={polygonStyleFn}
+      markerOptions={ { icon } } pointToLayer={markerFn}
+      markerClusterOptions={{
+        chunkedLoading: true,
+        animate: true,
+        animateAddingMarkers: true
+        // singleMarkerMode: true
+      }}
+    ></Deflate>);
 }
