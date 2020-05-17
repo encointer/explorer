@@ -1,12 +1,13 @@
 /// Function to convert fixedpoint SCALE-encoded to Number
 /// raw: substrate_fixed::types::I32F32 as I64
-export function parseFixPoint (raw) {
+/// precision: 0..32 number bits in fractional part to process
+export function parseFixPoint (raw, precision) {
   // Fixed interpretation of u32 place values
   // ... ___ ___ ___ ___ . ___ ___ ___ ___ ...
   // ...  8   4   2   1    1/2 1/4 1/8 1/16...
   const bits = raw.toString(2, raw.bitLength());
   const upperBits = bits.slice(0, -32);
-  const lowerBits = bits.slice(-32);
+  const lowerBits = bits.slice(-32, precision ? -1 * (32 - precision) : -16);
   const floatPart = lowerBits.split('').reduce((acc, bit, idx) => {
     acc = acc + (bit === '1' ? 1 / 2 ** (idx + 1) : 0);
     return acc;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Icon, Grid } from 'semantic-ui-react';
+import { Card, Grid } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
@@ -24,22 +24,13 @@ function Main (props) {
   }, [api.rpc.system]);
 
   return (
-    <Grid.Column>
+    <Grid.Column width='6'>
       <Card>
         <Card.Content>
           <Card.Header>{nodeInfo.nodeName}</Card.Header>
           <Card.Meta>
-            <span>{nodeInfo.chain}</span>
+            <span>{nodeInfo.chain} version: {nodeInfo.nodeVersion}</span>
           </Card.Meta>
-          <Card.Description>
-            Built using the{' '}
-            <a href='https://github.com/substrate-developer-hub/substrate-front-end-template'>
-              Substrate Front End Template
-            </a>
-          </Card.Description>
-        </Card.Content>
-        <Card.Content extra>
-          <Icon name='setting' />v{nodeInfo.nodeVersion}
         </Card.Content>
       </Card>
     </Grid.Column>

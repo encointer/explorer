@@ -11,7 +11,7 @@ import Map from './Map';
 import './style.css';
 
 function Main () {
-  const { apiState, keyring, keyringState } = useSubstrate();
+  const { apiState, keyringState } = useSubstrate();
 
   const loader = text => (
     <Dimmer active>
@@ -35,10 +35,10 @@ function Main () {
       <Map />
       <Container>
         <Grid stackable columns='equal'>
-          <Grid.Row stretched>
-            <NodeInfo />
+          <Grid.Row>
             <BlockNumber />
             <BlockNumber finalized />
+            <NodeInfo />
           </Grid.Row>
         </Grid>
         <DeveloperConsole />
