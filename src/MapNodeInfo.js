@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Grid } from 'semantic-ui-react';
+import { Card } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
-function Main (props) {
+function MapNodeInfoMain () {
   const { api } = useSubstrate();
   const [nodeInfo, setNodeInfo] = useState({});
 
@@ -23,27 +23,20 @@ function Main (props) {
     getInfo();
   }, [api.rpc.system]);
 
-  return (
-    <Grid.Column width='6'>
-      <Card>
-        <Card.Content>
-          <Card.Header>{nodeInfo.nodeName}</Card.Header>
-          <Card.Meta>
-            <span>{nodeInfo.chain} version: {nodeInfo.nodeVersion}</span>
-          </Card.Meta>
-        </Card.Content>
-      </Card>
-    </Grid.Column>
-  );
+  return (nodeInfo.nodeName
+    ? <Card className='encointer-map-node-info'
+      header={nodeInfo.nodeName}
+      meta={`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}
+    /> : null);
 }
 
-export default function NodeInfo (props) {
+export default function MapNodeInfo (props) {
   const { api } = useSubstrate();
   return api.rpc &&
     api.rpc.system &&
     api.rpc.system.chain &&
     api.rpc.system.name &&
     api.rpc.system.version ? (
-      <Main {...props} />
+      <MapNodeInfoMain {...props} />
     ) : null;
 }

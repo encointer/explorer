@@ -1,12 +1,9 @@
-import React, { createRef } from 'react';
-import { Container, Dimmer, Loader, Grid } from 'semantic-ui-react';
+import React from 'react';
+import { Dimmer, Loader } from 'semantic-ui-react';
 
 import 'semantic-ui-css/semantic.min.css';
 import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
-import { DeveloperConsole } from './substrate-lib/components';
 
-import BlockNumber from './BlockNumber';
-import NodeInfo from './NodeInfo';
 import Map from './Map';
 import './style.css';
 
@@ -28,23 +25,7 @@ function Main () {
     );
   }
 
-  const contextRef = createRef();
-
-  return (
-    <div ref={contextRef} className='wrapper'>
-      <Map />
-      <Container>
-        <Grid stackable columns='equal'>
-          <Grid.Row>
-            <BlockNumber />
-            <BlockNumber finalized />
-            <NodeInfo />
-          </Grid.Row>
-        </Grid>
-        <DeveloperConsole />
-      </Container>
-    </div>
-  );
+  return (<Map />);
 }
 
 export default function App () {

@@ -1,60 +1,101 @@
-body {
-    overflow-y: hidden;
-}
-
 #root {
     height: 100vh;
     position: relative;
 }
 
-#root > .wrapper, #map-container {
+.encointer-map {
+    position: relative;
+    height: 100% !important;
+    width: 100%;
+    overflow: hidden !important;
+    border: 0 !important;
+}
+.encointer-map > .component-wrapper {
+    overflow: hidden !important;
     position: relative;
     height: 100%;
-    width: 100%;
 }
 
-#map-container {
+.encointer-map .details-sidebar {
+    background: white;
+}
+
+.encointer-map .details-sidebar .message {
+    overflow-wrap: break-word;
+}
+
+.encointer-map-wrapper {
+    overflow: hidden !important;
     height: 100%;
+    position: relative;
+    border: 0 !important;
+    margin: 0;
+    padding: 0 !important;
+    background: black;
+}
+
+.encointer-map-wrapper > .leaflet-container {
+    height: 100%;
+    width: 100%;
     z-index: 0;
 }
 
-#map-container.with-sidebar > .leaflet-container {
-    width: 61.8% !important;
+.encointer-map .details-sidebar > .ui.segment {
+    background: none;
 }
 
-#sidebar {
+.encointer-map .encointer-map-floating-widgets {
+    z-index: 1;
     position: absolute;
     top: 0;
-    bottom: 0;
-    right: 0;
-    background: #fff;
-    z-index: 2;
-    width: 38.2%;
-    padding-top: 80px;
-    padding-left: 1.5em;
-    padding-right: 1em;
+    left: 0;
+    margin-top: 0 !important;
+    padding-top: 1px !important;
+
+    width: auto !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-#root > .wrapper > .container {
-    height: 1%;
-    position: absolute;
-    display: inline-block;
-    top: 8px;
-    opacity: 100%;
+.encointer-map .encointer-map-floating-widgets .encoiner-menu-button {
+    width: 100% !important;
+}
+
+.encointer-map .encointer-map-node-info {
     z-index: 1;
-    right: 0;
-    left: 50px;
-    width: 100vw;
+    position: absolute !important;
+    bottom: -5px;
+    left: .5em;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+.encointer-map .encointer-map-node-info > div {
+    padding: .5em;
 }
 
-.leaflet-container {
-    height: 100%;
-    width: 100%;
+.encointer-map .encointer-map-block-number {
+    z-index: 1;
+    position: absolute !important;
+    top: .5em;
+    left: 5.5em;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    width: auto !important;
+    background-color: #aad3df7a !important;
+}
+
+.encointer-map .encointer-map-block-number .content {
+    display: flex;
+    padding: 0 5px 0 5px !important;
+}
+
+.encointer-map .encointer-map-block-number div {
     margin: 0;
 }
 
-.markercluster-map {
-    height: 100vh;
+.encointer-map .encointer-map-block-number .statistic.small > .value {
+    font-size: 2rem !important;
 }
 
 .encoiner-community-icon {
