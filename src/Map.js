@@ -182,7 +182,8 @@ function MapMain (props) {
 
           <MapBlockNumber />
 
-          <MapNodeInfo />
+          <MapNodeInfo
+            style={ ui.portrait && ui.selected ? { display: 'none' } : {} } />
 
           <MapControl
             onClick={toggleMenu}

@@ -3,7 +3,7 @@ import { Card } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
-function MapNodeInfoMain () {
+function MapNodeInfoMain (props) {
   const { api } = useSubstrate();
   const [nodeInfo, setNodeInfo] = useState({});
 
@@ -25,6 +25,7 @@ function MapNodeInfoMain () {
 
   return (nodeInfo.nodeName
     ? <Card className='encointer-map-node-info'
+      style={props.style || {}}
       header={nodeInfo.nodeName}
       meta={`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}
     /> : null);
