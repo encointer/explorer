@@ -18,8 +18,8 @@
     "CurrencyIdentifier": "Hash",
     "BalanceType": "i128",
     "BalanceEntry": {
-      "BalanceType": "i128",
-      "BlockNumber": "u32"
+      "principal": "i128",
+      "last_update": "BlockNumber"
     },
     "CurrencyCeremony": "(CurrencyIdentifier,CeremonyIndexType)",
     "Location": {

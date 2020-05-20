@@ -32,11 +32,15 @@ function MapSidebarMain (props) {
   /// Fetch money supply
   useEffect(() => {
     if (cid) {
+      debug && console.log('GETTING MONEYSUPPLY', cid);
       api.query.encointerBalances
         .totalIssuance(cid)
-        .then(_ => setMoneysupply(_.toJSON()));
+        .then(_ => {
+          debug && console.log('MONEYSUPPLY RECEIVED', _);
+          setMoneysupply(_.principal.toJSON()); //FIXME: doesn't work
+        });
     }
-  }, [api.query.encointerBalances, cid]);
+  }, [api.query.encointerBalances, cid, debug]);
 
   /// Handler when sidebar completely shows (animation stops)
   const handleShow = () => ref.current && onShow(ref.current.ref.current[
