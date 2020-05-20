@@ -77,7 +77,7 @@ function MapSidebarMain (props) {
 
         <Segment>
           <Header sub>Demurrage rate (per month):</Header>
-          {demurrage}
+          {demurrage && demurrage.toFixed(2)}%
         </Segment>
 
         <Segment loading={!bootstrappers.length}>

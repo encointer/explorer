@@ -15,21 +15,29 @@ import MapSidebar from './MapSidebar';
 
 import { CommunitiesClusters } from './CommunitiesClusters';
 import { LocationsLayer } from './LocationsLayer';
-import { parseFixPoint, batchFetch } from './utils';
+import { parseI32F32, parseI64F64, batchFetch } from './utils';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 
 const initialPosition = L.latLng(47.166168, 8.515495);
 
-const toLatLng = location => [parseFixPoint(location.lat), parseFixPoint(location.lon)];
+/// Parse only 16 bits of fractional part
+const parseLatLng = _ => parseI32F32(_, 16);
+
+const toLatLng = location => [
+  parseLatLng(location.lat),
+  parseLatLng(location.lon)
+];
+
+const BLOCKS_PER_MONTH = (86400 / 6) * (356 / 12);
+
+const parseDemurrage = _ => (1 - Math.exp(-1 * parseI64F64(_) * BLOCKS_PER_MONTH)) * 100;
 
 const tileSetup = {
   url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
 };
-
-const blocksPerMonth = 438300;
 
 function MapMain (props) {
   const { debug } = props;
@@ -65,7 +73,7 @@ function MapMain (props) {
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
       gps: L.latLngBounds(locations[idx]).getCenter(),
-      demurrage: properties[idx].demurrage_per_block.toNumber() * blocksPerMonth,
+      demurrage: parseDemurrage(properties[idx].demurrage_per_block),
       name: properties[idx].name_utf8.toString()
     })).reduce(kvReducer, {}));
     setUI({ ...ui, loading: false });
