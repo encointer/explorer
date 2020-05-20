@@ -1,6 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-ui-react';
+import Big from 'big.js';
+import toFormat from 'toformat';
+
 import { useSubstrate } from './substrate-lib';
+import { parseI64F64 } from './utils';
+
+const BigFormat = toFormat(Big);
 
 function MapSidebarMain (props) {
   const {
@@ -14,7 +20,7 @@ function MapSidebarMain (props) {
 
   const { api } = useSubstrate();
   const [bootstrappers, setBootstrappers] = useState([]);
-  const [moneysupply, setMoneysupply] = useState({});
+  const [moneysupply, setMoneysupply] = useState(null);
 
   /// Fetch bootstrappers
   useEffect(() => {
@@ -37,7 +43,7 @@ function MapSidebarMain (props) {
         .totalIssuance(cid)
         .then(_ => {
           debug && console.log('MONEYSUPPLY RECEIVED', _);
-          setMoneysupply(_.principal.toJSON()); //FIXME: doesn't work
+          setMoneysupply(parseI64F64(_.get('principal')));
         });
     }
   }, [api.query.encointerBalances, cid, debug]);
@@ -89,9 +95,9 @@ function MapSidebarMain (props) {
           }</List>
         </Segment>
 
-        <Segment loading={!moneysupply.length} stacked>
+        <Segment loading={moneysupply === null} stacked>
           <Header sub>Money supply:</Header>
-          <p>{moneysupply[1]}</p>
+          <p>{ moneysupply && (new BigFormat(moneysupply)).toFormat(2) }</p>
         </Segment>
 
       </Segment.Group>
