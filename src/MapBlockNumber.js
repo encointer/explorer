@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Statistic, Grid, Card, Icon } from 'semantic-ui-react';
+import { Statistic, Card } from 'semantic-ui-react';
 
 import { useSubstrate } from './substrate-lib';
 
-function Main (props) {
+function BlockNumber (props) {
   const { api } = useSubstrate();
   const { finalized } = props;
   const [blockNumber, setBlockNumber] = useState(0);
-  const [blockNumberTimer, setBlockNumberTimer] = useState(0);
 
   const bestNumber = finalized
     ? api.derive.chain.bestNumberFinalized
@@ -18,7 +17,6 @@ function Main (props) {
 
     bestNumber(number => {
       setBlockNumber(number.toNumber());
-      setBlockNumberTimer(0);
     })
       .then(unsub => {
         unsubscribeAll = unsub;
@@ -28,38 +26,31 @@ function Main (props) {
     return () => unsubscribeAll && unsubscribeAll();
   }, [bestNumber]);
 
-  const timer = () => {
-    setBlockNumberTimer(time => time + 1);
-  };
-
-  useEffect(() => {
-    const id = setInterval(timer, 1000);
-    return () => clearInterval(id);
-  }, []);
-
   return (
-    <Grid.Column>
-      <Card>
-        <Card.Content textAlign='center'>
-          <Statistic
-            label={(finalized ? 'Finalized' : 'Current') + ' Block Number'}
-            value={blockNumber}
-          />
-        </Card.Content>
-        <Card.Content extra>
-          <Icon name='time' /> {blockNumberTimer}
-        </Card.Content>
-      </Card>
-    </Grid.Column>
+    <Statistic size='small'
+      label={(finalized ? 'Finalized' : 'Current') + ' Block'}
+      value={blockNumber}
+    />
   );
 }
 
-export default function BlockNumber (props) {
+function MapBlockNumberMain (props) {
+  return (
+    <Card className='encointer-map-block-number'>
+      <Card.Content>
+        <BlockNumber finalized={true} />
+        <BlockNumber />
+      </Card.Content>
+    </Card>
+  );
+}
+
+export default function MapBlockNumber (props) {
   const { api } = useSubstrate();
   return api.derive &&
     api.derive.chain &&
     api.derive.chain.bestNumber &&
     api.derive.chain.bestNumberFinalized ? (
-      <Main {...props} />
+      <MapBlockNumberMain {...props} />
     ) : null;
 }
