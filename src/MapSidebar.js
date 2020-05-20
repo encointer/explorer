@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-ui-react';
 import { useSubstrate } from './substrate-lib';
-import * as bs58 from 'bs58';
 
 function MapSidebarMain (props) {
-  const { onClose, onShow, hash, direction, width, data: { name, cid, demurrage } } = props;
+  const {
+    debug, onClose, onShow, hash, direction, width, data: {
+      name, cid, demurrage
+    }
+  } = props;
   const visible = !!hash.length;
   const ref = useRef();
   const isVertical = direction === 'top' || direction === 'bottom';
@@ -16,11 +19,15 @@ function MapSidebarMain (props) {
   /// Fetch bootstrappers
   useEffect(() => {
     if (cid) {
+      debug && console.log('GETTING BOOTSTRAPPERS', cid);
       api.query.encointerCurrencies
         .bootstrappers(cid)
-        .then(setBootstrappers);
+        .then(_ => {
+          debug && console.log('BOOTSTRAPPERS RECEIVED', _);
+          setBootstrappers(_.toJSON());
+        });
     }
-  }, [api.query.encointerCurrencies, cid]);
+  }, [api.query.encointerCurrencies, cid, debug]);
 
   /// Fetch money supply
   useEffect(() => {
@@ -72,7 +79,7 @@ function MapSidebarMain (props) {
         <Segment loading={!bootstrappers.length}>
           <Header sub>List of bootstrappers:</Header>
           <List>{
-            bootstrappers.map(bs58.encode).map(
+            bootstrappers.map(
               _ => <List.Item key={_}>{_}</List.Item>
             )
           }</List>

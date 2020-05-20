@@ -5,6 +5,7 @@ import * as L from 'leaflet';
 import * as bs58 from 'bs58';
 
 import { useSubstrate } from './substrate-lib';
+import { DeveloperConsole } from './substrate-lib/components';
 
 import MapMenu from './MapMenu';
 import MapBlockNumber from './MapBlockNumber';
@@ -31,6 +32,7 @@ const tileSetup = {
 const blocksPerMonth = 438300;
 
 function MapMain (props) {
+  const { debug } = props;
   const mapRef = useRef();
   const { api } = useSubstrate();
 
@@ -49,7 +51,7 @@ function MapMain (props) {
       return acc;
     };
 
-    console.log('FETCHING LOCATIONS AND PROPERTIES');
+    debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
         ec.locations,           // API: encointerCurrencies.locations(cid) -> Vec<Location>
@@ -58,7 +60,7 @@ function MapMain (props) {
       ),                        // Fetching all Currency Properties
       await batchFetch(ec.currencyProperties, cids)]);
 
-    console.log('SETTING DATA', locations, properties);
+    debug && console.log('SETTING DATA', locations, properties);
     setData(cids.map((cid, idx) => ({ // Shape of data in UI
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
@@ -175,15 +177,16 @@ function MapMain (props) {
           direction={ui.portrait ? 'bottom' : 'right'}
           width='very wide'
           data={data[ui.selected] || {}}
+          debug={debug}
         />
 
         <Sidebar.Pusher className='encointer-map-wrapper'
-          style={ { marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' } }>
+          style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
 
           <MapBlockNumber />
 
           <MapNodeInfo
-            style={ ui.portrait && ui.selected ? { display: 'none' } : {} } />
+            style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
 
           <MapControl
             onClick={toggleMenu}
@@ -221,11 +224,15 @@ function MapMain (props) {
 
       </Sidebar.Pushable>
 
+      { debug
+        ? <DeveloperConsole />
+        : null }
+
     </Responsive>
   );
 }
 
 export default function Map (props) {
   const { api } = useSubstrate();
-  return api && api.query && api.query.encointerCurrencies ? <MapMain /> : null;
+  return api && api.query && api.query.encointerCurrencies ? <MapMain {...props} /> : null;
 }

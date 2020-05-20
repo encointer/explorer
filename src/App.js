@@ -25,7 +25,7 @@ function Main () {
     );
   }
 
-  return (<Map />);
+  return (<Map debug />);
 }
 
 export default function App () {
