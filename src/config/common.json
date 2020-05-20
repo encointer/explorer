@@ -17,7 +17,7 @@
     "AttestationIndexType": "u64",
     "CurrencyIdentifier": "Hash",
     "BalanceType": "i128",
-    "BalanceEntry": "(BalanceType,Moment)",
+    "BalanceEntry": "(BalanceType,BlockNumber)",
     "CurrencyCeremony": "(CurrencyIdentifier,CeremonyIndexType)",
     "Location": {
       "lat": "i64",
