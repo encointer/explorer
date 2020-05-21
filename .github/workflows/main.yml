@@ -19,8 +19,10 @@ jobs:
           cmd: install # will run `yarn install` command
       - name: Build	
         uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: build # will run `yarn build` command
+        with: # will run `yarn build` command
+          cmd: |
+            build
+            cp ./config/CNAME ./build/CNAME
       - name: Deploy 🚀
         uses: peaceiris/actions-gh-pages@v3
         with:
