@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Statistic, Card } from 'semantic-ui-react';
+import { Step } from 'semantic-ui-react'
 
 import { useSubstrate } from './substrate-lib';
+
+const ceremonyPhases = [
+  'REGISTERING',
+  'ASSIGNING',
+  'ATTESTING'
+];
 
 function BlockNumber (props) {
   const { api } = useSubstrate();
@@ -34,12 +41,65 @@ function BlockNumber (props) {
   );
 }
 
+function CeremonyPhaseBox () {
+  const { api: { query: { encointerScheduler: {
+    currentCeremonyIndex: getCurrentCeremonyIndex,
+    currentPhase: getCurrentPhase,
+    nextPhaseTimestamp: getNextPhaseTimestamp } } } } = useSubstrate();
+  const [ currentCeremonyIndex, setCurrentCeremonyIndex ] = useState(0);
+  const [ nextPhaseTimestamp, setNextPhaseTimestamp ] = useState(0);
+  const [ currentPhase, setCurrentPhase ] = useState(-1);
+
+  useEffect(() => {
+    let unsubscribeAll = null;
+
+    api.queryMulti([
+      getCurrentCeremonyIndex,
+      getCurrentPhase,
+      getNextPhaseTimestamp
+    ], ([newCeremonyIndex, newPhase, newPhaseTimestamp]) => {
+      setCurrentCeremonyIndex(newCeremonyIndex.toNumber());
+      setCurrentPhase(newPhase.toNumber());
+      setNextPhaseTimestamp(newPhaseTimestamp.toNumber());
+    })
+      .then(unsub => {
+        unsubscribeAll = unsub;
+      })
+      .catch(console.error);
+
+    return () => unsubscribeAll && unsubscribeAll();
+  }, [getCurrentCeremonyIndex, getCurrentPhase, getNextPhaseTimestamp]);
+
+  return (
+    <Step.Group ordered size='mini'>{
+        ceremonyPhases.map( (phase, idx) => ({
+          key: ceremonyPhases[idx],
+          completed: (idx < currentPhase),
+          active: (idx === currentPhase),
+          disabled: (idx > currentPhase)
+        })).map( (props, idx) => (
+            <Step {...props}>
+              <Step.Content>
+                <Step.Title>{props.key}</Step.Title>
+                <Step.Description>
+                  {
+                    (currentPhase+1 === idx || (idx === 0 && currentPhase === 2))
+                      ? (new Date(nextPhaseTimestamp)).toLocaleString()
+                      : null
+                  }
+                </Step.Description>
+              </Step.Content>
+            </Step>
+          ))
+    }</Step.Group>
+  );
+}
+
 function MapBlockNumberMain (props) {
   return (
     <Card className='encointer-map-block-number'>
       <Card.Content>
-        <BlockNumber finalized={true} />
-        <BlockNumber />
+      <CeremonyPhaseBox />
       </Card.Content>
     </Card>
   );

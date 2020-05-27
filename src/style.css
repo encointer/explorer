@@ -82,7 +82,8 @@
     margin-top: 0 !important;
     padding-top: 0 !important;
     width: auto !important;
-    background-color: #aad3df7a !important;
+    background-color: #aad3df00 !important;
+    box-shadow: none;
 }
 
 .encointer-map .encointer-map-block-number .content {
