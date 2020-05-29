@@ -78,14 +78,23 @@
     padding: .5em;
 }
 .encointer-map .encointer-map-node-info > .blocks {
-    padding: 0 .5em;
+    padding: .5em;
     margin: 0 2rem 0 0;
 }
 .encointer-map .encointer-map-node-info .blocks .meta {
     text-align: center;
+    font-size: 1rem;
+    color: #000;
 }
 .encointer-map .encointer-map-node-info .blocks div {
+    line-height: 1.0rem;
+    font-size: 0.75rem;
     text-align: right;
+    color: rgba(0,0,0,.4);
+}
+.encointer-map .encointer-map-node-info .blocks .ceremony>span {
+    padding-right: 0.6rem;
+    display: inline-block;
 }
 .encointer-map .encointer-map-ceremony-phase {
     z-index: 1;

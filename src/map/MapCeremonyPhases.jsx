@@ -11,17 +11,17 @@ const ceremonyPhases = [
 
 const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
+const formatStartingAt = (timestamp) => (<div><div>starting at:</div> {formatDate(timestamp)}</div>);
+
 function CeremonyPhases (props) {
   const { small } = props;
   const { api } = useSubstrate();
   const {
     encointerScheduler: {
-      currentCeremonyIndex: getCurrentCeremonyIndex,
       currentPhase: getCurrentPhase,
       nextPhaseTimestamp: getNextPhaseTimestamp
     }
   } = api.query;
-  const [currentCeremonyIndex, setCurrentCeremonyIndex] = useState(0);
   const [nextPhaseTimestamp, setNextPhaseTimestamp] = useState(0);
   const [currentPhase, setCurrentPhase] = useState(-1);
 
@@ -39,11 +39,9 @@ function CeremonyPhases (props) {
   useEffect(() => {
     let unsubscribeAll = null;
     api.queryMulti([
-      getCurrentCeremonyIndex,
       getCurrentPhase,
       getNextPhaseTimestamp
-    ], ([newCeremonyIndex, newPhase, newPhaseTimestamp]) => {
-      setCurrentCeremonyIndex(newCeremonyIndex.toNumber());
+    ], ([newPhase, newPhaseTimestamp]) => {
       setCurrentPhase(newPhase.toNumber());
       setNextPhaseTimestamp(newPhaseTimestamp.toNumber());
     })
@@ -53,7 +51,7 @@ function CeremonyPhases (props) {
       .catch(console.error);
 
     return () => unsubscribeAll && unsubscribeAll();
-  }, [api, getCurrentCeremonyIndex, getCurrentPhase, getNextPhaseTimestamp]);
+  }, [api, getCurrentPhase, getNextPhaseTimestamp]);
 
   return (
     <Step.Group
@@ -71,13 +69,13 @@ function CeremonyPhases (props) {
                 <Step.Title>{props.key}</Step.Title>
                 <Step.Description>{
                   (props.active)
-                    ? <CeremonyPhaseTimer nextPhaseTimestamp={nextPhaseTimestamp} />
+                    ? <div><div>time left: </div><CeremonyPhaseTimer nextPhaseTimestamp={nextPhaseTimestamp} /></div>
                     : (small
-                      ? formatDate(nextPhaseTimestamp)
+                      ? formatStartingAt(nextPhaseTimestamp)
                       : ((idx === (currentPhase + 1) ||
                           (idx === 0 && currentPhase === 2))
-                        ? formatDate(nextPhaseTimestamp)
-                        : `ceremony #${currentCeremonyIndex}`))
+                        ? formatStartingAt(nextPhaseTimestamp)
+                        : null))
                 }</Step.Description>
               </Step.Content>
             </Step>
@@ -90,7 +88,6 @@ export default function MapCeremonyPhases (props) {
   const { api } = useSubstrate();
   return api && api.query &&
     api.query.encointerScheduler &&
-    api.query.encointerScheduler.currentCeremonyIndex &&
     api.query.encointerScheduler.nextPhaseTimestamp &&
     api.query.encointerScheduler.currentPhase ? (
       <div className='encointer-map-ceremony-phase'>
