@@ -7,14 +7,14 @@ import * as bs58 from 'bs58';
 import { useSubstrate } from './substrate-lib';
 import { DeveloperConsole } from './substrate-lib/components';
 
-import MapMenu from './MapMenu';
-import MapBlockNumber from './MapBlockNumber';
-import MapNodeInfo from './MapNodeInfo';
-import MapControl from './MapControl';
-import MapSidebar from './MapSidebar';
+import MapMenu from './map/MapMenu';
+import MapCeremonyPhases from './map/MapCeremonyPhases';
+import MapNodeInfo from './map/MapNodeInfo';
+import MapControl from './map/MapControl';
+import MapSidebar from './map/MapSidebar';
 
-import { CommunitiesClusters } from './CommunitiesClusters';
-import { LocationsLayer } from './LocationsLayer';
+import { CommunitiesClusters } from './map/CommunitiesClusters';
+import { LocationsLayer } from './map/LocationsLayer';
 import { parseI32F32, parseI64F64, batchFetch } from './utils';
 
 import 'leaflet/dist/leaflet.css';
@@ -191,7 +191,7 @@ function MapMain (props) {
         <Sidebar.Pusher className='encointer-map-wrapper'
           style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
 
-          <MapBlockNumber />
+          <MapCeremonyPhases small={ui.portrait} />
 
           <MapNodeInfo
             style={ui.portrait && ui.selected ? { display: 'none' } : {}} />

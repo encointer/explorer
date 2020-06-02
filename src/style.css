@@ -57,7 +57,9 @@
     border: none !important;
     box-shadow: none !important;
 }
-
+.encointer-map .encointer-map-floating-widgets .item:before {
+    display: none;
+}
 .encointer-map .encointer-map-floating-widgets .encoiner-menu-button {
     width: 100% !important;
 }
@@ -65,36 +67,76 @@
 .encointer-map .encointer-map-node-info {
     z-index: 1;
     position: absolute !important;
-    bottom: -5px;
+    bottom: 0;
     left: .5em;
     margin-top: 0 !important;
     padding-top: 0 !important;
+    flex-direction: row;
+    width: 400px;
 }
 .encointer-map .encointer-map-node-info > div {
     padding: .5em;
 }
-
-.encointer-map .encointer-map-block-number {
+.encointer-map .encointer-map-node-info > .blocks {
+    padding: .5em;
+    margin: 0 2rem 0 0;
+}
+.encointer-map .encointer-map-node-info .blocks .meta {
+    text-align: center;
+    font-size: 1rem;
+    color: #000;
+}
+.encointer-map .encointer-map-node-info .blocks div {
+    line-height: 1.0rem;
+    font-size: 0.75rem;
+    text-align: right;
+    color: rgba(0,0,0,.4);
+}
+.encointer-map .encointer-map-node-info .blocks .ceremony>span {
+    padding-right: 0.6rem;
+    display: inline-block;
+}
+.encointer-map .encointer-map-ceremony-phase {
     z-index: 1;
     position: absolute !important;
-    top: .5em;
-    left: 5.5em;
+    top: 3px;
+    left: 5em;
     margin-top: 0 !important;
     padding-top: 0 !important;
     width: auto !important;
-    background-color: #aad3df7a !important;
+    box-shadow: none;
 }
 
-.encointer-map .encointer-map-block-number .content {
+.encointer-map .encointer-map-ceremony-phase .ui.steps.small-screen .step {
+    padding: .5rem 1rem;
+}
+.encointer-map .encointer-map-ceremony-phase .ui.steps .step .content {
+    align-self: flex-start !important;
+}
+.encointer-map .encointer-map-ceremony-phase .ui.steps .step.active .description {
+    font-size: 1.1rem;
+    line-height: 1rem;
+}
+.encointer-map .encointer-map-ceremony-phase .steps .step-registering.step:before {
+    content: "1" !important;
+}
+.encointer-map .encointer-map-ceremony-phase .steps .step-assigning.step:before {
+    content: "2" !important;
+}
+.encointer-map .encointer-map-ceremony-phase .steps .step-attesting.step:before {
+    content: "3" !important;
+}
+
+.encointer-map .encointer-map-ceremony-phase .content {
     display: flex;
     padding: 0 5px 0 5px !important;
 }
 
-.encointer-map .encointer-map-block-number div {
+.encointer-map .encointer-map-ceremony-phase div {
     margin: 0;
 }
 
-.encointer-map .encointer-map-block-number .statistic.small > .value {
+.encointer-map .encointer-map-ceremony-phase .statistic.small > .value {
     font-size: 2rem !important;
 }
 

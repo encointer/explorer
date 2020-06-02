@@ -3,8 +3,8 @@ import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-
 import Big from 'big.js';
 import toFormat from 'toformat';
 
-import { useSubstrate } from './substrate-lib';
-import { parseI64F64 } from './utils';
+import { useSubstrate } from '../substrate-lib';
+import { parseI64F64 } from '../utils';
 
 const BigFormat = toFormat(Big);
 
