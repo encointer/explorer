@@ -57,9 +57,11 @@
     border: none !important;
     box-shadow: none !important;
 }
+
 .encointer-map .encointer-map-floating-widgets .item:before {
     display: none;
 }
+
 .encointer-map .encointer-map-floating-widgets .encoiner-menu-button {
     width: 100% !important;
 }
@@ -73,29 +75,40 @@
     padding-top: 0 !important;
     flex-direction: row;
     width: 400px;
+    height: 67px;
 }
+
 .encointer-map .encointer-map-node-info > div {
     padding: .5em;
 }
+
+.encointer-map .encointer-map-node-info > .loading {
+    margin-top: 11px;
+}
+
 .encointer-map .encointer-map-node-info > .blocks {
     padding: .5em;
     margin: 0 2rem 0 0;
 }
+
 .encointer-map .encointer-map-node-info .blocks .meta {
     text-align: center;
     font-size: 1rem;
     color: #000;
 }
+
 .encointer-map .encointer-map-node-info .blocks div {
     line-height: 1.0rem;
     font-size: 0.75rem;
     text-align: right;
     color: rgba(0,0,0,.4);
 }
+
 .encointer-map .encointer-map-node-info .blocks .ceremony>span {
     padding-right: 0.6rem;
     display: inline-block;
 }
+
 .encointer-map .encointer-map-ceremony-phase {
     z-index: 1;
     position: absolute !important;
@@ -110,19 +123,24 @@
 .encointer-map .encointer-map-ceremony-phase .ui.steps.small-screen .step {
     padding: .5rem 1rem;
 }
+
 .encointer-map .encointer-map-ceremony-phase .ui.steps .step .content {
     align-self: flex-start !important;
 }
+
 .encointer-map .encointer-map-ceremony-phase .ui.steps .step.active .description {
     font-size: 1.1rem;
     line-height: 1rem;
 }
+
 .encointer-map .encointer-map-ceremony-phase .steps .step-registering.step:before {
     content: "1" !important;
 }
+
 .encointer-map .encointer-map-ceremony-phase .steps .step-assigning.step:before {
     content: "2" !important;
 }
+
 .encointer-map .encointer-map-ceremony-phase .steps .step-attesting.step:before {
     content: "3" !important;
 }
@@ -140,20 +158,50 @@
     font-size: 2rem !important;
 }
 
-.encoiner-community-icon {
-    text-align: center;
-    background-clip: padding-box;
-    border-radius: 20px;
-    width: 30px !important;
-    height: 30px !important;
-    border: 2px solid rgba(110,204,57,0.6);
-    background-color: rgba(81,204,0,1);
-    box-shadow: 0px 0px 3px rgba(20,20,20,0.45);
-    text-shadow: 2px -1px 3px rgba(12,60,2,1), 0px 2px 2px rgba(20,155,1,1 );
+@keyframes pulse-active
+{
+  0% {
+    box-shadow: 0 0 0 0px rgba(105,204,57,0.7);
+  }
+  100% {
+    box-shadow: 0 0 0 45px rgba(110,204,57,0);
+  }
 }
 
-.encoiner-community-icon > i {
-    top: -2px;
+.encoiner-community-icon {
+}
+
+.encoiner-community-icon.pulse, .encoiner-cluster-custom.pulse {
+    animation: pulse-active 1s infinite;
+}
+.encoiner-community-icon.yellow, .encoiner-cluster-custom.yellow {
+    background-color: rgba(255,204,57,0.6);
+}
+.encoiner-community-icon.yellow div, .encoiner-cluster-custom.yellow div {
+    background-color: rgba(255,204,1,1);
+}
+.encoiner-community-icon.yellow span {
+    text-shadow: 2px -1px 3px rgba(180,80,11,1), 0px 2px 2px rgba(220,105,1,1 );
+}
+
+.encoiner-community-icon.red, .encoiner-cluster-custom.red {
+    background-color:  rgba(255,55,10,0.6);
+}
+.encoiner-community-icon.red div, .encoiner-cluster-custom.red div {
+    background-color: rgba(255,55,0,1);
+}
+.encoiner-community-icon.red span {
+    text-shadow: 2px -1px 3px rgba(180,0,11,1), 0px 2px 2px rgba(220,5,1,1 );
+}
+.encoiner-community-icon div {
+    background-color: rgba(81,204,0,0.8);
+}
+
+.encoiner-community-icon {
+    background-color: rgba(110,204,57,0.4);
+}
+
+.encoiner-community-icon span {
     display: block;
     position: relative;
     font-size: 18px;
@@ -162,4 +210,5 @@
     font-weight: bold;
     padding-bottom: 6px;
     font-style: normal;
+    text-shadow: 2px -1px 3px rgba(12,60,2,1), 0px 2px 2px rgba(20,155,1,1 );
 }

@@ -114,11 +114,11 @@ function MapSidebarMain (props) {
   );
 }
 
-export default function MapBlockNumber (props) {
+export default React.memo(function MapBlockNumber (props) {
   const { api } = useSubstrate();
-  return api.query &&
+  return api && api.query &&
     api.query.encointerCurrencies &&
     api.query.encointerBalances ? (
       <MapSidebarMain {...props} />
     ) : null;
-}
+}, (prev, cur) => prev.hash === cur.hash);

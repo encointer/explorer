@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Menu } from 'semantic-ui-react';
 
-export default function MapControl (props) {
+function MapControl (props) {
   const { loading, onZoomIn, onZoomOut, onClick } = props;
   return (
     <Menu className='encointer-map-floating-widgets' stackable size='mini' vertical>
@@ -17,3 +17,5 @@ export default function MapControl (props) {
     </Menu>
   );
 }
+
+export default React.memo(MapControl, (prev, cur) => prev.loading === cur.loading)
