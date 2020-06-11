@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Loader} from 'semantic-ui-react';
+import { Card, Loader } from 'semantic-ui-react';
 
 import { useSubstrate } from '../substrate-lib';
 
@@ -45,8 +45,8 @@ const CeremonyIndex = React.memo(props => {
   }, [getCurrentCeremonyIndex]);
   return (currentCeremonyIndex
     ? <React.Fragment>
-        <span>ceremony</span> <strong> #{currentCeremonyIndex}</strong>
-      </React.Fragment>
+      <span>ceremony</span> <strong> #{currentCeremonyIndex}</strong>
+    </React.Fragment>
     : null);
 }, _ => true);
 
@@ -78,37 +78,37 @@ function MapNodeInfoMain (props) {
   return (
     <Card className='encointer-map-node-info' style={props.style || {}}>{
       apiState === 'READY'
-      ? <React.Fragment>
-      <Card.Content>
-        <Card.Header>{nodeInfo.nodeName}</Card.Header>
-        <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}</Card.Meta>
-      </Card.Content>
-      <Card.Content className='blocks'>
-        {
-          getCurrentCeremonyIndex
-            ? <React.Fragment>
-            <Card.Meta></Card.Meta>
-            <div className='block-current'>current block #<Blocks /></div>
-            <div className='finalized-current'>finalized block #<Blocks finalized /></div>
-            <div className='ceremony'><CeremonyIndex /></div>
-            </React.Fragment>
-            : <React.Fragment>
-                <div className='loading'>
-                  <Loader active size='medium' inline='centered' />
-                </div>
-              </React.Fragment>
-        }
-      </Card.Content>
-      </React.Fragment>
-      : <Card.Content className='loading'>
-        {
-          apiState !== 'ERROR'
-            ? <Card.Meta><Loader active size='small' inline /> Connecting to the blockchain</Card.Meta>
-            : <Card.Meta>Error connecting to the blockchain</Card.Meta>
-        }
-      </Card.Content>
+        ? <React.Fragment>
+          <Card.Content>
+            <Card.Header>{nodeInfo.nodeName}</Card.Header>
+            <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}</Card.Meta>
+          </Card.Content>
+          <Card.Content className='blocks'>
+            {
+              getCurrentCeremonyIndex
+                ? <React.Fragment>
+                  <Card.Meta></Card.Meta>
+                  <div className='block-current'>current block #<Blocks /></div>
+                  <div className='finalized-current'>finalized block #<Blocks finalized /></div>
+                  <div className='ceremony'><CeremonyIndex /></div>
+                </React.Fragment>
+                : <React.Fragment>
+                  <div className='loading'>
+                    <Loader active size='medium' inline='centered' />
+                  </div>
+                </React.Fragment>
+            }
+          </Card.Content>
+        </React.Fragment>
+        : <Card.Content className='loading'>
+          {
+            apiState !== 'ERROR'
+              ? <Card.Meta><Loader active size='small' inline /> Connecting to the blockchain</Card.Meta>
+              : <Card.Meta>Error connecting to the blockchain</Card.Meta>
+          }
+        </Card.Content>
     }</Card>
-    );
+  );
 }
 
 export default function MapNodeInfo (props) {

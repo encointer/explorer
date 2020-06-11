@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Step, Label } from 'semantic-ui-react';
+import { Step } from 'semantic-ui-react';
 import { useSubstrate } from '../substrate-lib';
 import { CeremonyPhaseTimer } from './CeremonyPhaseTimer';
 

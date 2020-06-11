@@ -18,4 +18,4 @@ function MapControl (props) {
   );
 }
 
-export default React.memo(MapControl, (prev, cur) => prev.loading === cur.loading)
+export default React.memo(MapControl, (prev, cur) => prev.loading === cur.loading);

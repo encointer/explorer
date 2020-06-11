@@ -46,14 +46,12 @@ const apiReady = (api, queryName = '') => {
 
 // Ceremony Phases
 const ceremonyPhases = {
-  'REGISTERING': 0,
-  'ASSIGNING': 1,
-  'ATTESTING': 2
+  REGISTERING: 0,
+  ASSIGNING: 1,
+  ATTESTING: 2
 };
 
-const ceremonyPhasesNames = Object.keys( ceremonyPhases );
-
-const sumUp = obj => Object.keys(obj).reduce((acc, it) => (acc = acc + obj[it], acc), 0);
+const sumUp = obj => Object.keys(obj).reduce((acc, it) => { acc = acc + obj[it]; return acc; }, 0);
 
 const initialState = {
   subscribtionCeremony: 0,
@@ -69,47 +67,52 @@ const initialState = {
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'unsubscribeAll':
+      state.subscribtions.forEach(unsub => unsub());
+      return { ...state, subscribtions: [] };
 
-  case 'unsubscribeAll':
-    state.subscribtions.forEach( unsub => unsub());
-    return {...state, subscribtions: []};
+    case 'subscribe':
+      state.subscribtions.forEach(unsub => unsub());
+      return { ...state, ...action.payload };
 
-  case 'subscribe':
-    state.subscribtions.forEach( unsub => unsub());
-    const { subscribtions, subscribtionPhase, subscribtionCeremony } = action.payload;
-    return {...state, subscribtions, subscribtionCeremony, subscribtionPhase};
+    case 'participants':
+      return ((state, action) => {
+        const participants = { ...state.participants, [action.payload.cid]: action.payload.count };
+        const participantCount = sumUp(participants);
+        return { ...state, participants, participantCount };
+      })(state, action);
 
-  case 'participants':
-    const participants = {...state.participants, [action.payload.cid]: action.payload.count};
-    console.log('participants', participants)
-    const participantCount = sumUp(participants);
-    return {...state, participants, participantCount };
+    case 'meetups':
+      return ((state, action) => {
+        const meetups = { ...state.meetups, [action.payload.cid]: action.payload.count };
+        const meetupCount = sumUp(meetups);
+        return { ...state, meetups, meetupCount };
+      })(state, action);
 
-  case 'meetups':
-    const meetups = {...state.meetups, [action.payload.cid]: action.payload.count};
-    console.log('metups', meetups)
-    const meetupCount = sumUp(meetups)
-    return {...state, meetups, meetupCount };
+    case 'attestations':
+      return {
+        ...state,
+        attestations: {
+          ...state.attestations,
+          [action.payload.cid]: action.payload.count
+        }
+      };
 
-  case 'attestations':
-    const attestations = {...state.attestations, [action.payload.cid]: action.payload.count};
-    console.log('att', attestations)
-    return {...state, attestations };
+    case 'reset':
+      state.subscribtions.forEach(unsub => unsub());
+      return { ...initialState, lastCeremony: { ...state, subscribtions: null, lastCeremony: null } };
 
-  case 'reset':
-    state.subscribtions.forEach( unsub => unsub());
-    console.log('reset')
-    return {...initialState, lastCeremony: {...state, subscribtions: null, lastCeremony: null }}
-
-  default:
-    throw new Error('unknown action '.concat( action.type ));
+    default:
+      throw new Error('unknown action '.concat(action.type));
   }
-}
+};
+
+const setters = ['participants', 'meetups', 'attestations']; // action names for each phase
 
 export default function Map (props) {
   const { debug } = props;
   const mapRef = useRef();
-  const { api, apiState, keyringState } = useSubstrate();
+  const { api } = useSubstrate();
 
   const [ui, setUI] = useState({ selected: '', loading: true, menu: false });
   const [cids, setCids] = useState([]);
@@ -119,82 +122,9 @@ export default function Map (props) {
   const [currentPhase, setCurrentPhase] = useState({ phase: -1, timestamp: 0, timer: null });
   const [ceremonyIndex, setCeremonyIndex] = useState(0);
   const [state, dispatch] = useReducer(reducer, initialState);
-  const setters = [ 'participants', 'meetups', 'attestations' ]; // action names for each phase
 
   const ec = api && api.query && api.query.encointerCurrencies;
   const es = api && api.query && api.query.encointerScheduler;
-
-  /// Fetch participants and meetups counters
-  async function fetchHistoricData (ceremony, phase, cids) { /* eslint-disable no-multi-spaces */
-    if (!apiReady(api, 'encointerCeremonies')) {
-      return;
-    }
-    const ceremonyNumber = ceremony.toNumber();
-    if (ceremonyNumber <= state.subscribtionCeremony && phase === 0) {
-      return;
-    }
-    const {
-      encointerCeremonies: {
-        participantCount: getParticipantCount,
-        meetupCount: getMeetupCount
-      }
-    } = api.query;
-
-    const CurrencyCeremony = api.registry.getOrUnknown('CurrencyCeremony');
-    for (let oldPhase = 0; oldPhase < phase; oldPhase++) {
-      cids.map( cid => {
-        const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremonyIndex]);
-        const getters = [ getParticipantCount, getMeetupCount ];
-        const getter = getters[oldPhase];
-        console.log('hist ',bs58.encode( cid), ceremonyIndex.toNumber(), oldPhase)
-        getter(currencyCeremony).then((_) => dispatch({
-          type: setters[oldPhase],
-          payload: {
-            cid: bs58.encode(cid),
-            count: _.toNumber()
-          }
-        }));
-      })
-    }
-  }
-
-  /// Subscription management via reducer
-  async function subscribeToUpdates (ceremony, phase, cids) { /* eslint-disable no-multi-spaces */
-    if (!apiReady(api, 'encointerCeremonies')) {
-      return;
-    }
-    const ceremonyNumber = ceremony.toNumber();
-    if (ceremonyNumber <= state.subscribtionCeremony && phase <= state.subscribtionPhase) {
-      return;
-    }
-
-    console.log('subscribe to ceremony', ceremonyNumber, phase)
-    const {
-      encointerCeremonies: {
-        participantCount: getParticipantCount,
-        attestationCount: getAttestationCount,
-        meetupCount: getMeetupCount
-      }
-    } = api.query;
-    const getters = [ getParticipantCount, getMeetupCount, getAttestationCount ];
-    const CurrencyCeremony = api.registry.getOrUnknown('CurrencyCeremony');
-    const unsubs = await Promise.all( cids.map( cid => {
-      const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremonyIndex]);
-      const getter = getters[phase];
-      return getter(currencyCeremony, (_) => dispatch({
-        type: setters[phase],
-        payload: {
-          cid: bs58.encode(cid),
-          count: _.toNumber()
-        }
-      }));
-    }));
-    dispatch({type: 'subscribe', payload: {
-      subscribtions: unsubs,
-      subscribtionCeremony: ceremonyNumber,
-      subscribtionPhase: phase
-    }});
-  }
 
   /// Fetch locations for each currency in paralel; Save to state once ready
   async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
@@ -239,36 +169,36 @@ export default function Map (props) {
 
     const setPhase = (phase, timestamp, timer) => {
       (currentPhase.phase !== phase || currentPhase.timestamp !== timestamp || !timer) &&
-        setCurrentPhase({ phase, timestamp, timer })
+        setCurrentPhase({ phase, timestamp, timer });
     };
 
-    !currentPhase.timer && api.queryMulti([
-      getCurrentPhase,
-      getNextPhaseTimestamp
-    ])
-      .then(([newPhase, newPhaseTimestamp]) => {
-        const phase = newPhase.toNumber();
-        const timestamp = newPhaseTimestamp.toNumber();
-        let timeToNext = timestamp - Date.now() + 500;
-        if ( timeToNext <= 0 ) {
-          timeToNext = 3000; // delay if timestamp in the past
-        } else {
-          // subscribe to participant count
-        }
-        const timer = currentPhase.timer === null && // reset phase timer
-              setTimeout(() => setPhase(phase, timestamp, null), timeToNext)
-        timer && setPhase(phase, timestamp, timer); // update if have new timer
-      })
-      .catch(console.error);
-
+    if (!currentPhase.timer) {
+      api.queryMulti([
+        getCurrentPhase,
+        getNextPhaseTimestamp
+      ])
+        .then(([newPhase, newPhaseTimestamp]) => {
+          const phase = newPhase.toNumber();
+          const timestamp = newPhaseTimestamp.toNumber();
+          let timeToNext = timestamp - Date.now() + 500;
+          if (timeToNext <= 0) {
+            timeToNext = 3000; // delay if timestamp in the past
+          } else {
+            // subscribe to participant count
+          }
+          const timer = currentPhase.timer === null && // reset phase timer
+                setTimeout(() => setPhase(phase, timestamp, null), timeToNext);
+          timer && setPhase(phase, timestamp, timer); // update if have new timer
+        })
+        .catch(console.error);
+    }
     return () => {
       currentPhase.timer && clearTimeout(currentPhase.timer);
     };
-  }, [currentPhase, es]);
+  }, [currentPhase, debug, es, api]);
 
   /// Update ceremony index once regestration phase starts
-  useEffect(() => {
-    debug && console.log('ceremony id', currentPhase.phase, ceremonyIndex);
+  useEffect(() => { /* eslint-disable react-hooks/exhaustive-deps */
     if (!apiReady(api, 'encointerScheduler')) {
       return;
     }
@@ -277,25 +207,103 @@ export default function Map (props) {
         currentCeremonyIndex: getCurrentCeremonyIndex
       }
     } = api.query;
+    debug && console.log('ceremony id', currentPhase.phase, ceremonyIndex);
+    const CurrencyCeremony = api.registry.getOrUnknown('CurrencyCeremony');
+    /// Fetch participants and meetups counters
+    const fetchHistoricData = (ceremony, phase, cids) => {
+      if (!apiReady(api, 'encointerCeremonies')) {
+        return;
+      }
+      const ceremonyNumber = ceremony.toNumber();
+      if (ceremonyNumber <= state.subscribtionCeremony && phase === 0) {
+        return;
+      }
+      const {
+        encointerCeremonies: {
+          participantCount: getParticipantCount,
+          meetupCount: getMeetupCount
+        }
+      } = api.query;
 
+      for (let oldPhase = 0; oldPhase < phase; oldPhase++) {
+        cids.forEach(cid => {
+          const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremonyIndex]);
+          const getters = [getParticipantCount, getMeetupCount];
+          const getter = getters[oldPhase];
+          debug && console.log('hist ', bs58.encode(cid), ceremonyIndex.toNumber(), oldPhase);
+          getter(currencyCeremony).then((_) => dispatch({
+            type: setters[oldPhase],
+            payload: {
+              cid: bs58.encode(cid),
+              count: _.toNumber()
+            }
+          }));
+        });
+      }
+    };
+
+    /// Subscription management via reducer
+    const subscribeToUpdates = async function (ceremony, phase, cids) {
+      if (!apiReady(api, 'encointerCeremonies')) {
+        return;
+      }
+      const ceremonyNumber = ceremony.toNumber();
+      if (ceremonyNumber <= state.subscribtionCeremony && phase <= state.subscribtionPhase) {
+        return;
+      }
+
+      debug && console.log('subscribe to ceremony', ceremonyNumber, phase);
+      const {
+        encointerCeremonies: {
+          participantCount: getParticipantCount,
+          attestationCount: getAttestationCount,
+          meetupCount: getMeetupCount
+        }
+      } = api.query;
+      const getters = [getParticipantCount, getMeetupCount, getAttestationCount];
+      const CurrencyCeremony = api.registry.getOrUnknown('CurrencyCeremony');
+      const unsubs = await Promise.all(cids.map(cid => {
+        const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremonyIndex]);
+        const getter = getters[phase];
+        return getter(currencyCeremony, (_) => dispatch({
+          type: setters[phase],
+          payload: {
+            cid: bs58.encode(cid),
+            count: _.toNumber()
+          }
+        }));
+      }));
+
+      dispatch({
+        type: 'subscribe',
+        payload: {
+          subscribtions: unsubs,
+          subscribtionCeremony: ceremonyNumber,
+          subscribtionPhase: phase
+        }
+      });
+    };
     if (!ceremonyIndex) {
       getCurrentCeremonyIndex().then((currentCeremonyIndex) => {
-        console.log('set ceremonyIndex', currentCeremonyIndex.toString())
+        console.log('set ceremonyIndex', currentCeremonyIndex.toString());
         setCeremonyIndex(currentCeremonyIndex);
       });
     }
-    if (ceremonyIndex && cids.length) {
+    if (ceremonyIndex &&
+        (ceremonyIndex.toNumber() !== state.subscribtionCeremony ||
+         currentPhase.phase !== state.subscribtionPhase) &&
+        cids.length) {
       subscribeToUpdates(ceremonyIndex, currentPhase.phase, cids);
       fetchHistoricData(ceremonyIndex, currentPhase.phase, cids);
     }
-    if (!ceremonyIndex || currentPhase.phase === ceremonyPhases.REGISTERING) {
-      ceremonyIndex && dispatch({type: 'reset'}); // reset state on start of new ceremony
+    if (currentPhase.phase === ceremonyPhases.REGISTERING) {
+      ceremonyIndex && dispatch({ type: 'reset' }); // reset state on start of new ceremony
       getCurrentCeremonyIndex().then((currentCeremonyIndex) => {
-        console.log('set ceremonyIndex', currentCeremonyIndex.toString())
+        debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
         setCeremonyIndex(currentCeremonyIndex);
       });
     }
-  }, [currentPhase.phase, ceremonyIndex, cids, es]);
+  }, [currentPhase.phase, ceremonyIndex, cids, es, debug, api, setters]);
 
   /// Load currencies identifiers once
   useEffect(() => {
@@ -310,7 +318,7 @@ export default function Map (props) {
         })
         .catch(err => console.error(err));
     }
-  }, [cids, ec]);
+  }, [cids, debug, ec]);
 
   /// Get locations effect
   useEffect(() => { /* eslint-disable react-hooks/exhaustive-deps */
@@ -402,7 +410,7 @@ export default function Map (props) {
 
         <MapMenu visible={ui.menu} />
 
-       <MapSidebar
+        <MapSidebar
           onClose={handleSidebarClosed}
           onShow={handleSidebarShow}
           hash={ui.selected}
@@ -415,10 +423,10 @@ export default function Map (props) {
         <Sidebar.Pusher className='encointer-map-wrapper'
           style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
 
-        <MapCeremonyPhases small={ui.portrait} currentPhase={currentPhase} />
+          <MapCeremonyPhases small={ui.portrait} currentPhase={currentPhase} />
 
-        <MapNodeInfo
-           style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
+          <MapNodeInfo
+            style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
 
           <MapControl
             onClick={toggleMenu}
