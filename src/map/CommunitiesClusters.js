@@ -143,7 +143,6 @@ export function CommunitiesClusters (props) {
 
   /// Init markers
   if (markers.phase === -1 && phase !== -1) {
-    console.log('init');
     const byCID = cids.map((cid, idx) => {
       const { gps, name } = data[cid];
       const meetups = state.meetups[cid] || 0;
@@ -164,7 +163,6 @@ export function CommunitiesClusters (props) {
     dispatch({ type: 'initialize', payload: { byCID, phase } });
   } else if (phase > markers.phase || (phase === 0 && markers.phase === 2)) {
     /// Reset counters
-    console.log('reset', phase, markers.phase);
     dispatch({ type: 'reset', payload: { byCID: counters, phase } });
   }
 
@@ -182,12 +180,10 @@ export function CommunitiesClusters (props) {
         newMarkers[cid].attests = attestations[cid];
         newMarkers[cid].active = true;
         timers[cid] = setTimeout(() => {
-          console.log('remove active');
           dispatch({ type: 'deactivate', payload: cid });
         }, pulseTimer);
       }
     });
-    console.log('active', newMarkers);
     dispatch({ type: 'activate', payload: { byCID: newMarkers, timers } });
   }, [counters, attestations, cids]);
 

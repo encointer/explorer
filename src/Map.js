@@ -3,6 +3,7 @@ import { Map as LMap, TileLayer } from 'react-leaflet';
 import { Sidebar, Responsive, Segment } from 'semantic-ui-react';
 import * as L from 'leaflet';
 import * as bs58 from 'bs58';
+import { u32 as U32 } from '@polkadot/types/primitive';
 
 import { useSubstrate } from './substrate-lib';
 import { DeveloperConsole } from './substrate-lib/components';
@@ -56,13 +57,18 @@ const sumUp = obj => Object.keys(obj).reduce((acc, it) => { acc = acc + obj[it];
 const initialState = {
   subscribtionCeremony: 0,
   subscribtionPhase: -1,
-  lastCeremony: {},
+  lastCeremony: {
+    participants: {},
+    meetups: {},
+    attestations: {}
+  },
   subscribtions: [],
   participantCount: 0,
   meetupCount: 0,
+  attestationCount: 0,
   participants: {},
-  attestations: {},
-  meetups: {}
+  meetups: {},
+  attestations: {}
 };
 
 const reducer = (state, action) => {
@@ -90,17 +96,42 @@ const reducer = (state, action) => {
       })(state, action);
 
     case 'attestations':
+      return ((state, action) => {
+        const attestations = { ...state.attestations, [action.payload.cid]: action.payload.count };
+        const attestationCount = sumUp(attestations);
+        return {
+          ...state,
+          attestations,
+          attestationCount
+        };
+      })(state, action);
+
+    case 'last':
       return {
         ...state,
-        attestations: {
-          ...state.attestations,
-          [action.payload.cid]: action.payload.count
-        }
+        lastCeremony: action.payload
       };
 
     case 'reset':
       state.subscribtions.forEach(unsub => unsub());
-      return { ...initialState, lastCeremony: { ...state, subscribtions: null, lastCeremony: null } };
+      if (state.subscribtionCeremony && state.subscribtionCeremony !== state.lastCeremony.subscribtionCeremony) {
+        return {
+          ...initialState,
+          lastCeremony: {
+            subscribtionCeremony: state.subscribtionCeremony,
+            meetups: { ...state.meetups },
+            meetupCount: state.meetupCount,
+            attestations: { ...state.attestations },
+            attestationCount: state.attestationCount,
+            participants: { ...state.participants },
+            participantCount: state.participantCount,
+            subscribtions: null,
+            lastCeremony: null
+          }
+        };
+      } else {
+        return state;
+      }
 
     default:
       throw new Error('unknown action '.concat(action.type));
@@ -126,9 +157,9 @@ export default function Map (props) {
   const ec = api && api.query && api.query.encointerCurrencies;
   const es = api && api.query && api.query.encointerScheduler;
 
-  /// Fetch locations for each currency in paralel; Save to state once ready
+  /// Fetch locations for each currency in parallel; Save to state once ready
   async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
-    const kvReducer = (acc, data, idx) => { // conver array to key-value map
+    const kvReducer = (acc, data, idx) => { // convert array to key-value map
       acc[hash[idx]] = data;                // where key is BASE58 of cid
       return acc;
     };
@@ -183,8 +214,6 @@ export default function Map (props) {
           let timeToNext = timestamp - Date.now() + 500;
           if (timeToNext <= 0) {
             timeToNext = 3000; // delay if timestamp in the past
-          } else {
-            // subscribe to participant count
           }
           const timer = currentPhase.timer === null && // reset phase timer
                 setTimeout(() => setPhase(phase, timestamp, null), timeToNext);
@@ -197,7 +226,7 @@ export default function Map (props) {
     };
   }, [currentPhase, debug, es, api]);
 
-  /// Update ceremony index once regestration phase starts
+  /// Update ceremony index once registration phase starts
   useEffect(() => { /* eslint-disable react-hooks/exhaustive-deps */
     if (!apiReady(api, 'encointerScheduler')) {
       return;
@@ -209,8 +238,9 @@ export default function Map (props) {
     } = api.query;
     debug && console.log('ceremony id', currentPhase.phase, ceremonyIndex);
     const CurrencyCeremony = api.registry.getOrUnknown('CurrencyCeremony');
+
     /// Fetch participants and meetups counters
-    const fetchHistoricData = (ceremony, phase, cids) => {
+    const fetchHistoricData = async (ceremony, phase, cids) => {
       if (!apiReady(api, 'encointerCeremonies')) {
         return;
       }
@@ -224,13 +254,13 @@ export default function Map (props) {
           meetupCount: getMeetupCount
         }
       } = api.query;
-
+      // Previous Phases of current Ceremony
       for (let oldPhase = 0; oldPhase < phase; oldPhase++) {
         cids.forEach(cid => {
-          const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremonyIndex]);
+          const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremony]);
           const getters = [getParticipantCount, getMeetupCount];
           const getter = getters[oldPhase];
-          debug && console.log('hist ', bs58.encode(cid), ceremonyIndex.toNumber(), oldPhase);
+          debug && console.log('hist ', bs58.encode(cid), ceremony.toNumber(), oldPhase);
           getter(currencyCeremony).then((_) => dispatch({
             type: setters[oldPhase],
             payload: {
@@ -240,6 +270,47 @@ export default function Map (props) {
           }));
         });
       }
+    };
+
+    /// Fetch participants and meetups counters
+    const fetchLastCeremony = async (ceremony, cids) => {
+      if (!apiReady(api, 'encointerCeremonies')) {
+        return;
+      }
+      const {
+        encointerCeremonies: {
+          participantCount: getParticipantCount,
+          meetupCount: getMeetupCount
+        }
+      } = api.query;
+      // Last Ceremony
+      const lastCeremony = ceremony.sub(new U32(api.registry, 1));
+      const lastCeremonyData = await Promise.all(cids.map(cid => {
+        const currencyCeremony = new CurrencyCeremony(api.registry, [cid, lastCeremony]);
+        return api.queryMulti([
+          [getParticipantCount, currencyCeremony],
+          [getMeetupCount, currencyCeremony]
+        ]);
+      }));
+      const payload = lastCeremonyData.reduce((acc, data, idx) => {
+        const cid = bs58.encode(cids[idx]);
+        const [participantCount, meetupCount] = data;
+        acc.meetups[cid] = meetupCount.toNumber();
+        acc.participants[cid] = participantCount.toNumber();
+        acc.participantCount = acc.participants[cid] + acc.participantCount;
+        acc.meetupCount = acc.meetups[cid] + acc.meetupCount;
+        return acc;
+      }, {
+        subscribtionCeremony: lastCeremony.toNumber(),
+        meetups: {},
+        participants: {},
+        participantCount: 0,
+        meetupCount: 0
+      });
+      dispatch({
+        type: 'last',
+        payload
+      });
     };
 
     /// Subscription management via reducer
@@ -283,6 +354,7 @@ export default function Map (props) {
         }
       });
     };
+
     if (!ceremonyIndex) {
       getCurrentCeremonyIndex().then((currentCeremonyIndex) => {
         console.log('set ceremonyIndex', currentCeremonyIndex.toString());
@@ -295,9 +367,11 @@ export default function Map (props) {
         cids.length) {
       subscribeToUpdates(ceremonyIndex, currentPhase.phase, cids);
       fetchHistoricData(ceremonyIndex, currentPhase.phase, cids);
+      !state.lastCeremony.subscribtionCeremony && fetchLastCeremony(ceremonyIndex, cids);
     }
     if (currentPhase.phase === ceremonyPhases.REGISTERING) {
-      ceremonyIndex && dispatch({ type: 'reset' }); // reset state on start of new ceremony
+      state.subscribtionCeremony !== state.lastCeremony.subscribtionCeremony &&
+        dispatch({ type: 'reset' }); // reset state on start of new ceremony
       getCurrentCeremonyIndex().then((currentCeremonyIndex) => {
         debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
         setCeremonyIndex(currentCeremonyIndex);
@@ -354,13 +428,17 @@ export default function Map (props) {
     const full = '100%';
     // should reposition markers in portrait mode if sidebar shown
     if (ui.portrait && ui.selected && ui.sidebarSize && mapRef.current !== null) {
-      const offset = mapRef.current.container.offsetHeight - ui.sidebarSize;
-      return `${offset}px`;
+      if (mapRef.current.container.style.height === '100%') {
+        const offset = mapRef.current.container.offsetHeight - ui.sidebarSize;
+        return `${offset}px`;
+      } else {
+        return mapRef.current.container.style.height;
+      }
     }
     return full;
   }
 
-  /// Restet marker to my position
+  /// Reset marker to my position
   const handleLocationFound = e => {
     setPosition(e.latlng);
     const map = mapRef.current.leafletElement;
@@ -399,6 +477,8 @@ export default function Map (props) {
   const handleMapClick = () =>
     ui.menu && setUI({ ...ui, menu: false });
 
+  const counter = [state.participantCount, state.meetupCount, state.attestationCount][currentPhase.phase];
+
   return (
     <Responsive
       as={Segment.Group}
@@ -417,13 +497,18 @@ export default function Map (props) {
           direction={ui.portrait ? 'bottom' : 'right'}
           width='very wide'
           data={data[ui.selected] || {}}
+          participantCount={ui.selected ? (state.participants[ui.selected] || 0) : 0}
+          lastParticipantCount={ui.selected ? state.lastCeremony.participants[ui.selected] : 0}
+          meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
+          lastMeetupCount={ui.selected ? state.lastCeremony.meetups[ui.selected] : 0}
           debug={debug}
         />
 
         <Sidebar.Pusher className='encointer-map-wrapper'
           style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
 
-          <MapCeremonyPhases small={ui.portrait} currentPhase={currentPhase} />
+          <MapCeremonyPhases
+            small={ui.portrait} counter={counter} currentPhase={currentPhase} />
 
           <MapNodeInfo
             style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
