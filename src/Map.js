@@ -459,7 +459,7 @@ export default function Map (props) {
     setUI({ ...ui, portrait: width < Responsive.onlyMobile.maxWidth, width });
 
   /// Handler for sidebar closing
-  const handleSidebarClosed = _ => {
+  const handleSidebarClosed = () => {
     const map = mapRef.current.leafletElement;
     map.setZoom(ui.prevZoom);
     setUI({ ...ui, selected: '', sidebarSize: 0 });
@@ -470,8 +470,12 @@ export default function Map (props) {
     setUI({ ...ui, sidebarSize, menu: false });
 
   /// Show left side menu
-  const toggleMenu = () =>
-    setUI({ ...ui, menu: !ui.menu });
+  const toggleMenu = () => setUI({
+    ...ui,
+    menu: !ui.menu,
+    selected: ui.menu ? ui.selected : '',
+    sidebarSize: ui.menu ? ui.sidebarSize : 0
+  });
 
   /// Close left side menu if clicked
   const handleMapClick = () =>
