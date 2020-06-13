@@ -87,8 +87,8 @@
 }
 
 .encointer-map .encointer-map-node-info > .blocks {
-    padding: .5em;
-    margin: 0 2rem 0 0;
+    padding: .8em .5em;
+    margin: 0 .5rem 0 0;
 }
 
 .encointer-map .encointer-map-node-info .blocks .meta {
@@ -102,6 +102,10 @@
     font-size: 0.75rem;
     text-align: right;
     color: rgba(0,0,0,.4);
+}
+
+.encointer-map .encointer-map-node-info .blocks .loading {
+    margin-top: 8px;
 }
 
 .encointer-map .encointer-map-node-info .blocks .ceremony>span {
