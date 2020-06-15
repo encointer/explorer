@@ -536,7 +536,13 @@ export default function Map (props) {
             <TileLayer {...tileSetup} />
 
             { ui.selected
-              ? <LocationsLayer data={data[ui.selected]} />
+              ? <LocationsLayer
+                participantCount={ui.selected ? (state.participants[ui.selected] || 0) : 0}
+                meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
+                attestationCount={ui.selected ? (state.attestations[ui.selected] || 0) : 0}
+                phase={currentPhase.phase}
+                data={data[ui.selected]}
+              />
               : null }
 
             { !ui.loading

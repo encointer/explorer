@@ -2,32 +2,12 @@ import React, { useEffect, useRef, useReducer } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import * as L from 'leaflet';
+import { iconActive, iconActivePulse, iconSemiactive, iconInactive, clusterIcon } from './MarkerIcon';
 
 const pulseTimer = 3000;
 const DivIcon = L.divIcon;
 const iconSize = [40, 40];
 
-const iconActivePulse = new DivIcon({
-  iconSize,
-  className: 'encoiner-community-icon marker-cluster marker-cluster-small pulse',
-  html: '<div><span>$</span></div>'
-});
-const iconActive = new DivIcon({
-  iconSize,
-  className: 'encoiner-community-icon marker-cluster marker-cluster-small',
-  html: '<div><span>$</span></div>'
-});
-const iconSemiactive = new DivIcon({
-  iconSize,
-  className: 'encoiner-community-icon marker-cluster marker-cluster-small yellow',
-  html: '<div><span>$</span></div>'
-});
-
-const iconInactive = new DivIcon({
-  iconSize,
-  className: 'encoiner-community-icon marker-cluster marker-cluster-small red',
-  html: '<div><span>$</span></div>'
-});
 const selectedIcon = new DivIcon({
   iconSize: [2, 2],
   className: '',
@@ -70,11 +50,7 @@ const createClusterCustomIcon = function (cluster) {
 
   const iconClass = getClusterIcon(phase, count, active);
   const markerCount = cluster.getChildCount();
-  return L.divIcon({
-    html: ''.concat('<div><span>', markerCount, '</span></div>'),
-    className: 'marker-cluster marker-cluster-small encoiner-cluster-custom '.concat(iconClass),
-    iconSize: L.point(40, 40, true)
-  });
+  return clusterIcon(iconClass, markerCount);
 };
 
 const initialState = {
