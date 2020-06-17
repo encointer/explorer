@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sidebar, Menu, Icon } from 'semantic-ui-react';
 
-export default function MapMenu (props) {
+function MapMenuMain (props) {
   return (
     <Sidebar
       as={Menu}
@@ -52,3 +52,5 @@ export default function MapMenu (props) {
     </Sidebar>
   );
 }
+
+export default React.memo(MapMenuMain, (prev, cur) => prev.visible === cur.visible);

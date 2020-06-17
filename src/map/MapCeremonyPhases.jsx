@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Step } from 'semantic-ui-react';
-import { useSubstrate } from '../substrate-lib';
+import React from 'react';
+import { Step, Label } from 'semantic-ui-react';
 import { CeremonyPhaseTimer } from './CeremonyPhaseTimer';
 
 const ceremonyPhases = [
@@ -13,22 +12,25 @@ const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
 const formatStartingAt = (timestamp) => (<div><div>starting at:</div> {formatDate(timestamp)}</div>);
 
-function CeremonyPhases (props) {
-  const { small } = props;
-  const { api } = useSubstrate();
+export default React.memo(function MapCeremonyPhases (props) {
   const {
-    encointerScheduler: {
-      currentPhase: getCurrentPhase,
-      nextPhaseTimestamp: getNextPhaseTimestamp
+    small,
+    participantCount,
+    meetupCount,
+    attestationCount,
+    currentPhase: {
+      phase: currentPhase,
+      timestamp
     }
-  } = api.query;
-  const [nextPhaseTimestamp, setNextPhaseTimestamp] = useState(0);
-  const [currentPhase, setCurrentPhase] = useState(-1);
+  } = props;
+
+  const counter = [participantCount, meetupCount, attestationCount];
 
   const phasesSteps = phase => {
     const phasesProps = (currentPhase === -1 ? [] : ceremonyPhases)
       .map((phase, idx) => ({
         key: ceremonyPhases[idx],
+        counter: counter[idx],
         active: (idx === currentPhase),
         className: 'step-'.concat(ceremonyPhases[idx]).toLowerCase()
       })).filter((prop, idx) =>
@@ -36,24 +38,8 @@ function CeremonyPhases (props) {
       );
     return (small && currentPhase === 2) ? phasesProps.reverse() : phasesProps;
   };
-  useEffect(() => {
-    let unsubscribeAll = null;
-    api.queryMulti([
-      getCurrentPhase,
-      getNextPhaseTimestamp
-    ], ([newPhase, newPhaseTimestamp]) => {
-      setCurrentPhase(newPhase.toNumber());
-      setNextPhaseTimestamp(newPhaseTimestamp.toNumber());
-    })
-      .then(unsub => {
-        unsubscribeAll = unsub;
-      })
-      .catch(console.error);
 
-    return () => unsubscribeAll && unsubscribeAll();
-  }, [api, getCurrentPhase, getNextPhaseTimestamp]);
-
-  return (
+  return (<div className='encointer-map-ceremony-phase'>
     <Step.Group
       ordered
       unstackable
@@ -66,32 +52,30 @@ function CeremonyPhases (props) {
           .map((props, idx) => (
             <Step {...props}>
               <Step.Content>
-                <Step.Title>{props.key}</Step.Title>
+                <Step.Title>
+                  {props.key} {
+                    (idx <= currentPhase && props.counter) ? <Label circular color={props.active ? 'green' : 'grey'}>{props.counter}</Label> : null
+                  }</Step.Title>
                 <Step.Description>{
                   (props.active)
-                    ? <div><div>time left: </div><CeremonyPhaseTimer nextPhaseTimestamp={nextPhaseTimestamp} /></div>
+                    ? <div><div>time left: </div><CeremonyPhaseTimer nextPhaseTimestamp={timestamp} /></div>
                     : (small
-                      ? formatStartingAt(nextPhaseTimestamp)
+                      ? formatStartingAt(timestamp)
                       : ((idx === (currentPhase + 1) ||
                           (idx === 0 && currentPhase === 2))
-                        ? formatStartingAt(nextPhaseTimestamp)
+                        ? formatStartingAt(timestamp)
                         : null))
                 }</Step.Description>
               </Step.Content>
             </Step>
           ))
       }</Step.Group>
-  );
-}
-
-export default function MapCeremonyPhases (props) {
-  const { api } = useSubstrate();
-  return api && api.query &&
-    api.query.encointerScheduler &&
-    api.query.encointerScheduler.nextPhaseTimestamp &&
-    api.query.encointerScheduler.currentPhase ? (
-      <div className='encointer-map-ceremony-phase'>
-        <CeremonyPhases {...props} />
-      </div>
-    ) : null;
-}
+  </div>);
+}, (newProp, oldProp) => {
+  return (oldProp.small === newProp.small &&
+          oldProp.participantCount === newProp.participantCount &&
+          oldProp.meetupCount === newProp.meetupCount &&
+          oldProp.attestationCount === newProp.attestationCount &&
+          oldProp.currentPhase.phase === newProp.currentPhase.phase &&
+          oldProp.currentPhase.timestamp === newProp.currentPhase.timestamp);
+});

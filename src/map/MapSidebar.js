@@ -10,7 +10,17 @@ const BigFormat = toFormat(Big);
 
 function MapSidebarMain (props) {
   const {
-    debug, onClose, onShow, hash, direction, width, data: {
+    debug,
+    onClose,
+    onShow,
+    hash,
+    direction,
+    width,
+    participantCount,
+    lastParticipantCount,
+    lastMeetupCount,
+    meetupCount,
+    data: {
       name, cid, demurrage
     }
   } = props;
@@ -81,23 +91,32 @@ function MapSidebarMain (props) {
 
       <Segment.Group>
 
-        <Segment>
-          <Header sub>Demurrage rate (per month):</Header>
-          {demurrage && demurrage.toFixed(2)}%
-        </Segment>
+        <Segment.Group horizontal>
+          <Segment>
+            <Header sub>Demurrage rate (per month):</Header>
+            {demurrage && demurrage.toFixed(2)}%
+            <Header sub>participants registered:</Header>
+            {participantCount}
+            <Header sub>participants registered in last ceremony:</Header>
+            {lastParticipantCount}
+          </Segment>
+          <Segment>
+            <Header sub>Money supply:</Header>
+            <p>{ moneysupply && (new BigFormat(moneysupply)).toFormat(2) }</p>
+            <Header sub>meetups assigned:</Header>
+            {meetupCount}
+            <Header sub>meetups assigned in last ceremony:</Header>
+            {lastMeetupCount}
+          </Segment>
+        </Segment.Group>
 
-        <Segment loading={!bootstrappers.length}>
+        <Segment loading={!bootstrappers.length} stacked>
           <Header sub>List of bootstrappers:</Header>
           <List>{
             bootstrappers.map(
               _ => <List.Item key={_}>{_}</List.Item>
             )
           }</List>
-        </Segment>
-
-        <Segment loading={moneysupply === null} stacked>
-          <Header sub>Money supply:</Header>
-          <p>{ moneysupply && (new BigFormat(moneysupply)).toFormat(2) }</p>
         </Segment>
 
       </Segment.Group>
@@ -114,11 +133,19 @@ function MapSidebarMain (props) {
   );
 }
 
-export default function MapBlockNumber (props) {
+export default React.memo(function MapBlockNumber (props) {
   const { api } = useSubstrate();
-  return api.query &&
+  return api && api.query &&
     api.query.encointerCurrencies &&
     api.query.encointerBalances ? (
       <MapSidebarMain {...props} />
     ) : null;
-}
+}, (prev, cur) => (
+  prev.hash === cur.hash && (
+    cur.hash
+      ? prev.participantCount === cur.participantCount &&
+      prev.lastParticipantCount === cur.lastParticipantCount &&
+      prev.meetupCount === cur.meetupCount &&
+      prev.lastMeetupCount === cur.lastMeetupCount
+      : true)
+));
