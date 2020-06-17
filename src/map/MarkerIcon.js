@@ -22,6 +22,8 @@ export const iconActive = communityIcon('');
 
 export const iconActivePulse = communityIcon('pulse');
 
+export const iconSemiactivePulse = communityIcon('yellow pulse');
+
 export const iconSemiactive = communityIcon('yellow');
 
 export const iconInactive = communityIcon('red');
@@ -36,13 +38,17 @@ export const locationMarker = new L.Icon({
 });
 
 export const getClusterIcon = (phase, count, active) => {
-  if (active) { // animated icon
-    return 'green pulse';
-  } else if (phase === 0) { // in REGISTERING phase
-    return count ? 'green' : 'yellow'; // green if >0 registered
+  let className;
+  if (phase === 0) { // in REGISTERING phase
+    className = count ? 'green' : 'yellow'; // green if >0 registered
   } else if (count !== 0) {
-    return count > 1 ? 'green' : 'yellow'; // if 1 meetup then yellow, if >1 green
+    className = count > 1 ? 'green' : 'yellow'; // if 1 meetup then yellow, if >1 green
   } else {
-    return 'red'; // in ASSIGNING and ATTESTING if 0 meetups
+    className = 'red'; // in ASSIGNING and ATTESTING if 0 meetups
+  }
+  if (active) { // animated icon
+    return className.concat(' pulse');
+  } else {
+    return className;
   }
 };

@@ -357,7 +357,7 @@ export default function Map (props) {
 
     if (!ceremonyIndex) {
       getCurrentCeremonyIndex().then((currentCeremonyIndex) => {
-        console.log('set ceremonyIndex', currentCeremonyIndex.toString());
+        debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
         setCeremonyIndex(currentCeremonyIndex);
       });
     }
@@ -481,8 +481,6 @@ export default function Map (props) {
   const handleMapClick = () =>
     ui.menu && setUI({ ...ui, menu: false });
 
-  const counter = [state.participantCount, state.meetupCount, state.attestationCount][currentPhase.phase];
-
   return (
     <Responsive
       as={Segment.Group}
@@ -512,7 +510,7 @@ export default function Map (props) {
           style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
 
           <MapCeremonyPhases
-            small={ui.portrait} counter={counter} currentPhase={currentPhase} />
+            small={ui.portrait} participantCount={state.participantCount} meetupCount={state.meetupCount} attestationCount={state.attestationCount} currentPhase={currentPhase} />
 
           <MapNodeInfo
             style={ui.portrait && ui.selected ? { display: 'none' } : {}} />

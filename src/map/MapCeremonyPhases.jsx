@@ -15,17 +15,22 @@ const formatStartingAt = (timestamp) => (<div><div>starting at:</div> {formatDat
 export default React.memo(function MapCeremonyPhases (props) {
   const {
     small,
-    counter,
+    participantCount,
+    meetupCount,
+    attestationCount,
     currentPhase: {
       phase: currentPhase,
       timestamp
     }
   } = props;
 
+  const counter = [participantCount, meetupCount, attestationCount];
+
   const phasesSteps = phase => {
     const phasesProps = (currentPhase === -1 ? [] : ceremonyPhases)
       .map((phase, idx) => ({
         key: ceremonyPhases[idx],
+        counter: counter[idx],
         active: (idx === currentPhase),
         className: 'step-'.concat(ceremonyPhases[idx]).toLowerCase()
       })).filter((prop, idx) =>
@@ -49,7 +54,7 @@ export default React.memo(function MapCeremonyPhases (props) {
               <Step.Content>
                 <Step.Title>
                   {props.key} {
-                    props.active ? (counter ? <Label circular color='green'>{counter}</Label> : null) : null
+                    (idx <= currentPhase && props.counter) ? <Label circular color={props.active ? 'green' : 'grey'}>{props.counter}</Label> : null
                   }</Step.Title>
                 <Step.Description>{
                   (props.active)
@@ -68,7 +73,9 @@ export default React.memo(function MapCeremonyPhases (props) {
   </div>);
 }, (newProp, oldProp) => {
   return (oldProp.small === newProp.small &&
-          oldProp.counter === newProp.counter &&
+          oldProp.participantCount === newProp.participantCount &&
+          oldProp.meetupCount === newProp.meetupCount &&
+          oldProp.attestationCount === newProp.attestationCount &&
           oldProp.currentPhase.phase === newProp.currentPhase.phase &&
           oldProp.currentPhase.timestamp === newProp.currentPhase.timestamp);
 });

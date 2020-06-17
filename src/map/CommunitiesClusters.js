@@ -1,36 +1,18 @@
 import React, { useEffect, useRef, useReducer } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
-import * as L from 'leaflet';
-import { iconActive, iconActivePulse, iconSemiactive, iconInactive, clusterIcon } from './MarkerIcon';
+import { iconActive, iconActivePulse, iconSemiactive, iconSemiactivePulse, iconInactive, clusterIcon, getClusterIcon } from './MarkerIcon';
 
 const pulseTimer = 3000;
-const DivIcon = L.divIcon;
 const iconSize = [40, 40];
-
-const selectedIcon = new DivIcon({
-  iconSize: [2, 2],
-  className: '',
-  html: ''
-});
 
 const iconSet = {
   'green pulse': iconActivePulse,
+  'yellow pulse': iconSemiactivePulse,
+  'red pulse': iconSemiactivePulse,
   green: iconActive,
   yellow: iconSemiactive,
   red: iconInactive
-};
-
-const getClusterIcon = (phase, count, active) => {
-  if (active) { // animated icon
-    return 'green pulse';
-  } else if (phase === 0) { // in REGISTERING phase
-    return count ? 'green' : 'yellow'; // green if >0 registered
-  } else if (count !== 0) {
-    return count > 1 ? 'green' : 'yellow'; // if 1 meetup then yellow, if >1 green
-  } else {
-    return 'red'; // in ASSIGNING and ATTESTING if 0 meetups
-  }
 };
 
 const getIcon = (phase, count, active) => {
@@ -106,7 +88,7 @@ const reducer = (state, action) => {
   }
 };
 
-/// communities markers layer with clusterisation
+/// communities markers layer with clusterization
 export function CommunitiesClusters (props) {
   const { cids, data, selected, state } = props;
   const [markers, dispatch] = useReducer(reducer, initialState);
@@ -153,7 +135,7 @@ export function CommunitiesClusters (props) {
           markers.byCID[cid].attests < attests) {
         newMarkers[cid] = markers.byCID[cid];
         newMarkers[cid].count = counter;
-        newMarkers[cid].attests = attestations[cid];
+        newMarkers[cid].attests = attestations[cid] || 0;
         newMarkers[cid].active = true;
         timers[cid] = setTimeout(() => {
           dispatch({ type: 'deactivate', payload: cid });
@@ -193,7 +175,7 @@ export function CommunitiesClusters (props) {
         Object.keys(byCID).map(cid => {
           const { key, position, name, active, count, attests } = byCID[cid];
           const isSelected = selected === cid;
-          return (<Marker
+          return (isSelected ? null : <Marker
             key={key.concat(phase, attests, count, active ? 'force-redraw' : '')}
             position={position}
             alt={cid}
@@ -201,15 +183,9 @@ export function CommunitiesClusters (props) {
             active={active}
             phase={phase}
             attests={attests}
-            icon={
-              isSelected
-                ? selectedIcon
-                : getIcon(markers.phase, count, active)
-            }>{
-              !isSelected
-                ? <Tooltip direction='top' offset={[0, iconSize[1] / -2]}>{name}</Tooltip>
-                : null
-            }</Marker>);
+            icon={ getIcon(markers.phase, count, active) }>
+            <Tooltip direction='top' offset={[0, iconSize[1] / -2]}>{name}</Tooltip>
+          </Marker>);
         })
       }</MarkerClusterGroup>);
 }

@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useRef } from 'react';
 import { Marker } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 
@@ -17,10 +17,12 @@ const createClusterCustomIcon = function (cluster) {
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'reset':
+      return { active: false, count: 0, attest: 0, timeout: state.timeout };
     case 'activate':
       return ((state, action) => {
         const { count, timeout, attest } = action.payload;
-        return { ...state, active: true, count, timeout, attest };
+        return { ...state, active: true, count, attest, timeout };
       })(state, action);
     case 'deactivate':
       return ((state, action) => {
@@ -34,24 +36,49 @@ const reducer = (state, action) => {
 
 /// Markers layer
 export function LocationsLayer (props) {
-  const { meetupCount, participantCount, phase, attestationCount: attest } = props;
+  const { phase, meetupCount, participantCount, attestationCount: attest } = props;
   const { coords } = props.data;
-  const [state, dispatch] = useReducer(reducer, { active: false, count: 0 });
-
+  const ref = useRef(null);
   const count = phase === 0 ? participantCount : meetupCount;
+  const [state, dispatch] = useReducer(reducer, { active: false, count, attest });
+
+  const active = state.active;
+
+  /// Trigger active
   useEffect(() => {
-    if (state.count !== count || state.attest !== attest) {
+    if (count === 0 && phase === 0 && (state.attest > 0 || state.count > 0)) {
+      dispatch({ type: 'reset' });
+      return;
+    }
+    if (state.count < count || state.attest < attest) {
       const timeout = setTimeout(() => {
         dispatch({ type: 'deactivate' });
       }, pulseTimer);
-      dispatch({ type: 'active', count, timeout, attest });
+      dispatch({ type: 'activate', payload: { count, timeout, attest } });
     }
-  }, [state, count, attest]);
+  }, [state, count, attest, phase]);
+
+  // Update clusters
+  useEffect(() => {
+    let tid;
+    if (active) {
+      tid = setTimeout(() => { // redraw clusters
+        if (ref.current !== null && ref.current.leafletElement) {
+          ref.current.leafletElement.refreshClusters();
+        }
+      }, 10);
+    }
+
+    return () => {
+      tid && clearTimeout(tid);
+    };
+  }, [active]);
+
   if (!coords || !coords.length) {
     return null;
   }
-  const active = state.active;
-  return (<MarkerClusterGroup iconCreateFunction={createClusterCustomIcon}>{
+
+  return (<MarkerClusterGroup ref={ref} iconCreateFunction={createClusterCustomIcon}>{
     coords.map((pos, idx) => (
       <Marker
         position={pos}
@@ -59,6 +86,7 @@ export function LocationsLayer (props) {
         phase={phase}
         count={count}
         attest={state.attest}
+        active={active}
         icon={locationMarker} />))
   }</MarkerClusterGroup>);
 }
