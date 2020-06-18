@@ -101,15 +101,15 @@ export function CommunitiesClusters (props) {
 
   /// Init markers
   if (markers.phase === -1 && phase !== -1) {
-    const byCID = cids.map((cid, idx) => {
-      const { gps, name } = data[cid];
+    const byCID = cids.map(cid => {
+      const { position, name } = data[cid];
       const meetups = state.meetups[cid] || 0;
       const count = phase ? meetups : (counters[cid] || 0);
       const attests = phase === 2 ? (attestations[cid] || 0) : 0;
       return {
         name,
         key: cid,
-        position: gps,
+        position,
         active: false,
         count,
         attests
@@ -131,8 +131,8 @@ export function CommunitiesClusters (props) {
     cids.forEach((cid) => {
       const counter = counters ? (counters[cid] || 0) : 0;
       const attests = attestations ? attestations[cid] : 0;
-      if (markers.byCID[cid].count < counter ||
-          markers.byCID[cid].attests < attests) {
+      if (markers.byCID[cid] && (markers.byCID[cid].count < counter ||
+          markers.byCID[cid].attests < attests)) {
         newMarkers[cid] = markers.byCID[cid];
         newMarkers[cid].count = counter;
         newMarkers[cid].attests = attestations[cid] || 0;
@@ -172,11 +172,12 @@ export function CommunitiesClusters (props) {
       iconCreateFunction={createClusterCustomIcon}
       chunkedLoading={true}
     >{
-        Object.keys(byCID).map(cid => {
-          const { key, position, name, active, count, attests } = byCID[cid];
+        cids.map(cid => {
+          const { position, name } = data[cid];
+          const { active, count, attests } = byCID[cid] || {};
           const isSelected = selected === cid;
           return (isSelected ? null : <Marker
-            key={key.concat(phase, attests, count, active ? 'force-redraw' : '')}
+            key={cid.concat(phase, attests, count, active ? 'force-redraw' : '')}
             position={position}
             alt={cid}
             count={count}
