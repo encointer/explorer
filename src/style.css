@@ -74,7 +74,7 @@
     margin-top: 0 !important;
     padding-top: 0 !important;
     flex-direction: row;
-    width: 400px;
+    width: 500px;
     height: 67px;
 }
 
@@ -86,9 +86,20 @@
     margin-top: 11px;
 }
 
+.encointer-map .encointer-map-node-info > .loading > .error {
+    font-weight: bold;
+    color: #800;
+    font-size: 2rem;
+}
+
+.encointer-map .encointer-map-node-info > .info {
+    width: 340px;
+}
+
 .encointer-map .encointer-map-node-info > .blocks {
     padding: .8em .5em;
     margin: 0 .5rem 0 0;
+    width: 160px;
 }
 
 .encointer-map .encointer-map-node-info .blocks .meta {

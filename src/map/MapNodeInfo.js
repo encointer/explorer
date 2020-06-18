@@ -79,7 +79,7 @@ function MapNodeInfoMain (props) {
     <Card className='encointer-map-node-info' style={props.style || {}}>{
       apiState === 'READY'
         ? <React.Fragment>
-          <Card.Content>
+          <Card.Content className='info'>
             <Card.Header>{nodeInfo.nodeName}</Card.Header>
             <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}</Card.Meta>
           </Card.Content>
@@ -104,7 +104,7 @@ function MapNodeInfoMain (props) {
           {
             apiState !== 'ERROR'
               ? <Card.Meta><Loader active size='small' inline /> Connecting to the blockchain</Card.Meta>
-              : <Card.Meta>Error connecting to the blockchain</Card.Meta>
+              : <Card.Meta className='error'>Error connecting to the blockchain</Card.Meta>
           }
         </Card.Content>
     }</Card>
