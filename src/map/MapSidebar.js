@@ -34,7 +34,7 @@ function MapSidebarMain (props) {
 
   /// Fetch bootstrappers
   useEffect(() => {
-    if (cid) {
+    if (cid && api.query.encointerCurrencies) {
       debug && console.log('GETTING BOOTSTRAPPERS', cid);
       api.query.encointerCurrencies
         .bootstrappers(cid)
@@ -47,7 +47,7 @@ function MapSidebarMain (props) {
 
   /// Fetch money supply
   useEffect(() => {
-    if (cid) {
+    if (cid && api.query.encointerBalances) {
       debug && console.log('GETTING MONEYSUPPLY', cid);
       api.query.encointerBalances
         .totalIssuance(cid)
@@ -133,13 +133,11 @@ function MapSidebarMain (props) {
   );
 }
 
-export default React.memo(function MapBlockNumber (props) {
+export default React.memo(function MapSidebar (props) {
   const { api } = useSubstrate();
-  return api && api.query &&
-    api.query.encointerCurrencies &&
-    api.query.encointerBalances ? (
-      <MapSidebarMain {...props} />
-    ) : null;
+  return api && api.query ? (
+    <MapSidebarMain {...props} />
+  ) : null;
 }, (prev, cur) => (
   prev.hash === cur.hash && (
     cur.hash

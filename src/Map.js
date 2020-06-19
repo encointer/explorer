@@ -177,7 +177,7 @@ export default function Map (props) {
     setData(cids.map((cid, idx) => ({ // Shape of data in UI
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
-      gps: L.latLngBounds(locations[idx]).getCenter(),
+      position: L.latLngBounds(locations[idx]).getCenter(),
       demurrage: parseDemurrage(properties[idx].demurrage_per_block),
       name: properties[idx].name_utf8.toString()
     })).reduce(kvReducer, {}));
@@ -510,7 +510,11 @@ export default function Map (props) {
           style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
 
           <MapCeremonyPhases
-            small={ui.portrait} participantCount={state.participantCount} meetupCount={state.meetupCount} attestationCount={state.attestationCount} currentPhase={currentPhase} />
+            small={ui.portrait}
+            participantCount={state.participantCount}
+            meetupCount={state.meetupCount}
+            attestationCount={state.attestationCount}
+            currentPhase={currentPhase} />
 
           <MapNodeInfo
             style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
