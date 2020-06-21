@@ -184,9 +184,10 @@ export default function Map (props) {
     setUI({ ...ui, loading: false });
   }
 
-  /// Update current phase and set update timeout
+  /// Update current phase
   useEffect(() => {
-    debug && console.log('phases', currentPhase);
+    let unsub;
+    debug && console.log('phase', currentPhase.phase);
     if (!apiReady(api, 'encointerScheduler')) {
       return;
     }
@@ -198,33 +199,23 @@ export default function Map (props) {
       }
     } = api.query;
 
-    const setPhase = (phase, timestamp, timer) => {
-      (currentPhase.phase !== phase || currentPhase.timestamp !== timestamp || !timer) &&
-        setCurrentPhase({ phase, timestamp, timer });
-    };
-
-    if (!currentPhase.timer) {
-      api.queryMulti([
-        getCurrentPhase,
-        getNextPhaseTimestamp
-      ])
-        .then(([newPhase, newPhaseTimestamp]) => {
-          const phase = newPhase.toNumber();
-          const timestamp = newPhaseTimestamp.toNumber();
-          let timeToNext = timestamp - Date.now() + 500;
-          if (timeToNext <= 0) {
-            timeToNext = 3000; // delay if timestamp in the past
-          }
-          const timer = currentPhase.timer === null && // reset phase timer
-                setTimeout(() => setPhase(phase, timestamp, null), timeToNext);
-          timer && setPhase(phase, timestamp, timer); // update if have new timer
-        })
-        .catch(console.error);
-    }
+    getCurrentPhase(newPhase => {
+      const phase = newPhase.toNumber();
+      if (currentPhase.phase !== phase) {
+        getNextPhaseTimestamp()
+          .then(newPhaseTimestamp => {
+            const timestamp = newPhaseTimestamp.toNumber();
+            setCurrentPhase({ phase, timestamp });
+          })
+          .catch(console.error);
+      }
+    }).then((unsubscribe) => {
+      unsub = unsubscribe;
+    });
     return () => {
-      currentPhase.timer && clearTimeout(currentPhase.timer);
+      unsub && unsub();
     };
-  }, [currentPhase, debug, es, api]);
+  }, [currentPhase.phase, debug, ec, api]);
 
   /// Update ceremony index once registration phase starts
   useEffect(() => { /* eslint-disable react-hooks/exhaustive-deps */
@@ -360,10 +351,9 @@ export default function Map (props) {
         debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
         setCeremonyIndex(currentCeremonyIndex);
       });
-    }
-    if (ceremonyIndex &&
-        (ceremonyIndex.toNumber() !== state.subscribtionCeremony ||
-         currentPhase.phase !== state.subscribtionPhase) &&
+    } else if (currentPhase.phase !== -1 &&
+        (currentPhase.phase !== state.subscribtionPhase ||
+         ceremonyIndex.toNumber() !== state.subscribtionCeremony) &&
         cids.length) {
       subscribeToUpdates(ceremonyIndex, currentPhase.phase, cids);
       fetchHistoricData(ceremonyIndex, currentPhase.phase, cids);
