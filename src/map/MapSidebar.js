@@ -3,13 +3,13 @@ import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-
 import Big from 'big.js';
 import toFormat from 'toformat';
 
-import { useSubstrate } from '../substrate-lib';
 import { parseI64F64 } from '../utils';
 
 const BigFormat = toFormat(Big);
 
 function MapSidebarMain (props) {
   const {
+    api,
     debug,
     onClose,
     onShow,
@@ -28,7 +28,6 @@ function MapSidebarMain (props) {
   const ref = useRef();
   const isVertical = direction === 'top' || direction === 'bottom';
 
-  const { api } = useSubstrate();
   const [bootstrappers, setBootstrappers] = useState([]);
   const [moneysupply, setMoneysupply] = useState(null);
 
@@ -134,7 +133,7 @@ function MapSidebarMain (props) {
 }
 
 export default React.memo(function MapSidebar (props) {
-  const { api } = useSubstrate();
+  const { api } = props;
   return api && api.query ? (
     <MapSidebarMain {...props} />
   ) : null;
