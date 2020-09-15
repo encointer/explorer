@@ -143,7 +143,7 @@ const setters = ['participants', 'meetups', 'attestations']; // action names for
 export default function Map (props) {
   const { debug } = props;
   const mapRef = useRef();
-  const { api } = useSubstrate();
+  const { api, apiState } = useSubstrate();
 
   const [ui, setUI] = useState({ selected: '', loading: true, menu: false });
   const [cids, setCids] = useState([]);
@@ -483,6 +483,8 @@ export default function Map (props) {
         <MapMenu visible={ui.menu} />
 
         <MapSidebar
+          api={api}
+          apiState={apiState}
           onClose={handleSidebarClosed}
           onShow={handleSidebarShow}
           hash={ui.selected}
@@ -507,6 +509,8 @@ export default function Map (props) {
             currentPhase={currentPhase} />
 
           <MapNodeInfo
+            api={api}
+            apiState={apiState}
             style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
 
           <MapControl
@@ -552,7 +556,7 @@ export default function Map (props) {
 
       </Sidebar.Pushable>
 
-      { debug
+      { (debug && apiState === 'READY')
         ? <DeveloperConsole />
         : null }
 

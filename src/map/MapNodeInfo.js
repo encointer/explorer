@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Loader } from 'semantic-ui-react';
 
-import { useSubstrate } from '../substrate-lib';
-
 const Blocks = React.memo(props => {
-  const { api } = useSubstrate();
+  const { api } = props;
   const [blockNumber, setBlockNumber] = useState(0);
-  const bestNumber = props.finalized
+  const bestNumber = api && api.derive && api.derive.chain && (props.finalized
     ? api.derive.chain.bestNumberFinalized
-    : api.derive.chain.bestNumber;
+    : api.derive.chain.bestNumber);
   useEffect(() => {
     let unsubscribeAll;
-    bestNumber(blockNumber => {
+    bestNumber && bestNumber(blockNumber => {
       setBlockNumber(blockNumber.toNumber());
     }).then(unsub => {
       unsubscribeAll = unsub;
@@ -31,7 +29,7 @@ const CeremonyIndex = React.memo(props => {
         }
       }
     }
-  } = useSubstrate();
+  } = props;
   const [currentCeremonyIndex, setCurrentCeremonyIndex] = useState(0);
   useEffect(() => {
     let unsubscribeAll;
@@ -51,7 +49,7 @@ const CeremonyIndex = React.memo(props => {
 }, _ => true);
 
 function MapNodeInfoMain (props) {
-  const { apiState, api } = useSubstrate();
+  const { apiState, api } = props;
   const [nodeInfo, setNodeInfo] = useState({});
   const system = api && api.rpc && api.rpc.system;
   const getCurrentCeremonyIndex = api && api.query && api.query.encointerScheduler &&
@@ -88,9 +86,9 @@ function MapNodeInfoMain (props) {
               getCurrentCeremonyIndex
                 ? <React.Fragment>
                   <Card.Meta></Card.Meta>
-                  <div className='block-current'>current block #<Blocks /></div>
-                  <div className='finalized-current'>finalized block #<Blocks finalized /></div>
-                  <div className='ceremony'><CeremonyIndex /></div>
+                  <div className='block-current'>current block #<Blocks api={api} /></div>
+                  <div className='finalized-current'>finalized block #<Blocks finalized api={api} /></div>
+                  <div className='ceremony'><CeremonyIndex api={api} /></div>
                 </React.Fragment>
                 : <React.Fragment>
                   <div className='loading'>
