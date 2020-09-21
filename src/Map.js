@@ -4,6 +4,7 @@ import { Sidebar, Responsive, Segment } from 'semantic-ui-react';
 import * as L from 'leaflet';
 import * as bs58 from 'bs58';
 import { u32 as U32 } from '@polkadot/types/primitive';
+import { u8aToString } from '@polkadot/util';
 
 import { useSubstrate } from './substrate-lib';
 import { DeveloperConsole } from './substrate-lib/components';
@@ -174,12 +175,13 @@ export default function Map (props) {
       await batchFetch(ec.currencyProperties, cids)]);
 
     debug && console.log('SETTING DATA', locations, properties);
+
     setData(cids.map((cid, idx) => ({ // Shape of data in UI
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
       position: L.latLngBounds(locations[idx]).getCenter(),
       demurrage: parseDemurrage(properties[idx].demurrage_per_block),
-      name: properties[idx].name_utf8.toString()
+      name: u8aToString(properties[idx].name_utf8)
     })).reduce(kvReducer, {}));
     setUI({ ...ui, loading: false });
   }
