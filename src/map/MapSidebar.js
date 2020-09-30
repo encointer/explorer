@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-ui-react';
 import Big from 'big.js';
 import toFormat from 'toformat';
@@ -21,7 +21,7 @@ function MapSidebarMain (props) {
     lastMeetupCount,
     meetupCount,
     data: {
-      name, cid, demurrage
+      name, cid, demurrage, demurragePerBlock
     }
   } = props;
   const visible = !!hash.length;
@@ -29,33 +29,69 @@ function MapSidebarMain (props) {
   const isVertical = direction === 'top' || direction === 'bottom';
 
   const [bootstrappers, setBootstrappers] = useState([]);
-  const [moneysupply, setMoneysupply] = useState(null);
+  const [entry, setEntry] = useState(null);
+  const [currentBlock, setCurrentBlock] = useState(1);
+  const [moneySupply, setMoneySupply] = useState(0);
+
+  useEffect(() => {
+    let unsubscribeAll;
+    const bestNumber = api.derive.chain.bestNumber;
+    bestNumber(blockNumber => {
+      setCurrentBlock(blockNumber.toNumber());
+    }).then(unsub => {
+      console.log('U', unsub);
+      unsubscribeAll = unsub;
+    });
+    return () => unsubscribeAll && unsubscribeAll();
+  }, [api.derive.chain.bestNumber]);
 
   /// Fetch bootstrappers
   useEffect(() => {
+    let unsubscribeAll;
     if (cid && api.query.encointerCurrencies) {
       debug && console.log('GETTING BOOTSTRAPPERS', cid);
       api.query.encointerCurrencies
-        .bootstrappers(cid)
-        .then(_ => {
+        .bootstrappers(cid, _ => {
           debug && console.log('BOOTSTRAPPERS RECEIVED', _);
           setBootstrappers(_.toJSON());
-        });
+        }).then(unsub => {
+          unsubscribeAll = unsub;
+        })
+        .catch(console.error);
+      return () => unsubscribeAll && unsubscribeAll();
     }
   }, [api.query.encointerCurrencies, cid, debug]);
 
   /// Fetch money supply
   useEffect(() => {
+    let unsubscribeAll;
     if (cid && api.query.encointerBalances) {
       debug && console.log('GETTING MONEYSUPPLY', cid);
       api.query.encointerBalances
-        .totalIssuance(cid)
-        .then(_ => {
+        .totalIssuance(cid, _ => {
           debug && console.log('MONEYSUPPLY RECEIVED', _);
-          setMoneysupply(parseI64F64(_.get('principal')));
-        });
+          setEntry({
+            principal: parseI64F64(_.get('principal')),
+            lastUpdate: _.get('last_update').toNumber()
+          });
+        }).then(unsub => {
+          unsubscribeAll = unsub;
+        })
+        .catch(console.error);
+      return () => unsubscribeAll && unsubscribeAll();
     }
   }, [api.query.encointerBalances, cid, debug]);
+
+  /// Apply demurrage
+  const applyDemurrage = useCallback(() => {
+    const moneySupply = (entry && entry.principal > 0) ? entry.principal * Math.exp(-demurragePerBlock * (currentBlock - entry.lastUpdate)) : 0;
+    setMoneySupply(moneySupply);
+  }, [demurragePerBlock, currentBlock, entry]
+  );
+
+  useEffect(() => {
+    applyDemurrage();
+  }, [applyDemurrage]);
 
   /// Handler when sidebar completely shows (animation stops)
   const handleShow = () => ref.current && onShow(ref.current.ref.current[
@@ -101,7 +137,7 @@ function MapSidebarMain (props) {
           </Segment>
           <Segment>
             <Header sub>Money supply:</Header>
-            <p>{ moneysupply && (new BigFormat(moneysupply)).toFormat(2) }</p>
+            <p>{ !isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2) }</p>
             <Header sub>meetups assigned:</Header>
             {meetupCount}
             <Header sub>meetups assigned in last ceremony:</Header>

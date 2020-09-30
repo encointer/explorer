@@ -181,6 +181,7 @@ export default function Map (props) {
       coords: locations[idx],         // all coords
       position: L.latLngBounds(locations[idx]).getCenter(),
       demurrage: parseDemurrage(properties[idx].demurrage_per_block),
+      demurragePerBlock: parseI64F64(properties[idx].demurrage_per_block),
       name: u8aToString(properties[idx].name_utf8)
     })).reduce(kvReducer, {}));
     setUI({ ...ui, loading: false });
