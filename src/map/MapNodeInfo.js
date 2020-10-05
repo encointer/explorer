@@ -49,7 +49,7 @@ const CeremonyIndex = React.memo(props => {
 }, _ => true);
 
 function MapNodeInfoMain (props) {
-  const { apiState, api } = props;
+  const { apiState, api, onClickNode } = props;
   const [nodeInfo, setNodeInfo] = useState({});
   const system = api && api.rpc && api.rpc.system;
   const getCurrentCeremonyIndex = api && api.query && api.query.encointerScheduler &&
@@ -77,7 +77,7 @@ function MapNodeInfoMain (props) {
     <Card className='encointer-map-node-info' style={props.style || {}}>{
       apiState === 'READY'
         ? <React.Fragment>
-          <Card.Content className='info'>
+          <Card.Content className='info' onClick={onClickNode}>
             <Card.Header>{nodeInfo.nodeName}</Card.Header>
             <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}</Card.Meta>
           </Card.Content>

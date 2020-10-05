@@ -23,6 +23,41 @@
 .encointer-map .details-sidebar .message {
     overflow-wrap: break-word;
 }
+.node-switch-widget {
+    background: rgb(245, 243, 241);
+}
+.node-switch-widget > .ui.segment {
+    background: transparent;
+}
+
+.node-switch-widget .endpoint-network {
+    border-left: 0.25rem solid transparent;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    margin: 0 0 0.25rem 0;
+    padding: 0.375rem 0.5rem 0.375rem 1rem;
+    position: relative;
+}
+
+.node-switch-widget .endpoint-network.isSelected,
+.node-switch-widget .endpoint-network:hover {
+    background: #fffefd;
+}
+
+.node-switch-widget .endpoint-network.highlight--border {
+    border-color: rgb(241, 145, 53) !important;
+}
+
+.node-switch-widget .endpoint-value {
+    
+}
+
+.encointer-map .node-switch-widget .endpoint-section {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+}
 
 .encointer-map-wrapper {
     overflow: hidden !important;
