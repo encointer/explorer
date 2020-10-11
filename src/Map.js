@@ -14,6 +14,7 @@ import MapCeremonyPhases from './map/MapCeremonyPhases';
 import MapNodeInfo from './map/MapNodeInfo';
 import MapControl from './map/MapControl';
 import MapSidebar from './map/MapSidebar';
+import MapNodeSwitchWidget from './map/MapNodeSwitchWidget';
 
 import { CommunitiesClusters } from './map/CommunitiesClusters';
 import { LocationsLayer } from './map/LocationsLayer';
@@ -144,9 +145,9 @@ const setters = ['participants', 'meetups', 'attestations']; // action names for
 export default function Map (props) {
   const { debug } = props;
   const mapRef = useRef();
-  const { api, apiState } = useSubstrate();
+  const { api, apiState, socket } = useSubstrate();
 
-  const [ui, setUI] = useState({ selected: '', loading: true, menu: false });
+  const [ui, setUI] = useState({ selected: '', loading: true, menu: false, nodeSwitch: false });
   const [cids, setCids] = useState([]);
   const [hash, setHash] = useState([]);
   const [data, setData] = useState({});
@@ -460,7 +461,7 @@ export default function Map (props) {
 
   /// Handler for sidebar shows completely
   const handleSidebarShow = sidebarSize =>
-    setUI({ ...ui, sidebarSize, menu: false });
+    setUI({ ...ui, sidebarSize, menu: false, nodeSwitch: false });
 
   /// Show left side menu
   const toggleMenu = () => setUI({
@@ -472,7 +473,12 @@ export default function Map (props) {
 
   /// Close left side menu if clicked
   const handleMapClick = () =>
-    ui.menu && setUI({ ...ui, menu: false });
+    ui.menu && setUI({ ...ui, menu: false, nodeSwitch: false });
+
+  /// Open node switch widget
+  const handleClickNode = () =>
+    !ui.nodeSwitch && setUI({ ...ui, nodeSwitch: true });
+  const handleNodeSwitchClose = () => setUI({ ...ui, nodeSwitch: false });
 
   return (
     <Responsive
@@ -484,6 +490,12 @@ export default function Map (props) {
       <Sidebar.Pushable as={Segment}  className='component-wrapper'>
 
         <MapMenu visible={ui.menu} />
+
+        <MapNodeSwitchWidget
+          socket={socket}
+          visible={ui.nodeSwitch}
+          onClose={handleNodeSwitchClose}
+        />
 
         <MapSidebar
           api={api}
@@ -514,6 +526,7 @@ export default function Map (props) {
           <MapNodeInfo
             api={api}
             apiState={apiState}
+            onClickNode={handleClickNode}
             style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
 
           <MapControl

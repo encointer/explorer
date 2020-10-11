@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Loader } from 'semantic-ui-react';
+import { Card, Loader, Icon } from 'semantic-ui-react';
 
 const Blocks = React.memo(props => {
   const { api } = props;
@@ -49,7 +49,7 @@ const CeremonyIndex = React.memo(props => {
 }, _ => true);
 
 function MapNodeInfoMain (props) {
-  const { apiState, api } = props;
+  const { apiState, api, onClickNode } = props;
   const [nodeInfo, setNodeInfo] = useState({});
   const system = api && api.rpc && api.rpc.system;
   const getCurrentCeremonyIndex = api && api.query && api.query.encointerScheduler &&
@@ -77,8 +77,8 @@ function MapNodeInfoMain (props) {
     <Card className='encointer-map-node-info' style={props.style || {}}>{
       apiState === 'READY'
         ? <React.Fragment>
-          <Card.Content className='info'>
-            <Card.Header>{nodeInfo.nodeName}</Card.Header>
+          <Card.Content className='info' onClick={onClickNode}>
+            <Card.Header>{nodeInfo.nodeName} <Icon name='chevron down' /></Card.Header>
             <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}</Card.Meta>
           </Card.Content>
           <Card.Content className='blocks'>
