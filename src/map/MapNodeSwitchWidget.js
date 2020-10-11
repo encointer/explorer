@@ -39,14 +39,14 @@ function createEndpoints () {
       info: 'encointer',
       text: 'Gesell',
       icon: 'encointer-notee.svg',
-      provider: 'Encointer Fundation',
+      provider: 'Encointer Association',
       value: 'wss://gesell.encointer.org'
     },
     {
       info: 'encointer',
       text: 'Cantillon',
       icon: 'encointer-teeproxy.svg',
-      provider: 'Encointer Fundation',
+      provider: 'Encointer Association',
       value: 'wss://cantillon.encointer.org'
     },
     {
