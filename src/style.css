@@ -30,6 +30,10 @@
     background: transparent;
 }
 
+.node-switch-widget .isSelected> .groupHeader {
+    padding-bottom: 0.5rem;
+}
+
 .node-switch-widget .endpoint-network {
     border-left: 0.25rem solid transparent;
     border-radius: 0.25rem;
@@ -48,8 +52,28 @@
     border-color: rgb(241, 145, 53) !important;
 }
 
+.node-switch-widget .endpoint-section {
+    margin-bottom: .5rem;
+    margin-top: 0.4rem;
+}
+
 .node-switch-widget .endpoint-value {
-    
+    font-size: 1.5rem;
+}
+
+.node-switch-widget .endpoint-icon {
+    height: 50px;
+    margin-right: 1rem;
+    width: 50px;
+    background: #fff;
+    border-radius: 25px;
+    padding: 2px;
+    box-shadow: 0 0 0 1px rgba(105,204,57,0.7);
+}
+
+.node-switch-widget .endpoint-address {
+    margin: .5em 0;
+    padding-left: 1.4em;
 }
 
 .encointer-map .node-switch-widget .endpoint-section {
@@ -111,10 +135,18 @@
     flex-direction: row;
     width: 500px;
     height: 67px;
+    cursor: pointer;
 }
 
 .encointer-map .encointer-map-node-info > div {
     padding: .5em;
+}
+
+.encointer-map .encointer-map-node-info .content .meta {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+    white-space: nowrap;
 }
 
 .encointer-map .encointer-map-node-info > .loading {

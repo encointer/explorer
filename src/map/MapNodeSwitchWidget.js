@@ -38,12 +38,14 @@ function createEndpoints () {
     {
       info: 'encointer',
       text: 'Gesell',
+      icon: 'encointer-notee.svg',
       provider: 'Encointer Fundation',
       value: 'wss://gesell.encointer.org'
     },
     {
       info: 'encointer',
       text: 'Cantillon',
+      icon: 'encointer-teeproxy.svg',
       provider: 'Encointer Fundation',
       value: 'wss://cantillon.encointer.org'
     },
@@ -75,7 +77,7 @@ function combineEndpoints (endpoints) {
         prev.networks[prev.networks.length - 1].providers.push(prov);
       } else {
         prev.networks.push({
-          icon: e.info,
+          icon: e.icon,
           isChild: e.isChild,
           name,
           providers: [prov]
@@ -120,6 +122,7 @@ function Network ({ apiUrl, className = '', setApiUrl, value: { icon, isChild, n
         className={`endpoint-section${isChild ? ' isChild' : ''}`}
         onClick={_selectFirst}
       >
+        {icon ? <img className='endpoint-icon' alt='chain logo' src={'/'.concat(icon)} /> : null}
         <div className='endpoint-value'>{name}</div>
       </div>
       {isSelected && providers.map(({ name, url }): React.ReactNode => (
@@ -129,6 +132,7 @@ function Network ({ apiUrl, className = '', setApiUrl, value: { icon, isChild, n
           label={name}
           setApiUrl={setApiUrl}
           url={url}
+          className='endpoint-address'
         />
       ))}
     </div>
@@ -328,24 +332,23 @@ export default function Endpoints (props) {
         </GroupDisplay>
       ))}
 
-      <Segment textAlign='left' className='node-switch-close'>
-        <Button.Group>
-          <Button
-            content='Close'
-            labelPosition='left'
-            icon='angle left'
-            onClick={onClose}/>
+      <Segment className='node-switch-confirm'>
+        <Button
+          icon='sync'
+          disabled={!(hasUrlChanged && isUrlValid)}
+          positive={true}
+          content="Switch"
+          onClick={_onApply}
+          fluid
+        />
+      </Segment>
 
-          <Button
-            icon='sync'
-            disabled={!(hasUrlChanged && isUrlValid)}
-            positive={true}
-            labelPosition='left'
-            label={{ as: 'a', basic: true, content: 'Switch' }}
-            onClick={_onApply}
-            fluid
-          />
-        </Button.Group>
+      <Segment textAlign='left' className='node-switch-close'>
+        <Button
+          content='Close'
+          labelPosition='left'
+          icon='angle left'
+          onClick={onClose}/>
 
       </Segment>
     </Sidebar>

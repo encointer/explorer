@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Loader } from 'semantic-ui-react';
+import { Card, Loader, Icon } from 'semantic-ui-react';
 
 const Blocks = React.memo(props => {
   const { api } = props;
@@ -78,7 +78,7 @@ function MapNodeInfoMain (props) {
       apiState === 'READY'
         ? <React.Fragment>
           <Card.Content className='info' onClick={onClickNode}>
-            <Card.Header>{nodeInfo.nodeName}</Card.Header>
+            <Card.Header>{nodeInfo.nodeName} <Icon name='chevron down' /></Card.Header>
             <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}</Card.Meta>
           </Card.Content>
           <Card.Content className='blocks'>
