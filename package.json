@@ -1,14 +1,14 @@
 {
   "name": "explorer",
-  "version": "0.3.2",
+  "version": "0.3.4",
   "private": false,
   "author": "Encointer",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@encointer/node-api": "^0.3.2",
-    "@encointer/types": "^0.3.2",
-    "@encointer/util": "^0.3.2",
-    "@encointer/worker-api": "^0.3.2",
+    "@encointer/node-api": "^0.3.4",
+    "@encointer/types": "^0.3.4",
+    "@encointer/util": "^0.3.4",
+    "@encointer/worker-api": "^0.3.4",
     "@polkadot/api": "^4.13.1",
     "@polkadot/extension-dapp": "^0.38.1",
     "@polkadot/keyring": "^6.3.1",
@@ -34,9 +34,7 @@
     "react-scripts": "3.4.3",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.88.0",
-    "serve": "^12.0.0",
-    "toformat": "^2.0.0",
-    "yarn": "^1.22.10"
+    "toformat": "^2.0.0"
   },
   "resolutions": {
     "@polkadot/api": "~4.13.1",
