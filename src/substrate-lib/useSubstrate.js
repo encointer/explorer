@@ -1,5 +1,9 @@
 import { useContext, useEffect, useCallback } from 'react';
-import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ApiPromise } from '@polkadot/api';
+import { WsProvider } from '@polkadot/rpc-provider';
+import { options } from '@encointer/node-api';
+import * as eapi from '@encointer/node-api';
+import encointerTypes from '@encointer/types';
 
 import { SubstrateContext } from './SubstrateContext';
 
@@ -13,7 +17,20 @@ const useSubstrate = () => {
     if (api) return;
 
     const provider = new WsProvider(socket);
-    const _api = new ApiPromise({ provider, types });
+    // Connect to Encointer
+    const _api = await new ApiPromise({ ...options(
+      {
+        types: {
+          "CurrencyIdentifier": "Hash",
+          "CurrencyCeremony": "(CurrencyIdentifier,CeremonyIndexType)",
+          "CurrencyPropertiesType": {
+            "name_utf8": "Vec<u8>",
+            "demurrage_per_block": "Demurrage"
+          }
+        }
+      }
+    ), provider });
+
     // We want to listen to event for disconnection and reconnection.
     //  That's why we set for listeners.
     _api.on('connected', () => {
