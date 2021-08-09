@@ -48,9 +48,9 @@ function MapSidebarMain (props) {
   /// Fetch bootstrappers
   useEffect(() => {
     let unsubscribeAll;
-    if (cid && api.query.encointerCurrencies) {
+    if (cid && api.query.encointerCommunities) {
       debug && console.log('GETTING BOOTSTRAPPERS', cid);
-      api.query.encointerCurrencies
+      api.query.encointerCommunities
         .bootstrappers(cid, _ => {
           debug && console.log('BOOTSTRAPPERS RECEIVED', _);
           setBootstrappers(_.toJSON());
@@ -60,7 +60,7 @@ function MapSidebarMain (props) {
         .catch(console.error);
       return () => unsubscribeAll && unsubscribeAll();
     }
-  }, [api.query.encointerCurrencies, cid, debug]);
+  }, [api.query.encointerCommunities, cid, debug]);
 
   /// Fetch money supply
   useEffect(() => {
