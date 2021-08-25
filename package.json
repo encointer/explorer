@@ -48,7 +48,9 @@
     "lint:ci": "eslint src/** --max-warnings=0",
     "lint:fix": "eslint --fix src/**.js",
     "predeploy": "yarn build",
-    "deploy": "gh-pages -d build -m '[ci skip] Updates'"
+    "deploy": "gh-pages -d build -m '[ci skip] Updates'",
+    "encointer:link": "./scripts/encointer-link.cjs",
+    "encointer:unlink": "./scripts/encointer-unlink.cjs"
   },
   "eslintConfig": {
     "extends": [
