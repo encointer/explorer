@@ -9,7 +9,6 @@ console.log(`Connected socket: ${connectedSocket}`);
 
 const INIT_STATE = {
   socket: connectedSocket,
-  types: config.CUSTOM_TYPES,
   keyring: null,
   keyringState: null,
   api: null,

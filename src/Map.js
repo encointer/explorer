@@ -26,7 +26,7 @@ import 'react-leaflet-markercluster/dist/styles.min.css';
 const initialPosition = L.latLng(47.166168, 8.515495);
 
 /// Parse only 16 bits of fractional part
-const parseLatLng = _ => parseI32F32(_, 16);
+const parseLatLng = _ => parseI64F64(_, 16);
 
 const toLatLng = location => [
   parseLatLng(location.lat),
@@ -156,10 +156,10 @@ export default function Map (props) {
   const [ceremonyIndex, setCeremonyIndex] = useState(0);
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const ec = api && api.query && api.query.encointerCurrencies;
+  const ec = api && api.query && (api.query.encointerCommunities||api.query.encointerCurrencies);
   const es = api && api.query && api.query.encointerScheduler;
 
-  /// Fetch locations for each currency in parallel; Save to state once ready
+  /// Fetch locations for each Community in parallel; Save to state once ready
   async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
     const kvReducer = (acc, data, idx) => { // convert array to key-value map
       acc[hash[idx]] = data;                // where key is BASE58 of cid
@@ -167,13 +167,14 @@ export default function Map (props) {
     };
 
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
+    const fetcher = ec.communityMetadata || ec.currencyProperties;
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
-        ec.locations,           // API: encointerCurrencies.locations(cid) -> Vec<Location>
+        ec.locations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
         cids,                   // array of parameters to method
         _ => _.map(toLatLng)    // convert Location from I32F32 to LatLng
-      ),                        // Fetching all Currency Properties
-      await batchFetch(ec.currencyProperties, cids)]);
+      ),                        // Fetching all community Properties
+      await batchFetch(fetcher, cids)]);
 
     debug && console.log('SETTING DATA', locations, properties);
 
@@ -181,9 +182,9 @@ export default function Map (props) {
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
       position: L.latLngBounds(locations[idx]).getCenter(),
-      demurrage: parseDemurrage(properties[idx].demurrage_per_block),
-      demurragePerBlock: parseI64F64(properties[idx].demurrage_per_block),
-      name: u8aToString(properties[idx].name_utf8)
+      demurrage: properties[idx].demurrage_per_block ? parseDemurrage(properties[idx].demurrage_per_block) : 1,
+      demurragePerBlock: properties[idx].demurrage_per_block ? parseI64F64(properties[idx].demurrage_per_block) : 0,
+      name: properties[idx].name_utf8 ? u8aToString(properties[idx].name_utf8) : properties[idx].name
     })).reduce(kvReducer, {}));
     setUI({ ...ui, loading: false });
   }
@@ -232,7 +233,7 @@ export default function Map (props) {
       }
     } = api.query;
     debug && console.log('ceremony id', currentPhase.phase, ceremonyIndex);
-    const CurrencyCeremony = api.registry.getOrUnknown('CurrencyCeremony');
+    const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
 
     /// Fetch participants and meetups counters
     const fetchHistoricData = async (ceremony, phase, cids) => {
@@ -252,11 +253,11 @@ export default function Map (props) {
       // Previous Phases of current Ceremony
       for (let oldPhase = 0; oldPhase < phase; oldPhase++) {
         cids.forEach(cid => {
-          const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremony]);
+          const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremony]);
           const getters = [getParticipantCount, getMeetupCount];
           const getter = getters[oldPhase];
           debug && console.log('hist ', bs58.encode(cid), ceremony.toNumber(), oldPhase);
-          getter(currencyCeremony).then((_) => dispatch({
+          getter(communityCeremony).then((_) => dispatch({
             type: setters[oldPhase],
             payload: {
               cid: bs58.encode(cid),
@@ -281,10 +282,10 @@ export default function Map (props) {
       // Last Ceremony
       const lastCeremony = ceremony.sub(new U32(api.registry, 1));
       const lastCeremonyData = await Promise.all(cids.map(cid => {
-        const currencyCeremony = new CurrencyCeremony(api.registry, [cid, lastCeremony]);
+        const communityCeremony = new CommunityCeremony(api.registry, [cid, lastCeremony]);
         return api.queryMulti([
-          [getParticipantCount, currencyCeremony],
-          [getMeetupCount, currencyCeremony]
+          [getParticipantCount, communityCeremony],
+          [getMeetupCount, communityCeremony]
         ]);
       }));
       const payload = lastCeremonyData.reduce((acc, data, idx) => {
@@ -327,11 +328,11 @@ export default function Map (props) {
         }
       } = api.query;
       const getters = [getParticipantCount, getMeetupCount, getAttestationCount];
-      const CurrencyCeremony = api.registry.getOrUnknown('CurrencyCeremony');
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
       const unsubs = await Promise.all(cids.map(cid => {
-        const currencyCeremony = new CurrencyCeremony(api.registry, [cid, ceremonyIndex]);
+        const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremonyIndex]);
         const getter = getters[phase];
-        return getter(currencyCeremony, (_) => dispatch({
+        return getter(communityCeremony, (_) => dispatch({
           type: setters[phase],
           payload: {
             cid: bs58.encode(cid),
@@ -371,15 +372,15 @@ export default function Map (props) {
         setCeremonyIndex(currentCeremonyIndex);
       });
     }
-  }, [currentPhase.phase, ceremonyIndex, cids, es, debug, api, setters]);
+  }, [currentPhase.phase, ceremonyIndex]);
 
-  /// Load currencies identifiers once
+  /// Load communities identifiers once
   useEffect(() => {
     debug && console.log('cids', cids);
 
     if (ec && cids.length === 0) {
-      ec.currencyIdentifiers()
-        .then(cids => {
+      const getter = ec.communityIdentifiers || ec.currencyIdentifiers;
+      getter().then(cids => {
           const hashes = cids.map(bs58.encode);
           setCids(cids);
           setHash(hashes);
@@ -440,8 +441,8 @@ export default function Map (props) {
     map.setZoom(8);
   };
 
-  /// Handler for click on currency marker
-  const handleCurrencyMarkerClick = cid => {
+  /// Handler for click on Community marker
+  const handleCommunityMarkerClick = cid => {
     const map = mapRef.current.leafletElement;
     setUI({ ...ui, selected: cid, prevZoom: map.getZoom() });
     const bounds = L.latLngBounds(data[cid].coords).pad(2);
@@ -562,7 +563,7 @@ export default function Map (props) {
                 data={data}
                 cids={hash}
                 state={state}
-                onClick={handleCurrencyMarkerClick}
+                onClick={handleCommunityMarkerClick}
                 selected={ui.selected} />
               : null }
 
