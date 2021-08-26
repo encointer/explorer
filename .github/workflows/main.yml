@@ -1,8 +1,9 @@
 name: Build and Deploy
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build-and-deploy:
@@ -14,18 +15,18 @@ jobs:
           persist-credentials: false
 
       - name: Install #This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
-        uses: borales/actions-yarn@v2.0.0
+        uses: borales/actions-yarn@v2.3.0
         with:
           cmd: install # will run `yarn install` command
-      - name: Build	
-        uses: borales/actions-yarn@v2.0.0
+      - name: Build
+        uses: borales/actions-yarn@v2.3.0
         with: # will run `yarn build` command
           cmd: |
             build
             cp ./config/CNAME ./build/CNAME
-      - name: Deploy 🚀
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./build
+#      - name: Deploy 🚀
+#        uses: peaceiris/actions-gh-pages@v3
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          publish_branch: gh-pages
+#          publish_dir: ./build
