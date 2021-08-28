@@ -33,7 +33,7 @@ const toLatLng = location => [
   parseLatLng(location.lon)
 ];
 
-const BLOCKS_PER_MONTH = (86400 / 6) * (356 / 12);
+const BLOCKS_PER_MONTH = (86400 / 6) * (365 / 12);
 
 const parseDemurrage = _ => (1 - Math.exp(-1 * parseI64F64(_) * BLOCKS_PER_MONTH)) * 100;
 
