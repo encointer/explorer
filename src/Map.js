@@ -170,7 +170,8 @@ export default function Map (props) {
   const [ceremonyIndex, setCeremonyIndex] = useState(0);
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const ec = api && api.query && (api.query.encointerCommunities || api.query.encointerCurrencies);
+  const ec = api && api.query && api.query.encointerCommunities;
+  const ec_ = api && api.rpc && api.rpc.communities;
   const es = api && api.query && api.query.encointerScheduler;
 
   /// Fetch locations for each Community in parallel; Save to state once ready
@@ -181,7 +182,8 @@ export default function Map (props) {
     };
 
     // debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
-    const fetcher = ec.communityMetadata || ec.currencyProperties;
+    const fetcher = ec.communityMetadata;
+
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
         ec.locations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
