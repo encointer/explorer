@@ -191,12 +191,13 @@ export default function Map (props) {
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
     const fetcher = ec.communityMetadata;
     const allLocations = await api.rpc.communities.getLocations(cids[0]);
-    const convertedLocations = allLocations.map(toLatLng);
+    // const allLocationsOld = await ec.locations(cids[0])
+    // const convertedLocations = allLocations.map(toLatLng);
+    // console.log(convertedLocations)
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
         ec_.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
-        cids,                   // array of parameters to method
-        _ => _.map(toLatLng)    // convert Location from I32F32 to LatLng
+        cids // convert Location from I32F32 to LatLng
       ),                        // Fetching all community Properties
       await batchFetch(fetcher, cids)]);
     console.log("locations: " + locations)
