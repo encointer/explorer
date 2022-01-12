@@ -191,16 +191,12 @@ export default function Map (props) {
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
     const fetcher = ec.communityMetadata;
     const allLocations = await api.rpc.communities.getLocations(cids[0]);
-    // const allLocationsOld = await ec.locations(cids[0])
-    // const convertedLocations = allLocations.map(toLatLng);
-    // console.log(convertedLocations)
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
         ec_.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
         cids // convert Location from I32F32 to LatLng
       ),                        // Fetching all community Properties
       await batchFetch(fetcher, cids)]);
-    console.log("locations: " + locations)
     debug && console.log('SETTING DATA', locations, properties);
 
     setData(cids.map((cid, idx) => ({ // Shape of data in UI
@@ -278,9 +274,7 @@ export default function Map (props) {
       // Previous Phases of current Ceremony
       for (let oldPhase = 0; oldPhase < phase; oldPhase++) {
         cids.forEach(cid => {
-          console.log("each cid: " + cid);
           const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremony]);
-          console.log("communityCeremony: " + communityCeremony);
           const getters = [getAssignmentCount, getMeetupCount];
           const getter = getters[oldPhase];
           debug && console.log('hist ', cid, ceremony.toNumber(), oldPhase);
@@ -321,9 +315,7 @@ export default function Map (props) {
         const cidComplete = communityIdentifierToString(cid);
         const [assignmentCount, meetupCount] = data;
         acc.meetups[cid] = meetupCount.toNumber();
-        console.log("sumValues: " + assignmentCount);
         const sumOfAssignments = sumValues(assignmentCount.toJSON());
-        console.log("sumOfAssignments +" + sumOfAssignments)
         acc.participants[cid] = sumOfAssignments;
         acc.assignmentCount = acc.participants[cid] + acc.assignmentCount;
         acc.meetupCount = acc.meetups[cid] + acc.meetupCount;
@@ -364,8 +356,6 @@ export default function Map (props) {
       const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
       const unsubs = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremonyIndex]);
-        // todo: getters[phase] is returning undefined, therefore getter(..) will fail. why
-        // console.log("participant count: " + api.query.encointerCeremonies.assignmentCounts)
         const getter = getters[phase];
         if(phase === 0) {
           return getter(communityCeremony, (_) => dispatch({
@@ -376,7 +366,6 @@ export default function Map (props) {
             }
           }));
         }
-        console.log("PHASE " + phase);
         return getter(communityCeremony, (_) => dispatch({
           type: setters[phase],
           payload: {
@@ -494,8 +483,11 @@ export default function Map (props) {
     setUI({ ...ui, selected: cid, prevZoom: map.getZoom() });
     const bounds = L.latLngBounds(data[cid].coords).pad(2);
     map.fitBounds(bounds);
+    console.log("button clicked")
   };
 
+
+  // todo: fix the responsive part, which I think is still not doing anything in the productive part, or does it? #54, the responsive component has been removed, look in previous commits, how it used to be.
   /// Handler for window resize
   // const handleResponsibleUpdate = (_, { width }) =>
   //   setUI({ ...ui, portrait: width < Responsive.onlyMobile.maxWidth, width });
