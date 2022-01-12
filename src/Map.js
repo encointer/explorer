@@ -24,6 +24,9 @@ import { parseI32F32, parseI64F64, batchFetch } from './utils';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
+
+import { communityIdentifierToString } from '@encointer/util/cidUtil';
+
 // const AppMedia = createMedia({
 //   breakpoints: {
 //     mobile: 320,
@@ -42,10 +45,7 @@ const initialPosition = L.latLng(47.166168, 8.515495);
 /// Parse only 16 bits of fractional part
 const parseLatLng = _ => parseI64F64(_, 16);
 
-const toLatLng = location => [
-  parseLatLng(location.lat),
-  parseLatLng(location.lon)
-];
+const toLatLng = location => [parseLatLng(location.lat), parseLatLng(location.lon)];
 
 const BLOCKS_PER_MONTH = (86400 / 6) * (365 / 12);
 
@@ -69,6 +69,9 @@ const ceremonyPhases = {
 };
 
 const sumUp = obj => Object.keys(obj).reduce((acc, it) => { acc = acc + obj[it]; return acc; }, 0);
+
+// used to sumup all participants (bootstrappers, newbies, etc.) in the assignmentCount json
+const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
 
 const initialState = {
   subscribtionCeremony: 0,
@@ -156,6 +159,10 @@ const reducer = (state, action) => {
 
 const setters = ['participants', 'meetups', 'attestations']; // action names for each phase
 
+function sum(obj) {
+  return Object.keys(obj).reduce((sum,key)=>sum+parseFloat(obj[key]||0),0);
+}
+let sample = { a: 1 , b: 2 , c:3 };
 export default function Map (props) {
   const { debug } = props;
   const mapRef = useRef();
@@ -175,24 +182,25 @@ export default function Map (props) {
   const es = api && api.query && api.query.encointerScheduler;
 
   /// Fetch locations for each Community in parallel; Save to state once ready
-  async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
+  async function fetchGeodataPar (cids, hash)  { /* eslint-disable no-multi-spaces */
     const kvReducer = (acc, data, idx) => { // convert array to key-value map
       acc[hash[idx]] = data;                // where key is BASE58 of cid
       return acc;
     };
 
-    // debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
+    debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
     const fetcher = ec.communityMetadata;
-
+    const allLocations = await api.rpc.communities.getLocations(cids[0]);
+    const convertedLocations = allLocations.map(toLatLng);
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
-        ec.locations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
+        ec_.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
         cids,                   // array of parameters to method
         _ => _.map(toLatLng)    // convert Location from I32F32 to LatLng
       ),                        // Fetching all community Properties
       await batchFetch(fetcher, cids)]);
-
-    // debug && console.log('SETTING DATA', locations, properties);
+    console.log("locations: " + locations)
+    debug && console.log('SETTING DATA', locations, properties);
 
     setData(cids.map((cid, idx) => ({ // Shape of data in UI
       cid,                            // cid for back-reference
@@ -208,7 +216,7 @@ export default function Map (props) {
   /// Update current phase
   useEffect(() => {
     let unsub;
-    // debug && console.log('phase', currentPhase.phase);
+    debug && console.log('phase', currentPhase.phase);
     if (!apiReady(api, 'encointerScheduler')) {
       return;
     }
@@ -262,21 +270,23 @@ export default function Map (props) {
       }
       const {
         encointerCeremonies: {
-          participantCount: getParticipantCount,
+          assignmentCounts: getAssignmentCount,
           meetupCount: getMeetupCount
         }
       } = api.query;
       // Previous Phases of current Ceremony
       for (let oldPhase = 0; oldPhase < phase; oldPhase++) {
         cids.forEach(cid => {
+          console.log("each cid: " + cid);
           const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremony]);
-          const getters = [getParticipantCount, getMeetupCount];
+          console.log("communityCeremony: " + communityCeremony);
+          const getters = [getAssignmentCount, getMeetupCount];
           const getter = getters[oldPhase];
-          // debug && console.log('hist ', bs58.encode(cid), ceremony.toNumber(), oldPhase);
+          debug && console.log('hist ', cid, ceremony.toNumber(), oldPhase);
           getter(communityCeremony).then((_) => dispatch({
             type: setters[oldPhase],
             payload: {
-              cid: bs58.encode(cid),
+              cid: cid,
               count: _.toNumber()
             }
           }));
@@ -291,32 +301,37 @@ export default function Map (props) {
       }
       const {
         encointerCeremonies: {
-          participantCount: getParticipantCount,
+          assignmentCounts: getAssignmentCount,
           meetupCount: getMeetupCount
         }
       } = api.query;
       // Last Ceremony
+      // let cidss = [{'geohash': '0x73716d3176', 'digest': '0xf08c911c' }, {'geohash': '0x656873746d', 'digest': '0x551f61a5'}]
       const lastCeremony = ceremony.sub(new U32(api.registry, 1));
       const lastCeremonyData = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, lastCeremony]);
         return api.queryMulti([
-          [getParticipantCount, communityCeremony],
+          [getAssignmentCount, communityCeremony],
           [getMeetupCount, communityCeremony]
         ]);
       }));
       const payload = lastCeremonyData.reduce((acc, data, idx) => {
-        const cid = bs58.encode(cids[idx]);
-        const [participantCount, meetupCount] = data;
+        const cid = cids[idx];
+        const cidComplete = communityIdentifierToString(cid);
+        const [assignmentCount, meetupCount] = data;
         acc.meetups[cid] = meetupCount.toNumber();
-        acc.participants[cid] = participantCount.toNumber();
-        acc.participantCount = acc.participants[cid] + acc.participantCount;
+        console.log("sumValues: " + assignmentCount);
+        const sumOfAssignments = sumValues(assignmentCount.toJSON());
+        console.log("sumOfAssignments +" + sumOfAssignments)
+        acc.participants[cid] = sumOfAssignments;
+        acc.assignmentCount = acc.participants[cid] + acc.assignmentCount;
         acc.meetupCount = acc.meetups[cid] + acc.meetupCount;
         return acc;
       }, {
         subscribtionCeremony: lastCeremony.toNumber(),
         meetups: {},
         participants: {},
-        participantCount: 0,
+        assignmentCount: 0,
         meetupCount: 0
       });
       dispatch({
@@ -335,23 +350,36 @@ export default function Map (props) {
         return;
       }
 
-      // debug && console.log('subscribe to ceremony', ceremonyNumber, phase);
+      debug && console.log('subscribe to ceremony', ceremonyNumber, phase);
+
       const {
         encointerCeremonies: {
-          participantCount: getParticipantCount,
+          assignmentCounts: getAssignmentCount,
           attestationCount: getAttestationCount,
           meetupCount: getMeetupCount
         }
       } = api.query;
-      const getters = [getParticipantCount, getMeetupCount, getAttestationCount];
+      const getters = [getAssignmentCount, getMeetupCount, getAttestationCount];
       const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
       const unsubs = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremonyIndex]);
+        // todo: getters[phase] is returning undefined, therefore getter(..) will fail. why
+        // console.log("participant count: " + api.query.encointerCeremonies.assignmentCounts)
         const getter = getters[phase];
+        if(phase === 0) {
+          return getter(communityCeremony, (_) => dispatch({
+            type: setters[phase],
+            payload: {
+              cid: cid,
+              count: sumValues(_.toJSON())
+            }
+          }));
+        }
+        console.log("PHASE " + phase);
         return getter(communityCeremony, (_) => dispatch({
           type: setters[phase],
           payload: {
-            cid: bs58.encode(cid),
+            cid: cid,
             count: _.toNumber()
           }
         }));
@@ -390,14 +418,16 @@ export default function Map (props) {
     }
   }, [currentPhase.phase, ceremonyIndex]);
 
+  useEffect(() => console.log("cids state is: " + cids), [cids]);
+
   /// Load communities identifiers once
   useEffect(() => {
     // debug && console.log('cids', cids);
 
     if (ec && cids.length === 0) {
-      const getter = ec.communityIdentifiers || ec.currencyIdentifiers;
+      const getter = ec.communityIdentifiers;
       getter().then(cids => {
-        const hashes = cids.map(bs58.encode);
+        const hashes = cids.map(communityIdentifierToString);
         setCids(cids);
         setHash(hashes);
       })
@@ -415,7 +445,7 @@ export default function Map (props) {
 
   /// Attempt geolocation
   useEffect(() => {
-    // debug && console.log('get position');
+    debug && console.log('get position');
     const map = mapRef.current;
     if (map != null && position === initialPosition) {
       map.leafletElement.locate();
@@ -424,7 +454,7 @@ export default function Map (props) {
 
   /// Update map after resize
   useEffect(() => {
-    // debug && console.log('update resize');
+    debug && console.log('update resize');
     const map = mapRef.current && mapRef.current.leafletElement;
     map && setTimeout(_ => map.invalidateSize(), 50);
   }, [ui.sidebarSize]);
