@@ -103,7 +103,10 @@ const reducer = (state, action) => {
     case 'participants':
       return ((state, action) => {
         const participants = { ...state.participants, [action.payload.cid]: action.payload.count };
-        const participantCount = sumUp(participants);
+        console.log('PARTICIPANTS', JSON.stringify(participants));
+        console.log('action.payload.count' + action.payload.count);
+        const participantCount = action.payload.count;
+        console.log('PARTICIPANTSCOUNT', (participantCount));
         return { ...state, participants, participantCount };
       })(state, action);
 
@@ -159,10 +162,10 @@ const reducer = (state, action) => {
 
 const setters = ['participants', 'meetups', 'attestations']; // action names for each phase
 
-function sum(obj) {
-  return Object.keys(obj).reduce((sum,key)=>sum+parseFloat(obj[key]||0),0);
+function sum (obj) {
+  return Object.keys(obj).reduce((sum, key) => sum + parseFloat(obj[key] || 0), 0);
 }
-let sample = { a: 1 , b: 2 , c:3 };
+const sample = { a: 1, b: 2, c: 3 };
 export default function Map (props) {
   const { debug } = props;
   const mapRef = useRef();
@@ -182,7 +185,7 @@ export default function Map (props) {
   const es = api && api.query && api.query.encointerScheduler;
 
   /// Fetch locations for each Community in parallel; Save to state once ready
-  async function fetchGeodataPar (cids, hash)  { /* eslint-disable no-multi-spaces */
+  async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
     const kvReducer = (acc, data, idx) => { // convert array to key-value map
       acc[hash[idx]] = data;                // where key is BASE58 of cid
       return acc;
@@ -190,7 +193,6 @@ export default function Map (props) {
 
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
     const fetcher = ec.communityMetadata;
-    const allLocations = await api.rpc.communities.getLocations(cids[0]);
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
         ec_.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
@@ -277,14 +279,24 @@ export default function Map (props) {
           const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremony]);
           const getters = [getAssignmentCount, getMeetupCount];
           const getter = getters[oldPhase];
-          debug && console.log('hist ', cid, ceremony.toNumber(), oldPhase);
-          getter(communityCeremony).then((_) => dispatch({
-            type: setters[oldPhase],
-            payload: {
-              cid: cid,
-              count: _.toNumber()
-            }
-          }));
+          debug && console.log('hist ', cid, ceremony.toNumber(), 'oldphase', oldPhase);
+          if (oldPhase == 0) {
+            getter(communityCeremony).then((_) => dispatch({
+              type: setters[oldPhase],
+              payload: {
+                cid: communityIdentifierToString(cid),
+                count: sumUp(_.toJSON())
+              }
+            }));
+          } else {
+            getter(communityCeremony).then((_) => dispatch({
+              type: setters[oldPhase],
+              payload: {
+                cid: communityIdentifierToString(cid),
+                count: _.toNumber()
+              }
+            }));
+          }
         });
       }
     };
@@ -314,11 +326,11 @@ export default function Map (props) {
         const cid = cids[idx];
         const cidComplete = communityIdentifierToString(cid);
         const [assignmentCount, meetupCount] = data;
-        acc.meetups[cid] = meetupCount.toNumber();
+        acc.meetups[cidComplete] = meetupCount.toNumber();
         const sumOfAssignments = sumValues(assignmentCount.toJSON());
-        acc.participants[cid] = sumOfAssignments;
-        acc.assignmentCount = acc.participants[cid] + acc.assignmentCount;
-        acc.meetupCount = acc.meetups[cid] + acc.meetupCount;
+        acc.participants[cidComplete] = sumOfAssignments;
+        acc.assignmentCount = acc.participants[cidComplete] + acc.assignmentCount;
+        acc.meetupCount = acc.meetups[cidComplete] + acc.meetupCount;
         return acc;
       }, {
         subscribtionCeremony: lastCeremony.toNumber(),
@@ -357,19 +369,19 @@ export default function Map (props) {
       const unsubs = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremonyIndex]);
         const getter = getters[phase];
-        if(phase === 0) {
+        if (phase === 0) {
           return getter(communityCeremony, (_) => dispatch({
             type: setters[phase],
             payload: {
-              cid: cid,
-              count: sumValues(_.toJSON())
+              cid: communityIdentifierToString(cid),
+              count: sumUp(_.toJSON())
             }
           }));
         }
         return getter(communityCeremony, (_) => dispatch({
           type: setters[phase],
           payload: {
-            cid: cid,
+            cid: communityIdentifierToString(cid),
             count: _.toNumber()
           }
         }));
@@ -408,7 +420,12 @@ export default function Map (props) {
     }
   }, [currentPhase.phase, ceremonyIndex]);
 
-  useEffect(() => console.log("cids state is: " + cids), [cids]);
+  useEffect(() => console.log('state participants are: ' + JSON.stringify(state.participants)), [state]);
+  useEffect(() => console.log('state participantCount are: ' + JSON.stringify(state.participantCount)), [state]);
+  useEffect(() => console.log('state meetups are: ' + JSON.stringify(state.meetups)), [state]);
+  useEffect(() => console.log('state lastCeremony participants are: ' + JSON.stringify(state.lastCeremony.participants)), [state]);
+  useEffect(() => console.log('state lastCeremony meetups are: ' + JSON.stringify(state.lastCeremony.meetups)), [state]);
+  useEffect(() => console.log('ui.selected: ' + JSON.stringify(ui.selected)), [ui.selected]);
 
   /// Load communities identifiers once
   useEffect(() => {
@@ -483,9 +500,8 @@ export default function Map (props) {
     setUI({ ...ui, selected: cid, prevZoom: map.getZoom() });
     const bounds = L.latLngBounds(data[cid].coords).pad(2);
     map.fitBounds(bounds);
-    console.log("button clicked")
+    console.log('button clicked');
   };
-
 
   // todo: fix the responsive part, which I think is still not doing anything in the productive part, or does it? #54, the responsive component has been removed, look in previous commits, how it used to be.
   /// Handler for window resize
