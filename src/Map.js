@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useReducer } from 'react';
 import { Map as LMap, TileLayer } from 'react-leaflet';
-import { createMedia } from '@artsy/fresnel';
+// todo #54
+// import { createMedia } from '@artsy/fresnel';
 import { Sidebar, Segment } from 'semantic-ui-react';
 
 import * as L from 'leaflet';
@@ -26,7 +27,7 @@ import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 
 import { communityIdentifierToString } from '@encointer/util/cidUtil';
-
+// todo #54
 // const AppMedia = createMedia({
 //   breakpoints: {
 //     mobile: 320,
@@ -42,10 +43,10 @@ import { communityIdentifierToString } from '@encointer/util/cidUtil';
 
 const initialPosition = L.latLng(47.166168, 8.515495);
 
+// todo #56
 /// Parse only 16 bits of fractional part
-const parseLatLng = _ => parseI64F64(_, 16);
-
-const toLatLng = location => [parseLatLng(location.lat), parseLatLng(location.lon)];
+// const parseLatLng = _ => parseI64F64(_, 16);
+// const toLatLng = location => [parseLatLng(location.lat), parseLatLng(location.lon)];
 
 const BLOCKS_PER_MONTH = (86400 / 6) * (365 / 12);
 
@@ -89,7 +90,7 @@ const initialState = {
   meetups: {},
   attestations: {}
 };
-
+// THIS USE-CASES trigger the action to save to the state calles 'state' , which is done by the setter 'dispatch'
 const reducer = (state, action) => {
   switch (action.type) {
     case 'unsubscribeAll':
@@ -103,10 +104,7 @@ const reducer = (state, action) => {
     case 'participants':
       return ((state, action) => {
         const participants = { ...state.participants, [action.payload.cid]: action.payload.count };
-        console.log('PARTICIPANTS', JSON.stringify(participants));
-        console.log('action.payload.count' + action.payload.count);
         const participantCount = action.payload.count;
-        console.log('PARTICIPANTSCOUNT', (participantCount));
         return { ...state, participants, participantCount };
       })(state, action);
 
@@ -162,10 +160,6 @@ const reducer = (state, action) => {
 
 const setters = ['participants', 'meetups', 'attestations']; // action names for each phase
 
-function sum (obj) {
-  return Object.keys(obj).reduce((sum, key) => sum + parseFloat(obj[key] || 0), 0);
-}
-const sample = { a: 1, b: 2, c: 3 };
 export default function Map (props) {
   const { debug } = props;
   const mapRef = useRef();
@@ -280,7 +274,7 @@ export default function Map (props) {
           const getters = [getAssignmentCount, getMeetupCount];
           const getter = getters[oldPhase];
           debug && console.log('hist ', cid, ceremony.toNumber(), 'oldphase', oldPhase);
-          if (oldPhase == 0) {
+          if (oldPhase === 0) {
             getter(communityCeremony).then((_) => dispatch({
               type: setters[oldPhase],
               payload: {
@@ -313,7 +307,6 @@ export default function Map (props) {
         }
       } = api.query;
       // Last Ceremony
-      // let cidss = [{'geohash': '0x73716d3176', 'digest': '0xf08c911c' }, {'geohash': '0x656873746d', 'digest': '0x551f61a5'}]
       const lastCeremony = ceremony.sub(new U32(api.registry, 1));
       const lastCeremonyData = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, lastCeremony]);
@@ -420,12 +413,13 @@ export default function Map (props) {
     }
   }, [currentPhase.phase, ceremonyIndex]);
 
-  useEffect(() => console.log('state participants are: ' + JSON.stringify(state.participants)), [state]);
-  useEffect(() => console.log('state participantCount are: ' + JSON.stringify(state.participantCount)), [state]);
-  useEffect(() => console.log('state meetups are: ' + JSON.stringify(state.meetups)), [state]);
-  useEffect(() => console.log('state lastCeremony participants are: ' + JSON.stringify(state.lastCeremony.participants)), [state]);
-  useEffect(() => console.log('state lastCeremony meetups are: ' + JSON.stringify(state.lastCeremony.meetups)), [state]);
-  useEffect(() => console.log('ui.selected: ' + JSON.stringify(ui.selected)), [ui.selected]);
+  // OPTIONAL FOR DEBUGGING, FINDING OUT HOW THE PARTICULAR PROPERTIES OF THE STATE CHANGE
+  // useEffect(() => console.log('state participants are: ' + JSON.stringify(state.participants)), [state]);
+  // useEffect(() => console.log('state participantCount are: ' + JSON.stringify(state.participantCount)), [state]);
+  // useEffect(() => console.log('state meetups are: ' + JSON.stringify(state.meetups)), [state]);
+  // useEffect(() => console.log('state lastCeremony participants are: ' + JSON.stringify(state.lastCeremony.participants)), [state]);
+  // useEffect(() => console.log('state lastCeremony meetups are: ' + JSON.stringify(state.lastCeremony.meetups)), [state]);
+  // useEffect(() => console.log('ui.selected: ' + JSON.stringify(ui.selected)), [ui.selected]);
 
   /// Load communities identifiers once
   useEffect(() => {
@@ -500,7 +494,6 @@ export default function Map (props) {
     setUI({ ...ui, selected: cid, prevZoom: map.getZoom() });
     const bounds = L.latLngBounds(data[cid].coords).pad(2);
     map.fitBounds(bounds);
-    console.log('button clicked');
   };
 
   // todo: fix the responsive part, which I think is still not doing anything in the productive part, or does it? #54, the responsive component has been removed, look in previous commits, how it used to be.
@@ -558,9 +551,9 @@ export default function Map (props) {
               width='very wide'
               data={data[ui.selected] || {}}
               participantCount={ui.selected ? (state.participants[ui.selected] || 0) : 0}
-              lastParticipantCount={ui.selected ? state.lastCeremony.participants[ui.selected] : 0}
+              lastParticipantCount={ui.selected ? (state.lastCeremony.participants[ui.selected] || 0) : 0}
               meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
-              lastMeetupCount={ui.selected ? state.lastCeremony.meetups[ui.selected] : 0}
+              lastMeetupCount={ui.selected ? (state.lastCeremony.meetups[ui.selected] || 0) : 0}
               debug={debug}
           />
 

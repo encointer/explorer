@@ -170,9 +170,11 @@ function MapSidebarMain (props) {
 
 export default React.memo(function MapSidebar (props) {
   const { api } = props;
-  return api && api.query ? (
+  return api && api.query
+    ? (
     <MapSidebarMain {...props} />
-  ) : null;
+      )
+    : null;
 }, (prev, cur) => (
   prev.hash === cur.hash && (
     cur.hash
