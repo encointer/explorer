@@ -49,7 +49,7 @@ function MapSidebarMain (props) {
   useEffect(() => {
     let unsubscribeAll;
     if (cid && api.query.encointerCommunities) {
-      debug && console.log('GETTING BOOTSTRAPPERS', cid);
+      // debug && console.log('GETTING BOOTSTRAPPERS', cid);
       api.query.encointerCommunities
         .bootstrappers(cid, _ => {
           debug && console.log('BOOTSTRAPPERS RECEIVED', _);
@@ -69,10 +69,10 @@ function MapSidebarMain (props) {
       debug && console.log('GETTING MONEYSUPPLY', cid);
       api.query.encointerBalances
         .totalIssuance(cid, _ => {
-          debug && console.log('MONEYSUPPLY RECEIVED', _);
+          debug && console.log('MONEYSUPPLY RECEIVED', JSON.stringify(_));
           setEntry({
-            principal: parseI64F64(_.get('principal')),
-            lastUpdate: _.get('last_update').toNumber()
+            principal: parseI64F64(_.principal.bits),
+            lastUpdate: _.lastUpdate.toNumber()
           });
         }).then(unsub => {
           unsubscribeAll = unsub;
