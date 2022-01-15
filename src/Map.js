@@ -304,13 +304,13 @@ export default function Map (props) {
       }));
       const payload = lastCeremonyData.reduce((acc, data, idx) => {
         const cid = cids[idx];
-        const cidComplete = communityIdentifierToString(cid);
+        const fmtCid = communityIdentifierToString(cid);
         const [assignmentCount, meetupCount] = data;
-        acc.meetups[cidComplete] = meetupCount.toNumber();
+        acc.meetups[fmtCid] = meetupCount.toNumber();
         const sumOfAssignments = sumValues(assignmentCount.toJSON());
-        acc.participants[cidComplete] = sumOfAssignments;
-        acc.assignmentCount = acc.participants[cidComplete] + acc.assignmentCount;
-        acc.meetupCount = acc.meetups[cidComplete] + acc.meetupCount;
+        acc.participants[fmtCid] = sumOfAssignments;
+        acc.assignmentCount = acc.participants[fmtCid] + acc.assignmentCount;
+        acc.meetupCount = acc.meetups[fmtCid] + acc.meetupCount;
         return acc;
       }, {
         subscribtionCeremony: lastCeremony.toNumber(),
