@@ -84,7 +84,11 @@ const initialState = {
   meetups: {},
   attestations: {}
 };
-// THIS USE-CASES trigger the action to save to the state calles 'state' , which is done by the setter 'dispatch'
+/**
+ * // this function defines the different cases to save state properties.
+ * The state is set by the setter called dispatch. Later in the code you'll find dispatch({type: '', payload {}} where
+ * "type" is one of these cases and payload is the data set to the state
+ */
 const reducer = (state, action) => {
   switch (action.type) {
     case 'unsubscribeAll':
