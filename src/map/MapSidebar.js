@@ -51,9 +51,9 @@ function MapSidebarMain (props) {
     if (cid && api.query.encointerCommunities) {
       // debug && console.log('GETTING BOOTSTRAPPERS', cid);
       api.query.encointerCommunities
-        .bootstrappers(cid, _ => {
-          debug && console.log('BOOTSTRAPPERS RECEIVED', _);
-          setBootstrappers(_.toJSON());
+        .bootstrappers(cid, bootstrappers => {
+          debug && console.log('BOOTSTRAPPERS RECEIVED', bootstrappers);
+          setBootstrappers(bootstrappers.toJSON());
         }).then(unsub => {
           unsubscribeAll = unsub;
         })
@@ -68,11 +68,11 @@ function MapSidebarMain (props) {
     if (cid && api.query.encointerBalances) {
       debug && console.log('GETTING MONEYSUPPLY', cid);
       api.query.encointerBalances
-        .totalIssuance(cid, _ => {
-          debug && console.log('MONEYSUPPLY RECEIVED', JSON.stringify(_));
+        .totalIssuance(cid, balanceEntry => {
+          debug && console.log('MONEYSUPPLY RECEIVED', JSON.stringify(balanceEntry));
           setEntry({
-            principal: parseI64F64(_.principal.bits),
-            lastUpdate: _.lastUpdate.toNumber()
+            principal: parseI64F64(balanceEntry.principal.bits),
+            lastUpdate: balanceEntry.lastUpdate.toNumber()
           });
         }).then(unsub => {
           unsubscribeAll = unsub;
@@ -149,7 +149,7 @@ function MapSidebarMain (props) {
           <Header sub>List of bootstrappers:</Header>
           <List>{
             bootstrappers.map(
-              _ => <List.Item key={_}>{_}</List.Item>
+              bootstrappers => <List.Item key={bootstrappers}>{bootstrappers}</List.Item>
             )
           }</List>
         </Segment>
