@@ -5,7 +5,6 @@ import { Map as LMap, TileLayer } from 'react-leaflet';
 import { Sidebar, Segment } from 'semantic-ui-react';
 
 import * as L from 'leaflet';
-import * as bs58 from 'bs58';
 import { u32 as U32 } from '@polkadot/types/primitive';
 import { u8aToString } from '@polkadot/util';
 
@@ -21,7 +20,7 @@ import MapNodeSwitchWidget from './map/MapNodeSwitchWidget';
 
 import { CommunitiesClusters } from './map/CommunitiesClusters';
 import { LocationsLayer } from './map/LocationsLayer';
-import { parseI32F32, parseI64F64, batchFetch } from './utils';
+import { parseI64F64, batchFetch } from './utils';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
@@ -42,11 +41,6 @@ import { communityIdentifierToString } from '@encointer/util/cidUtil';
 // const { Media, MediaContextProvider } = AppMedia;
 
 const initialPosition = L.latLng(47.166168, 8.515495);
-
-// todo #56
-/// Parse only 16 bits of fractional part
-// const parseLatLng = _ => parseI64F64(_, 16);
-// const toLatLng = location => [parseLatLng(location.lat), parseLatLng(location.lon)];
 
 const BLOCKS_PER_MONTH = (86400 / 6) * (365 / 12);
 
@@ -176,7 +170,6 @@ export default function Map (props) {
 
   const ec = api && api.query && api.query.encointerCommunities;
   const ec_ = api && api.rpc && api.rpc.communities;
-  const es = api && api.query && api.query.encointerScheduler;
 
   /// Fetch locations for each Community in parallel; Save to state once ready
   async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */

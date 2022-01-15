@@ -209,6 +209,7 @@ export default function Endpoints (props) {
   const [{ apiUrl, groupIndex, hasUrlChanged, isUrlValid }, setApiUrl] = useState(extractUrlState(socket, groups));
   const [storedCustomEndpoints, setStoredCustomEndpoints] = useState(getCustomEndpoints());
 
+  /* eslint-disable no-unused-vars */
   const isKnownUrl = useMemo(() => {
     let result = false;
 
@@ -224,6 +225,7 @@ export default function Endpoints (props) {
 
     return result;
   }, [apiUrl, linkOptions]);
+  /* eslint-enable no-unused-vars */
 
   const isSavedCustomEndpoint = useMemo(() => {
     let result = false;

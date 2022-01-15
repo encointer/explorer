@@ -176,7 +176,9 @@ export function CommunitiesClusters (props) {
           const { position, name } = data[cid];
           const { active, count, attests } = byCID[cid] || {};
           const isSelected = selected === cid;
-          return (isSelected ? null : <Marker
+          return (isSelected
+            ? null
+            : <Marker
             key={cid.concat(phase, attests, count, active ? 'force-redraw' : '')}
             position={position}
             alt={cid}
