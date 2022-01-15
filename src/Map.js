@@ -267,23 +267,13 @@ export default function Map (props) {
           const getters = [getAssignmentCount, getMeetupCount];
           const getter = getters[oldPhase];
           debug && console.log('hist ', cid, ceremony.toNumber(), 'oldphase', oldPhase);
-          if (oldPhase === 0) {
-            getter(communityCeremony).then((_) => dispatch({
-              type: setters[oldPhase],
-              payload: {
-                cid: communityIdentifierToString(cid),
-                count: sumUp(_.toJSON())
-              }
-            }));
-          } else {
-            getter(communityCeremony).then((_) => dispatch({
-              type: setters[oldPhase],
-              payload: {
-                cid: communityIdentifierToString(cid),
-                count: _.toNumber()
-              }
-            }));
-          }
+          getter(communityCeremony).then((assignmentOrMeetupCount) => dispatch({
+            type: setters[oldPhase],
+            payload: {
+              cid: communityIdentifierToString(cid),
+              count: (oldPhase === 0) ? sumUp(assignmentOrMeetupCount.toJSON()) : assignmentOrMeetupCount.toNumber()
+            }
+          }));
         });
       }
     };
@@ -355,20 +345,11 @@ export default function Map (props) {
       const unsubs = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremonyIndex]);
         const getter = getters[phase];
-        if (phase === 0) {
-          return getter(communityCeremony, (_) => dispatch({
-            type: setters[phase],
-            payload: {
-              cid: communityIdentifierToString(cid),
-              count: sumUp(_.toJSON())
-            }
-          }));
-        }
-        return getter(communityCeremony, (_) => dispatch({
+        return getter(communityCeremony, (assignmentOrMeetupOrAttestationCount) => dispatch({
           type: setters[phase],
           payload: {
             cid: communityIdentifierToString(cid),
-            count: _.toNumber()
+            count: (phase === 0) ? sumUp(assignmentOrMeetupOrAttestationCount.toJSON()) : assignmentOrMeetupOrAttestationCount.toNumber()
           }
         }));
       }));
