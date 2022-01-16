@@ -125,7 +125,7 @@ function Network ({ apiUrl, className = '', setApiUrl, value: { icon, isChild, n
         {icon ? <img className='endpoint-icon' alt='chain logo' src={'/'.concat(icon)} /> : null}
         <div className='endpoint-value'>{name}</div>
       </div>
-      {isSelected && providers.map(({ name, url }): React.ReactNode => (
+      {isSelected && providers.map(({ name, url }) => (
         <Url
           apiUrl={apiUrl}
           key={url}
@@ -159,7 +159,7 @@ function GroupDisplay ({ apiUrl, children, className = '', index, isSelected, se
       {isSelected && (
         <>
           <div className='group-networks'>
-            {networks.map((network, index): React.ReactNode => (
+            {networks.map((network, index) => (
               <Network
                 apiUrl={apiUrl}
                 key={index}
@@ -208,24 +208,6 @@ export default function Endpoints (props) {
   }, [socket]);
   const [{ apiUrl, groupIndex, hasUrlChanged, isUrlValid }, setApiUrl] = useState(extractUrlState(socket, groups));
   const [storedCustomEndpoints, setStoredCustomEndpoints] = useState(getCustomEndpoints());
-
-  /* eslint-disable no-unused-vars */
-  const isKnownUrl = useMemo(() => {
-    let result = false;
-
-    linkOptions.some((endpoint) => {
-      if (endpoint.value === apiUrl) {
-        result = true;
-
-        return true;
-      }
-
-      return false;
-    });
-
-    return result;
-  }, [apiUrl, linkOptions]);
-  /* eslint-enable no-unused-vars */
 
   const isSavedCustomEndpoint = useMemo(() => {
     let result = false;

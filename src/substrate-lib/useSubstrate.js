@@ -18,16 +18,7 @@ const useSubstrate = () => {
     // Connect to Encointer
     const _api = await new ApiPromise({
       ...options(
-        {
-          types: {
-            CurrencyIdentifier: 'Hash',
-            CurrencyCeremony: '(CurrencyIdentifier,CeremonyIndexType)',
-            CurrencyPropertiesType: {
-              name_utf8: 'Vec<u8>',
-              demurrage_per_block: 'Demurrage'
-            }
-          }
-        }
+        {}
       ),
       provider
     });
