@@ -49,5 +49,6 @@ function Main (props) {
 export default function Balances (props) {
   const { api } = useSubstrate();
   return (api.query.system && api.query.system.account
-    ? <Main {...props} /> : null);
+    ? <Main {...props} />
+    : null);
 }

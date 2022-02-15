@@ -2,8 +2,6 @@ import { useContext, useEffect, useCallback } from 'react';
 import { ApiPromise } from '@polkadot/api';
 import { WsProvider } from '@polkadot/rpc-provider';
 import { options } from '@encointer/node-api';
-import * as eapi from '@encointer/node-api';
-import encointerTypes from '@encointer/types';
 
 import { SubstrateContext } from './SubstrateContext';
 
@@ -12,24 +10,18 @@ const useSubstrate = () => {
 
   // `useCallback` so that returning memoized function and not created
   //   everytime, and thus re-render.
-  const { api, socket, types } = state;
+  const { api, socket } = state;
   const connect = useCallback(async () => {
     if (api) return;
 
     const provider = new WsProvider(socket);
     // Connect to Encointer
-    const _api = await new ApiPromise({ ...options(
-      {
-        types: {
-          "CurrencyIdentifier": "Hash",
-          "CurrencyCeremony": "(CurrencyIdentifier,CeremonyIndexType)",
-          "CurrencyPropertiesType": {
-            "name_utf8": "Vec<u8>",
-            "demurrage_per_block": "Demurrage"
-          }
-        }
-      }
-    ), provider });
+    const _api = await new ApiPromise({
+      ...options(
+        {}
+      ),
+      provider
+    });
 
     // We want to listen to event for disconnection and reconnection.
     //  That's why we set for listeners.
@@ -40,7 +32,7 @@ const useSubstrate = () => {
     });
     _api.on('ready', () => dispatch({ type: 'CONNECT_SUCCESS' }));
     _api.on('error', () => dispatch({ type: 'CONNECT_ERROR' }));
-  }, [api, socket, types, dispatch]);
+  }, [api, socket, dispatch]);
 
   useEffect(() => {
     connect();

@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef, useReducer } from 'react';
 import { Map as LMap, TileLayer } from 'react-leaflet';
-import { Sidebar, Responsive, Segment } from 'semantic-ui-react';
+// todo #54
+// import { createMedia } from '@artsy/fresnel';
+import { Sidebar, Segment } from 'semantic-ui-react';
+
 import * as L from 'leaflet';
-import * as bs58 from 'bs58';
 import { u32 as U32 } from '@polkadot/types/primitive';
 import { u8aToString } from '@polkadot/util';
 
@@ -18,20 +20,27 @@ import MapNodeSwitchWidget from './map/MapNodeSwitchWidget';
 
 import { CommunitiesClusters } from './map/CommunitiesClusters';
 import { LocationsLayer } from './map/LocationsLayer';
-import { parseI32F32, parseI64F64, batchFetch } from './utils';
+import { parseI64F64, batchFetch } from './utils';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 
+import { communityIdentifierToString } from '@encointer/util/cidUtil';
+// todo #54
+// const AppMedia = createMedia({
+//   breakpoints: {
+//     mobile: 320,
+//     tablet: 768,
+//     computer: 992,
+//     largeScreen: 1200,
+//     widescreen: 1920
+//   }
+// });
+//
+// const mediaStyles = AppMedia.createMediaStyle();
+// const { Media, MediaContextProvider } = AppMedia;
+
 const initialPosition = L.latLng(47.166168, 8.515495);
-
-/// Parse only 16 bits of fractional part
-const parseLatLng = _ => parseI64F64(_, 16);
-
-const toLatLng = location => [
-  parseLatLng(location.lat),
-  parseLatLng(location.lon)
-];
 
 const BLOCKS_PER_MONTH = (86400 / 6) * (365 / 12);
 
@@ -56,6 +65,9 @@ const ceremonyPhases = {
 
 const sumUp = obj => Object.keys(obj).reduce((acc, it) => { acc = acc + obj[it]; return acc; }, 0);
 
+// used to sumup all participants (bootstrappers, newbies, etc.) in the assignmentCount json
+const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
+
 const initialState = {
   subscribtionCeremony: 0,
   subscribtionPhase: -1,
@@ -72,7 +84,11 @@ const initialState = {
   meetups: {},
   attestations: {}
 };
-
+/**
+ * // this function defines the different cases to save state properties.
+ * The state is set by the setter called dispatch. Later in the code you'll find dispatch({type: '', payload {}} where
+ * "type" is one of these cases and payload is the data set to the state
+ */
 const reducer = (state, action) => {
   switch (action.type) {
     case 'unsubscribeAll':
@@ -86,7 +102,7 @@ const reducer = (state, action) => {
     case 'participants':
       return ((state, action) => {
         const participants = { ...state.participants, [action.payload.cid]: action.payload.count };
-        const participantCount = sumUp(participants);
+        const participantCount = action.payload.count;
         return { ...state, participants, participantCount };
       })(state, action);
 
@@ -156,8 +172,8 @@ export default function Map (props) {
   const [ceremonyIndex, setCeremonyIndex] = useState(0);
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const ec = api && api.query && (api.query.encointerCommunities||api.query.encointerCurrencies);
-  const es = api && api.query && api.query.encointerScheduler;
+  const ec = api && api.query && api.query.encointerCommunities;
+  const ec_ = api && api.rpc && api.rpc.communities;
 
   /// Fetch locations for each Community in parallel; Save to state once ready
   async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
@@ -167,15 +183,13 @@ export default function Map (props) {
     };
 
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
-    const fetcher = ec.communityMetadata || ec.currencyProperties;
+    const fetcher = ec.communityMetadata;
     const [locations, properties] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
-        ec.locations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
-        cids,                   // array of parameters to method
-        _ => _.map(toLatLng)    // convert Location from I32F32 to LatLng
+        ec_.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
+        cids // convert Location from I32F32 to LatLng
       ),                        // Fetching all community Properties
       await batchFetch(fetcher, cids)]);
-
     debug && console.log('SETTING DATA', locations, properties);
 
     setData(cids.map((cid, idx) => ({ // Shape of data in UI
@@ -232,7 +246,7 @@ export default function Map (props) {
         currentCeremonyIndex: getCurrentCeremonyIndex
       }
     } = api.query;
-    debug && console.log('ceremony id', currentPhase.phase, ceremonyIndex);
+    // debug && console.log('ceremony id', currentPhase.phase, ceremonyIndex);
     const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
 
     /// Fetch participants and meetups counters
@@ -246,7 +260,7 @@ export default function Map (props) {
       }
       const {
         encointerCeremonies: {
-          participantCount: getParticipantCount,
+          assignmentCounts: getAssignmentCount,
           meetupCount: getMeetupCount
         }
       } = api.query;
@@ -254,14 +268,14 @@ export default function Map (props) {
       for (let oldPhase = 0; oldPhase < phase; oldPhase++) {
         cids.forEach(cid => {
           const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremony]);
-          const getters = [getParticipantCount, getMeetupCount];
+          const getters = [getAssignmentCount, getMeetupCount];
           const getter = getters[oldPhase];
-          debug && console.log('hist ', bs58.encode(cid), ceremony.toNumber(), oldPhase);
-          getter(communityCeremony).then((_) => dispatch({
+          debug && console.log('hist ', cid, ceremony.toNumber(), 'oldphase', oldPhase);
+          getter(communityCeremony).then((assignmentOrMeetupCount) => dispatch({
             type: setters[oldPhase],
             payload: {
-              cid: bs58.encode(cid),
-              count: _.toNumber()
+              cid: communityIdentifierToString(cid),
+              count: (oldPhase === 0) ? sumUp(assignmentOrMeetupCount.toJSON()) : assignmentOrMeetupCount.toNumber()
             }
           }));
         });
@@ -275,7 +289,7 @@ export default function Map (props) {
       }
       const {
         encointerCeremonies: {
-          participantCount: getParticipantCount,
+          assignmentCounts: getAssignmentCount,
           meetupCount: getMeetupCount
         }
       } = api.query;
@@ -284,23 +298,25 @@ export default function Map (props) {
       const lastCeremonyData = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, lastCeremony]);
         return api.queryMulti([
-          [getParticipantCount, communityCeremony],
+          [getAssignmentCount, communityCeremony],
           [getMeetupCount, communityCeremony]
         ]);
       }));
       const payload = lastCeremonyData.reduce((acc, data, idx) => {
-        const cid = bs58.encode(cids[idx]);
-        const [participantCount, meetupCount] = data;
-        acc.meetups[cid] = meetupCount.toNumber();
-        acc.participants[cid] = participantCount.toNumber();
-        acc.participantCount = acc.participants[cid] + acc.participantCount;
-        acc.meetupCount = acc.meetups[cid] + acc.meetupCount;
+        const cid = cids[idx];
+        const fmtCid = communityIdentifierToString(cid);
+        const [assignmentCount, meetupCount] = data;
+        acc.meetups[fmtCid] = meetupCount.toNumber();
+        const sumOfAssignments = sumValues(assignmentCount.toJSON());
+        acc.participants[fmtCid] = sumOfAssignments;
+        acc.assignmentCount = acc.participants[fmtCid] + acc.assignmentCount;
+        acc.meetupCount = acc.meetups[fmtCid] + acc.meetupCount;
         return acc;
       }, {
         subscribtionCeremony: lastCeremony.toNumber(),
         meetups: {},
         participants: {},
-        participantCount: 0,
+        assignmentCount: 0,
         meetupCount: 0
       });
       dispatch({
@@ -320,23 +336,24 @@ export default function Map (props) {
       }
 
       debug && console.log('subscribe to ceremony', ceremonyNumber, phase);
+
       const {
         encointerCeremonies: {
-          participantCount: getParticipantCount,
+          assignmentCounts: getAssignmentCount,
           attestationCount: getAttestationCount,
           meetupCount: getMeetupCount
         }
       } = api.query;
-      const getters = [getParticipantCount, getMeetupCount, getAttestationCount];
+      const getters = [getAssignmentCount, getMeetupCount, getAttestationCount];
       const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
       const unsubs = await Promise.all(cids.map(cid => {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, ceremonyIndex]);
         const getter = getters[phase];
-        return getter(communityCeremony, (_) => dispatch({
+        return getter(communityCeremony, (assignmentOrMeetupOrAttestationCount) => dispatch({
           type: setters[phase],
           payload: {
-            cid: bs58.encode(cid),
-            count: _.toNumber()
+            cid: communityIdentifierToString(cid),
+            count: (phase === 0) ? sumUp(assignmentOrMeetupOrAttestationCount.toJSON()) : assignmentOrMeetupOrAttestationCount.toNumber()
           }
         }));
       }));
@@ -353,7 +370,7 @@ export default function Map (props) {
 
     if (!ceremonyIndex) {
       getCurrentCeremonyIndex().then((currentCeremonyIndex) => {
-        debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
+        // debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
         setCeremonyIndex(currentCeremonyIndex);
       });
     } else if (currentPhase.phase !== -1 &&
@@ -368,30 +385,38 @@ export default function Map (props) {
       state.subscribtionCeremony !== state.lastCeremony.subscribtionCeremony &&
         dispatch({ type: 'reset' }); // reset state on start of new ceremony
       getCurrentCeremonyIndex().then((currentCeremonyIndex) => {
-        debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
+        // debug && console.log('set ceremonyIndex', currentCeremonyIndex.toString());
         setCeremonyIndex(currentCeremonyIndex);
       });
     }
   }, [currentPhase.phase, ceremonyIndex]);
 
+  // OPTIONAL FOR DEBUGGING, FINDING OUT HOW THE PARTICULAR PROPERTIES OF THE STATE CHANGE
+  // useEffect(() => console.log('state participants are: ' + JSON.stringify(state.participants)), [state]);
+  // useEffect(() => console.log('state participantCount are: ' + JSON.stringify(state.participantCount)), [state]);
+  // useEffect(() => console.log('state meetups are: ' + JSON.stringify(state.meetups)), [state]);
+  // useEffect(() => console.log('state lastCeremony participants are: ' + JSON.stringify(state.lastCeremony.participants)), [state]);
+  // useEffect(() => console.log('state lastCeremony meetups are: ' + JSON.stringify(state.lastCeremony.meetups)), [state]);
+  // useEffect(() => console.log('ui.selected: ' + JSON.stringify(ui.selected)), [ui.selected]);
+
   /// Load communities identifiers once
   useEffect(() => {
-    debug && console.log('cids', cids);
+    // debug && console.log('cids', cids);
 
     if (ec && cids.length === 0) {
-      const getter = ec.communityIdentifiers || ec.currencyIdentifiers;
+      const getter = ec.communityIdentifiers;
       getter().then(cids => {
-          const hashes = cids.map(bs58.encode);
-          setCids(cids);
-          setHash(hashes);
-        })
+        const hashes = cids.map(communityIdentifierToString);
+        setCids(cids);
+        setHash(hashes);
+      })
         .catch(err => console.error(err));
     }
   }, [cids, debug, ec]);
 
   /// Get locations effect
   useEffect(() => { /* eslint-disable react-hooks/exhaustive-deps */
-    debug && console.log('get locations');
+    // debug && console.log('get locations');
     if (cids.length && cids.length === hash.length) {
       fetchGeodataPar(cids, hash);
     }
@@ -449,9 +474,10 @@ export default function Map (props) {
     map.fitBounds(bounds);
   };
 
+  // todo: fix the responsive part, which I think is still not doing anything in the productive part, or does it? #54, the responsive component has been removed, look in previous commits, how it used to be.
   /// Handler for window resize
-  const handleResponsibleUpdate = (_, { width }) =>
-    setUI({ ...ui, portrait: width < Responsive.onlyMobile.maxWidth, width });
+  // const handleResponsibleUpdate = (_, { width }) =>
+  //   setUI({ ...ui, portrait: width < Responsive.onlyMobile.maxWidth, width });
 
   /// Handler for sidebar closing
   const handleSidebarClosed = () => {
@@ -482,101 +508,94 @@ export default function Map (props) {
   const handleNodeSwitchClose = () => setUI({ ...ui, nodeSwitch: false });
 
   return (
-    <Responsive
-      as={Segment.Group}
-      className='encointer-map'
-      fireOnMount
-      onUpdate={handleResponsibleUpdate}>
+      <div className='encointer-map'>
+        <Sidebar.Pushable as={Segment}  className='component-wrapper'>
 
-      <Sidebar.Pushable as={Segment}  className='component-wrapper'>
+          <MapMenu visible={ui.menu} />
 
-        <MapMenu visible={ui.menu} />
+          <MapNodeSwitchWidget
+              socket={socket}
+              visible={ui.nodeSwitch}
+              onClose={handleNodeSwitchClose}
+          />
 
-        <MapNodeSwitchWidget
-          socket={socket}
-          visible={ui.nodeSwitch}
-          onClose={handleNodeSwitchClose}
-        />
+          <MapSidebar
+              api={api}
+              apiState={apiState}
+              onClose={handleSidebarClosed}
+              onShow={handleSidebarShow}
+              hash={ui.selected}
+              direction={ui.portrait ? 'bottom' : 'right'}
+              width='very wide'
+              data={data[ui.selected] || {}}
+              participantCount={ui.selected ? (state.participants[ui.selected] || 0) : 0}
+              lastParticipantCount={ui.selected ? (state.lastCeremony.participants[ui.selected] || 0) : 0}
+              meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
+              lastMeetupCount={ui.selected ? (state.lastCeremony.meetups[ui.selected] || 0) : 0}
+              debug={debug}
+          />
 
-        <MapSidebar
-          api={api}
-          apiState={apiState}
-          onClose={handleSidebarClosed}
-          onShow={handleSidebarShow}
-          hash={ui.selected}
-          direction={ui.portrait ? 'bottom' : 'right'}
-          width='very wide'
-          data={data[ui.selected] || {}}
-          participantCount={ui.selected ? (state.participants[ui.selected] || 0) : 0}
-          lastParticipantCount={ui.selected ? state.lastCeremony.participants[ui.selected] : 0}
-          meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
-          lastMeetupCount={ui.selected ? state.lastCeremony.meetups[ui.selected] : 0}
-          debug={debug}
-        />
+          <Sidebar.Pusher className='encointer-map-wrapper'
+                          style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
 
-        <Sidebar.Pusher className='encointer-map-wrapper'
-          style={{ marginRight: ui.portrait ? '0' : ui.sidebarSize + 'px' }}>
+            <MapCeremonyPhases
+                small={ui.portrait}
+                participantCount={state.participantCount}
+                meetupCount={state.meetupCount}
+                attestationCount={state.attestationCount}
+                currentPhase={currentPhase} />
 
-          <MapCeremonyPhases
-            small={ui.portrait}
-            participantCount={state.participantCount}
-            meetupCount={state.meetupCount}
-            attestationCount={state.attestationCount}
-            currentPhase={currentPhase} />
+            <MapNodeInfo
+                api={api}
+                apiState={apiState}
+                onClickNode={handleClickNode}
+                style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
 
-          <MapNodeInfo
-            api={api}
-            apiState={apiState}
-            onClickNode={handleClickNode}
-            style={ui.portrait && ui.selected ? { display: 'none' } : {}} />
+            <MapControl
+                onClick={toggleMenu}
+                loading={ui.loading}
+                onZoomIn={handlerZoom(1)}
+                onZoomOut={handlerZoom(-1)} />
 
-          <MapControl
-            onClick={toggleMenu}
-            loading={ui.loading}
-            onZoomIn={handlerZoom(1)}
-            onZoomOut={handlerZoom(-1)} />
+            <LMap
+                center={position}
+                zoom={4}
+                ref={mapRef}
+                zoomControl={false}
+                touchZoom={true}
+                onClick={handleMapClick}
+                style={{ height: calcMapOffset() }}
+                onLocationFound={handleLocationFound}>
 
-          <LMap
-            center={position}
-            zoom={4}
-            ref={mapRef}
-            zoomControl={false}
-            touchZoom={true}
-            onClick={handleMapClick}
-            style={{ height: calcMapOffset() }}
-            onLocationFound={handleLocationFound}>
+              <TileLayer {...tileSetup} />
 
-            <TileLayer {...tileSetup} />
+              { ui.selected
+                ? <LocationsLayer
+                      participantCount={ui.selected ? (state.participants[ui.selected] || 0) : 0}
+                      meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
+                      attestationCount={ui.selected ? (state.attestations[ui.selected] || 0) : 0}
+                      phase={currentPhase.phase}
+                      data={data[ui.selected]}
+                  />
+                : null }
 
-            { ui.selected
-              ? <LocationsLayer
-                participantCount={ui.selected ? (state.participants[ui.selected] || 0) : 0}
-                meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
-                attestationCount={ui.selected ? (state.attestations[ui.selected] || 0) : 0}
-                phase={currentPhase.phase}
-                data={data[ui.selected]}
-              />
-              : null }
+              { !ui.loading
+                ? <CommunitiesClusters
+                      data={data}
+                      cids={hash}
+                      state={state}
+                      onClick={handleCommunityMarkerClick}
+                      selected={ui.selected} />
+                : null }
+            </LMap>
 
-            { !ui.loading
-              ? <CommunitiesClusters
-                data={data}
-                cids={hash}
-                state={state}
-                onClick={handleCommunityMarkerClick}
-                selected={ui.selected} />
-              : null }
+          </Sidebar.Pusher>
 
-          </LMap>
+        </Sidebar.Pushable>
 
-        </Sidebar.Pusher>
-
-      </Sidebar.Pushable>
-
-      { (debug && apiState === 'READY')
-        ? <DeveloperConsole />
-        : null }
-
-    </Responsive>
+        { (debug && apiState === 'READY')
+          ? <DeveloperConsole />
+          : null }
+      </div>
   );
 }

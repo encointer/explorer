@@ -60,11 +60,11 @@ export default React.memo(function MapCeremonyPhases (props) {
                   (props.active)
                     ? <div><div>time left: </div><CeremonyPhaseTimer nextPhaseTimestamp={timestamp} /></div>
                     : (small
-                      ? formatStartingAt(timestamp)
-                      : ((idx === (currentPhase + 1) ||
-                          (idx === 0 && currentPhase === 2))
                         ? formatStartingAt(timestamp)
-                        : null))
+                        : ((idx === (currentPhase + 1) ||
+                          (idx === 0 && currentPhase === 2))
+                            ? formatStartingAt(timestamp)
+                            : null))
                 }</Step.Description>
               </Step.Content>
             </Step>

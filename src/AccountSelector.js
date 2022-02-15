@@ -55,7 +55,8 @@ function Main (props) {
           <Image src='Substrate-Logo.png' size='mini' />
         </Menu.Menu>
         <Menu.Menu position='right'>
-          {!accountSelected ? (
+          {!accountSelected
+            ? (
             <span>
               Add your account with the{' '}
               <a
@@ -66,7 +67,8 @@ function Main (props) {
                 Polkadot JS Extension
               </a>
             </span>
-          ) : null}
+              )
+            : null}
           <Icon
             name='users'
             size='large'
@@ -84,9 +86,11 @@ function Main (props) {
             }}
             value={accountSelected}
           />
-          {api.query.system && api.query.system.account ? (
+          {api.query.system && api.query.system.account
+            ? (
             <BalanceAnnotation accountSelected={accountSelected} />
-          ) : null}
+              )
+            : null}
         </Menu.Menu>
       </Container>
     </Menu>
@@ -116,7 +120,8 @@ function BalanceAnnotation (props) {
     return () => unsubscribe && unsubscribe();
   }, [accountSelected, api.query.system]);
 
-  return accountSelected ? (
+  return accountSelected
+    ? (
     <Label pointing='left'>
       <Icon
         name='money bill alternate'
@@ -124,7 +129,8 @@ function BalanceAnnotation (props) {
       />
       {accountBalance}
     </Label>
-  ) : null;
+      )
+    : null;
 }
 
 export default function AccountSelector (props) {
