@@ -190,15 +190,19 @@ export default function Map (props) {
         cids // convert Location from I32F32 to LatLng
       ),                        // Fetching all community Properties
       await batchFetch(fetcher, cids)]);
-    debug && console.log('SETTING DATA', locations, properties);
+
+    // See https://github.com/encointer/encointer-wallet-flutter/pull/405 for reasoning.
+    const allCommunitiesMetadata = properties.map((p) => api.createType('CommunityMetadataType', p.toU8a()));
+
+    debug && console.log('SETTING DATA', locations, allCommunitiesMetadata);
 
     setData(cids.map((cid, idx) => ({ // Shape of data in UI
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
       position: L.latLngBounds(locations[idx]).getCenter(),
-      demurrage: properties[idx].demurrage_per_block ? parseDemurrage(properties[idx].demurrage_per_block) : 1,
-      demurragePerBlock: properties[idx].demurrage_per_block ? parseI64F64(properties[idx].demurrage_per_block) : 0,
-      name: properties[idx].name_utf8 ? u8aToString(properties[idx].name_utf8) : properties[idx].name
+      demurrage: allCommunitiesMetadata[idx].demurrage_per_block ? parseDemurrage(allCommunitiesMetadata[idx].demurrage_per_block) : 1,
+      demurragePerBlock: allCommunitiesMetadata[idx].demurrage_per_block ? parseI64F64(allCommunitiesMetadata[idx].demurrage_per_block) : 0,
+      name: allCommunitiesMetadata[idx].name_utf8 ? u8aToString(allCommunitiesMetadata[idx].name_utf8) : allCommunitiesMetadata[idx].name
     })).reduce(kvReducer, {}));
     setUI({ ...ui, loading: false });
   }
