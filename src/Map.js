@@ -26,6 +26,7 @@ import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 
 import { communityIdentifierToString } from '@encointer/util/cidUtil';
+import { getDemurrage } from '@encointer/node-api';
 // todo #54
 // const AppMedia = createMedia({
 //   breakpoints: {
@@ -184,12 +185,14 @@ export default function Map (props) {
 
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
     const fetcher = ec.communityMetadata;
-    const [locations, properties] = await Promise.all([
+    const [locations, properties, demurrages] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
         ec_.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
         cids // convert Location from I32F32 to LatLng
       ),                        // Fetching all community Properties
-      await batchFetch(fetcher, cids)]);
+      await batchFetch(fetcher, cids),
+      await batchFetch((cid) => getDemurrage(api, cid), cids)
+    ]);
 
     // See https://github.com/encointer/encointer-wallet-flutter/pull/405 for reasoning.
     const allCommunitiesMetadata = properties.map((p) => api.createType('CommunityMetadataType', p.toU8a()));
@@ -200,7 +203,7 @@ export default function Map (props) {
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
       position: L.latLngBounds(locations[idx]).getCenter(),
-      demurrage: allCommunitiesMetadata[idx].demurrage_per_block ? parseDemurrage(allCommunitiesMetadata[idx].demurrage_per_block) : 1,
+      demurrage: parseDemurrage(demurrages[idx]),
       demurragePerBlock: allCommunitiesMetadata[idx].demurrage_per_block ? parseI64F64(allCommunitiesMetadata[idx].demurrage_per_block) : 0,
       name: allCommunitiesMetadata[idx].name_utf8 ? u8aToString(allCommunitiesMetadata[idx].name_utf8) : allCommunitiesMetadata[idx].name
     })).reduce(kvReducer, {}));
