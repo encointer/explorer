@@ -20,12 +20,13 @@ import MapNodeSwitchWidget from './map/MapNodeSwitchWidget';
 
 import { CommunitiesClusters } from './map/CommunitiesClusters';
 import { LocationsLayer } from './map/LocationsLayer';
-import { parseI64F64, batchFetch } from './utils';
+import { batchFetch } from './utils';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/dist/styles.min.css';
 
 import { communityIdentifierToString } from '@encointer/util/cidUtil';
+import { parseEncointerBalance } from '@encointer/types';
 import { getDemurrage } from '@encointer/node-api';
 // todo #54
 // const AppMedia = createMedia({
@@ -45,7 +46,7 @@ const initialPosition = L.latLng(47.166168, 8.515495);
 
 const BLOCKS_PER_MONTH = (86400 / 6) * (365 / 12);
 
-const parseDemurrage = _ => (1 - Math.exp(-1 * parseI64F64(_) * BLOCKS_PER_MONTH)) * 100;
+const parseDemurrage = demurrageFixedPoint => (1 - Math.exp(-1 * parseEncointerBalance(demurrageFixedPoint) * BLOCKS_PER_MONTH)) * 100;
 
 const tileSetup = {
   url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -204,7 +205,7 @@ export default function Map (props) {
       coords: locations[idx],         // all coords
       position: L.latLngBounds(locations[idx]).getCenter(),
       demurrage: parseDemurrage(demurrages[idx]),
-      demurragePerBlock: allCommunitiesMetadata[idx].demurrage_per_block ? parseI64F64(allCommunitiesMetadata[idx].demurrage_per_block) : 0,
+      demurragePerBlock: allCommunitiesMetadata[idx].demurrage_per_block ? parseEncointerBalance(allCommunitiesMetadata[idx].demurrage_per_block) : 0,
       name: allCommunitiesMetadata[idx].name_utf8 ? u8aToString(allCommunitiesMetadata[idx].name_utf8) : allCommunitiesMetadata[idx].name
     })).reduce(kvReducer, {}));
     setUI({ ...ui, loading: false });
