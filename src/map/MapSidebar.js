@@ -3,7 +3,7 @@ import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-
 import Big from 'big.js';
 import toFormat from 'toformat';
 
-import { parseI64F64 } from '../utils';
+import { parseEncointerBalance } from '@encointer/types';
 
 const BigFormat = toFormat(Big);
 
@@ -71,7 +71,7 @@ function MapSidebarMain (props) {
         .totalIssuance(cid, balanceEntry => {
           debug && console.log('MONEYSUPPLY RECEIVED', JSON.stringify(balanceEntry));
           setEntry({
-            principal: parseI64F64(balanceEntry.principal.bits),
+            principal: parseEncointerBalance(balanceEntry.principal.bits),
             lastUpdate: balanceEntry.lastUpdate.toNumber()
           });
         }).then(unsub => {
