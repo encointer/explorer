@@ -37,17 +37,24 @@ function createEndpoints () {
     // Hardcode default nodes for now
     {
       info: 'encointer',
-      text: 'Gesell',
+      text: 'Mainnet on Kusama',
+      icon: 'encointer-notee.svg',
+      provider: 'Encointer Association',
+      value: 'wss://kusama.api.encointer.org'
+    },
+    {
+      info: 'encointer',
+      text: 'Gesell (Solo Testnet)',
       icon: 'encointer-notee.svg',
       provider: 'Encointer Association',
       value: 'wss://gesell.encointer.org'
     },
     {
       info: 'encointer',
-      text: 'Cantillon',
-      icon: 'encointer-teeproxy.svg',
+      text: 'Lietaer (Rococo Testnet)',
+      icon: 'encointer-notee.svg',
       provider: 'Encointer Association',
-      value: 'wss://cantillon.encointer.org'
+      value: 'wss://rococo.api.encointer.org'
     },
     {
       isDevelopment: true,
