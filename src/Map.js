@@ -174,8 +174,8 @@ export default function Map (props) {
   const [ceremonyIndex, setCeremonyIndex] = useState(0);
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const ec = api && api.query && api.query.encointerCommunities;
-  const ec_ = api && api.rpc && api.rpc.communities;
+  const encointerCommunityQuery = api && api.query && api.query.encointerCommunities;
+  const encointerRpc = api && api.rpc && api.rpc.encointer;
 
   /// Fetch locations for each Community in parallel; Save to state once ready
   async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
@@ -185,10 +185,10 @@ export default function Map (props) {
     };
 
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
-    const fetcher = ec.communityMetadata;
+    const fetcher = encointerCommunityQuery.communityMetadata;
     const [locations, properties, demurrages] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
-        ec_.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
+        encointerRpc.getLocations,           // API: encointerCommunities.locations(cid) -> Vec<Location>
         cids // convert Location from I32F32 to LatLng
       ),                        // Fetching all community Properties
       await batchFetch(fetcher, cids),
@@ -242,7 +242,7 @@ export default function Map (props) {
     return () => {
       unsub && unsub();
     };
-  }, [currentPhase.phase, debug, ec, api]);
+  }, [currentPhase.phase, debug, encointerCommunityQuery, api]);
 
   /// Update ceremony index once registration phase starts
   useEffect(() => { /* eslint-disable react-hooks/exhaustive-deps */
@@ -411,8 +411,8 @@ export default function Map (props) {
   useEffect(() => {
     // debug && console.log('cids', cids);
 
-    if (ec && cids.length === 0) {
-      const getter = ec.communityIdentifiers;
+    if (encointerCommunityQuery && cids.length === 0) {
+      const getter = encointerCommunityQuery.communityIdentifiers;
       getter().then(cids => {
         const hashes = cids.map(communityIdentifierToString);
         setCids(cids);
@@ -420,7 +420,7 @@ export default function Map (props) {
       })
         .catch(err => console.error(err));
     }
-  }, [cids, debug, ec]);
+  }, [cids, debug, encointerCommunityQuery]);
 
   /// Get locations effect
   useEffect(() => { /* eslint-disable react-hooks/exhaustive-deps */
