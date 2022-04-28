@@ -31,7 +31,7 @@ function createEndpoints () {
   return [
     {
       isHeader: true,
-      text: 'Test networks',
+      text: 'Production Network',
       value: ''
     },
     // Hardcode default nodes for now
@@ -41,6 +41,11 @@ function createEndpoints () {
       icon: 'encointer-notee.svg',
       provider: 'Encointer Association',
       value: 'wss://kusama.api.encointer.org'
+    },
+    {
+      isHeader: true,
+      text: 'Public Test Networks',
+      value: ''
     },
     {
       info: 'encointer',
