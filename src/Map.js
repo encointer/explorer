@@ -187,7 +187,7 @@ export default function Map (props) {
 
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
 
-    // blockProductionTime == minimumPeriod * 2 as long as we use aura.
+    // blockProductionTime = minimumPeriod * 2 as long as we use aura.
     const blockProductionTime = constants.timestamp.minimumPeriod * 2 / 1_000;
 
     debug && console.log(`Timestamp.minimumPeriod: ${constants.timestamp.minimumPeriod}`);
