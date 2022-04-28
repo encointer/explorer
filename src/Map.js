@@ -44,9 +44,9 @@ import { getDemurrage } from '@encointer/node-api';
 
 const initialPosition = L.latLng(47.166168, 8.515495);
 
-const BLOCKS_PER_MONTH = (86400 / 6) * (365 / 12);
+const blocksPerMonth = blockProductionTime => (86400 / blockProductionTime) * (365 / 12);
 
-const parseDemurrage = demurrageFixedPoint => (1 - Math.exp(-1 * parseEncointerBalance(demurrageFixedPoint) * BLOCKS_PER_MONTH)) * 100;
+const demurragePerMonth = (demurrageFixedPoint, blockProductionTime) => (1 - Math.exp(-1 * parseEncointerBalance(demurrageFixedPoint) * blocksPerMonth(blockProductionTime))) * 100;
 
 const tileSetup = {
   url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -176,6 +176,7 @@ export default function Map (props) {
 
   const encointerCommunityQuery = api && api.query && api.query.encointerCommunities;
   const encointerRpc = api && api.rpc && api.rpc.encointer;
+  const constants = api && api.consts;
 
   /// Fetch locations for each Community in parallel; Save to state once ready
   async function fetchGeodataPar (cids, hash) { /* eslint-disable no-multi-spaces */
@@ -185,6 +186,13 @@ export default function Map (props) {
     };
 
     debug && console.log('FETCHING LOCATIONS AND PROPERTIES');
+
+    // blockProductionTime = minimumPeriod * 2 as long as we use aura.
+    const blockProductionTime = constants.timestamp.minimumPeriod * 2 / 1_000;
+
+    debug && console.log(`Timestamp.minimumPeriod: ${constants.timestamp.minimumPeriod}`);
+    debug && console.log(`BlockProductionTime: ${blockProductionTime}`);
+
     const fetcher = encointerCommunityQuery.communityMetadata;
     const [locations, properties, demurrages] = await Promise.all([
       await batchFetch(         // Fetching all Locations in parallel
@@ -204,7 +212,7 @@ export default function Map (props) {
       cid,                            // cid for back-reference
       coords: locations[idx],         // all coords
       position: L.latLngBounds(locations[idx]).getCenter(),
-      demurrage: parseDemurrage(demurrages[idx]),
+      demurrage: demurragePerMonth(demurrages[idx], blockProductionTime),
       demurragePerBlock: allCommunitiesMetadata[idx].demurrage_per_block ? parseEncointerBalance(allCommunitiesMetadata[idx].demurrage_per_block) : 0,
       name: allCommunitiesMetadata[idx].name_utf8 ? u8aToString(allCommunitiesMetadata[idx].name_utf8) : allCommunitiesMetadata[idx].name
     })).reduce(kvReducer, {}));
