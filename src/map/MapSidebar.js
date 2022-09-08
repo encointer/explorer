@@ -20,6 +20,8 @@ function MapSidebarMain (props) {
     lastParticipantCount,
     lastMeetupCount,
     meetupCount,
+    numRep,
+    tentativeGrowth,
     data: {
       name, cid, demurrage, demurragePerBlock
     }
@@ -132,6 +134,8 @@ function MapSidebarMain (props) {
             {demurrage && demurrage.toFixed(2)}%
             <Header sub>participants registered:</Header>
             {participantCount}
+            <Header sub>Number of Reputables:</Header>
+            {numRep}
             <Header sub>participants registered in last ceremony:</Header>
             {lastParticipantCount}
           </Segment>
@@ -140,6 +144,8 @@ function MapSidebarMain (props) {
             <p>{ !isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2) }</p>
             <Header sub>meetups assigned:</Header>
             {meetupCount}
+            <Header sub>tentative growth:</Header>
+            {tentativeGrowth && tentativeGrowth.toFixed(2)}%
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
           </Segment>

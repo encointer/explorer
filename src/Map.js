@@ -523,6 +523,15 @@ export default function Map (props) {
     !ui.nodeSwitch && setUI({ ...ui, nodeSwitch: true });
   const handleNodeSwitchClose = () => setUI({ ...ui, nodeSwitch: false });
 
+  // gets the current number of repuatbles
+  const getnumRep = async (api, currentCeremonyIndex) => {
+    const replifetime =  await api.query.encointerCeremonies.reputationLifetime();
+    const allRep = [];
+    for (let i = ceremonyIndex - replifetime; i <= ceremonyIndex; i++ ) {
+      allRep.add(api.encointerCeremonies.participantReputation((ceremonyIndex, i)).keys());
+    }
+    return allRep;
+  };
   return (
       <div className='encointer-map'>
         <Sidebar.Pushable as={Segment}  className='component-wrapper'>
@@ -549,6 +558,10 @@ export default function Map (props) {
               meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
               lastMeetupCount={ui.selected ? (state.lastCeremony.meetups[ui.selected] || 0) : 0}
               debug={debug}
+
+              //  need to know where I can get the information on how many accounts are in existence and how it changed over the last phase
+              numRep= { getnumRep.length}
+              tentativeGrowth = {2.55}
           />
 
           <Sidebar.Pusher className='encointer-map-wrapper'
