@@ -20,7 +20,7 @@ function MapSidebarMain (props) {
     lastParticipantCount,
     lastMeetupCount,
     meetupCount,
-    numRep,
+    //currenCeremonyIndex,
     tentativeGrowth,
     data: {
       name, cid, demurrage, demurragePerBlock
@@ -99,6 +99,37 @@ function MapSidebarMain (props) {
   const handleShow = () => ref.current && onShow(ref.current.ref.current[
     `offset${isVertical ? 'Height' : 'Width'}`
   ]);
+  const [allRep, setallRep]= useState([]);
+  
+  useEffect(() => {
+
+    getnumRep();
+
+  }, [])
+
+  const getnumRep = async ()=> {
+    const replifetime =  await api.query.encointerCeremonies.reputationLifetime();
+    const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex()
+    const repcount = await api.query.encointerCeremonies.reputableCount((cid, currentCeremonyIndex));
+    const members = await api.query.membership.members();
+    let count = 0;
+    debug && console.log("the reputable count is: "+ repcount)
+    for (let i = currentCeremonyIndex - replifetime; i <= currentCeremonyIndex; i++ ) {
+      for(let memberid of members){
+        const temprep = await api.query.encointerCeremonies.participantReputaion((cid, i), memberid);
+        debug && console.log("aooahe we're at: "+i+" and temp is: "+ temprep.toString());
+        //setallRep(allRep.concat(temprep));
+
+        count++;
+      }
+      
+      //allRep.add(await api.encointerCeremonies.participantReputation((ceremonyIndex, i)).keys());
+    }
+    //allRep.map(i => debug && console.log("the first element of allRep is: " +i));
+    //debug && console.log("aooahe"+ allRep.length)
+    setallRep(count);
+  };
+  const numRep = allRep;
 
   return (
     <Sidebar
