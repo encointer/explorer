@@ -7,7 +7,7 @@ import { parseEncointerBalance } from '@encointer/types';
 
 const BigFormat = toFormat(Big);
 
-function MapSidebarMain (props) {
+function MapSidebarMain(props) {
   const {
     api,
     debug,
@@ -20,8 +20,6 @@ function MapSidebarMain (props) {
     lastParticipantCount,
     lastMeetupCount,
     meetupCount,
-    //currenCeremonyIndex,
-    tentativeGrowth,
     data: {
       name, cid, demurrage, demurragePerBlock
     }
@@ -99,37 +97,57 @@ function MapSidebarMain (props) {
   const handleShow = () => ref.current && onShow(ref.current.ref.current[
     `offset${isVertical ? 'Height' : 'Width'}`
   ]);
-  const [allRep, setallRep]= useState([]);
-  
+  const [allRep, setallRep] = useState([]);
+  const [tentativeGrowth, setTentativeGrowth] = useState([]);
+
   useEffect(() => {
-
     getnumRep();
-
   }, [])
 
-  const getnumRep = async ()=> {
-    const replifetime =  await api.query.encointerCeremonies.reputationLifetime();
+  const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+  //gets the current number of Reputables 
+  async function getnumRep() {
+    const replifetime = await api.query.encointerCeremonies.reputationLifetime();
     const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex()
-    const repcount = await api.query.encointerCeremonies.reputableCount((cid, currentCeremonyIndex));
-    const members = await api.query.membership.members();
+    const temp_allRep_set = new Set();
     let count = 0;
-    debug && console.log("the reputable count is: "+ repcount)
-    for (let i = currentCeremonyIndex - replifetime; i <= currentCeremonyIndex; i++ ) {
-      for(let memberid of members){
-        const temprep = await api.query.encointerCeremonies.participantReputaion((cid, i), memberid);
-        debug && console.log("aooahe we're at: "+i+" and temp is: "+ temprep.toString());
-        //setallRep(allRep.concat(temprep));
+    for (let c_index = currentCeremonyIndex - replifetime; c_index <= currentCeremonyIndex; c_index++) {
+      const communityCeremony = new CommunityCeremony(api.registry, [cid, c_index]);
 
-        count++;
+      const temprep = await api.query.encointerCeremonies.participantReputation.keys(communityCeremony);
+
+
+      for (let reputable of temprep) {
+        temp_allRep_set.add(reputable);
       }
-      
-      //allRep.add(await api.encointerCeremonies.participantReputation((ceremonyIndex, i)).keys());
     }
-    //allRep.map(i => debug && console.log("the first element of allRep is: " +i));
-    //debug && console.log("aooahe"+ allRep.length)
-    setallRep(count);
+    setallRep(temp_allRep_set.size);
   };
-  const numRep = allRep;
+
+
+  useEffect(() => {
+    let isMounted = true;
+    if (allRep) {
+      getTentativeGrowth(allRep).then(data => {
+        if (isMounted) setTentativeGrowth(data);
+      })
+      return () => { isMounted = false }
+    }
+  }, [allRep]);
+
+
+
+  //gets the tentative growth of Reputatbles
+  async function getTentativeGrowth(allRep) {
+    const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex()
+    const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+    const lastCommunityCeremony = new CommunityCeremony(api.registry, [cid, (currentCeremonyIndex - 1)]);
+    const currentparticipantReputation = await api.query.encointerCeremonies.participantReputation.keys(currentCommunityCeremony);
+    const lastparticipantReputation = await api.query.encointerCeremonies.participantReputation.keys(lastCommunityCeremony);
+    const toberounded = ((currentparticipantReputation.length - lastparticipantReputation.length) / allRep);
+    return (Math.round(toberounded * Math.pow(10, 2)) / Math.pow(10, 2));
+  }
+
 
   return (
     <Sidebar
@@ -166,17 +184,17 @@ function MapSidebarMain (props) {
             <Header sub>participants registered:</Header>
             {participantCount}
             <Header sub>Number of Reputables:</Header>
-            {numRep}
+            {allRep}
             <Header sub>participants registered in last ceremony:</Header>
             {lastParticipantCount}
           </Segment>
           <Segment>
             <Header sub>Money supply:</Header>
-            <p>{ !isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2) }</p>
+            <p>{!isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2)}</p>
             <Header sub>meetups assigned:</Header>
             {meetupCount}
-            <Header sub>tentative growth:</Header>
-            {tentativeGrowth && tentativeGrowth.toFixed(2)}%
+            <Header sub>tentative growth of Reputables:</Header>
+            {tentativeGrowth}%
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
           </Segment>
@@ -198,19 +216,19 @@ function MapSidebarMain (props) {
           content='Close'
           icon={'angle ' + (isVertical ? 'down' : 'right')}
           labelPosition='right'
-          onClick={onClose}/>
+          onClick={onClose} />
       </Segment>
 
     </Sidebar>
   );
 }
 
-export default React.memo(function MapSidebar (props) {
+export default React.memo(function MapSidebar(props) {
   const { api } = props;
   return api && api.query
     ? (
-    <MapSidebarMain {...props} />
-      )
+      <MapSidebarMain {...props} />
+    )
     : null;
 }, (prev, cur) => (
   prev.hash === cur.hash && (
