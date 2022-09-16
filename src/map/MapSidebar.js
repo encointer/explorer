@@ -7,7 +7,7 @@ import { parseEncointerBalance } from '@encointer/types';
 
 const BigFormat = toFormat(Big);
 
-function MapSidebarMain(props) {
+function MapSidebarMain (props) {
   const {
     api,
     debug,
@@ -97,57 +97,55 @@ function MapSidebarMain(props) {
   const handleShow = () => ref.current && onShow(ref.current.ref.current[
     `offset${isVertical ? 'Height' : 'Width'}`
   ]);
-  const [allRep, setallRep] = useState([]);
+  const [allReputableNumber, setallReputableNumber] = useState([]);
   const [tentativeGrowth, setTentativeGrowth] = useState([]);
-
-  useEffect(() => {
-    getnumRep();
-  }, [])
-
   const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
-  //gets the current number of Reputables 
-  async function getnumRep() {
-    const replifetime = await api.query.encointerCeremonies.reputationLifetime();
-    const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex()
-    const temp_allRep_set = new Set();
-    let count = 0;
-    for (let c_index = currentCeremonyIndex - replifetime; c_index <= currentCeremonyIndex; c_index++) {
-      const communityCeremony = new CommunityCeremony(api.registry, [cid, c_index]);
 
-      const temprep = await api.query.encointerCeremonies.participantReputation.keys(communityCeremony);
-
-
-      for (let reputable of temprep) {
-        temp_allRep_set.add(reputable);
-      }
-    }
-    setallRep(temp_allRep_set.size);
-  };
-
-
+  // gets the current number of Reputables
   useEffect(() => {
-    let isMounted = true;
-    if (allRep) {
-      getTentativeGrowth(allRep).then(data => {
-        if (isMounted) setTentativeGrowth(data);
-      })
-      return () => { isMounted = false }
+    async function getnumRep () {
+      const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
+        api.query.encointerCeremonies.reputationLifetime(),
+        api.query.encointerScheduler.currentCeremonyIndex()
+      ]);
+      const tempAllRepSet = new Set();
+      const promises = [];
+      for (let cIndex = currentCeremonyIndex - reputationLifetime; cIndex <= currentCeremonyIndex; cIndex++) {
+        const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
+        promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
+      }
+      const arrayOfRreputables = await Promise.all(promises);
+      for (const reputables of arrayOfRreputables) {
+        for (const reputable of reputables) {
+          tempAllRepSet.add(reputable);
+        }
+      }
+      setallReputableNumber(tempAllRepSet.size);
     }
-  }, [allRep]);
+    getnumRep();
+  }, [allReputableNumber, setallReputableNumber, api, CommunityCeremony, cid]);
 
-
-
-  //gets the tentative growth of Reputatbles
-  async function getTentativeGrowth(allRep) {
-    const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex()
-    const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
-    const lastCommunityCeremony = new CommunityCeremony(api.registry, [cid, (currentCeremonyIndex - 1)]);
-    const currentparticipantReputation = await api.query.encointerCeremonies.participantReputation.keys(currentCommunityCeremony);
-    const lastparticipantReputation = await api.query.encointerCeremonies.participantReputation.keys(lastCommunityCeremony);
-    const toberounded = ((currentparticipantReputation.length - lastparticipantReputation.length) / allRep);
-    return (Math.round(toberounded * Math.pow(10, 2)) / Math.pow(10, 2));
-  }
-
+  // gets the tentative growth of Reputatbles
+  useEffect(() => {
+    async function getTentativeGrowth (allReputableNumber) {
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+      const lastCommunityCeremony = new CommunityCeremony(api.registry, [cid, (currentCeremonyIndex - 1)]);
+      const [currentparticipantReputation, lastparticipantReputation] = await Promise.all([
+        api.query.encointerCeremonies.participantReputation.keys(currentCommunityCeremony),
+        api.query.encointerCeremonies.participantReputation.keys(lastCommunityCeremony)
+      ]);
+      const toberounded = ((currentparticipantReputation.length - lastparticipantReputation.length) / allReputableNumber);
+      return (allReputableNumber != null) ? (Math.round(toberounded * Math.pow(10, 2)) / Math.pow(10, 2)) : null;
+    }
+    let isMounted = true;
+    if (allReputableNumber) {
+      getTentativeGrowth(allReputableNumber).then(data => {
+        if (isMounted) setTentativeGrowth(data);
+      });
+      return () => { isMounted = false; };
+    }
+  }, [allReputableNumber, tentativeGrowth, setTentativeGrowth, api, CommunityCeremony, cid]);
 
   return (
     <Sidebar
@@ -184,7 +182,7 @@ function MapSidebarMain(props) {
             <Header sub>participants registered:</Header>
             {participantCount}
             <Header sub>Number of Reputables:</Header>
-            {allRep}
+            {allReputableNumber}
             <Header sub>participants registered in last ceremony:</Header>
             {lastParticipantCount}
           </Segment>
@@ -221,14 +219,12 @@ function MapSidebarMain(props) {
 
     </Sidebar>
   );
-}
-
-export default React.memo(function MapSidebar(props) {
+} export default React.memo(function MapSidebar (props) {
   const { api } = props;
   return api && api.query
     ? (
       <MapSidebarMain {...props} />
-    )
+      )
     : null;
 }, (prev, cur) => (
   prev.hash === cur.hash && (

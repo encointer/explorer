@@ -523,29 +523,6 @@ export default function Map (props) {
     !ui.nodeSwitch && setUI({ ...ui, nodeSwitch: true });
   const handleNodeSwitchClose = () => setUI({ ...ui, nodeSwitch: false });
 
-  
-  // gets the current number of repuatbles
-  /*const [allRep, setallRep]= useState([]);
-  
-  useEffect(() => {
-
-    getnumRep();
-
-  }, [])
-
-  const getnumRep = async ()=> {
-    const replifetime =  await api.query.encointerCeremonies.reputationLifetime();
-    for (let i = ceremonyIndex - replifetime; i <= ceremonyIndex; i++ ) {
-      const temprep = await api.query.encointerCeremonies.participantReputation((ceremonyIndex, i)).keys();
-      setallRep(allRep.concat(temprep));
-      //allRep.add(await api.encointerCeremonies.participantReputation((ceremonyIndex, i)).keys());
-    }
-    //allRep.map(i => debug && console.log("the first element of allRep is: " +i));
-    
-  };
-  const numRep = (new Set(allRep)).size;*/
-
-  //debug && console.log("ooooooooooooooooooooooooooooooooooooooooaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaoooooooooooooo"+ allRep.length);
   return (
       <div className='encointer-map'>
         <Sidebar.Pushable as={Segment}  className='component-wrapper'>
@@ -572,10 +549,6 @@ export default function Map (props) {
               meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
               lastMeetupCount={ui.selected ? (state.lastCeremony.meetups[ui.selected] || 0) : 0}
               debug={debug}
-
-              //  need to know where I can get the information on how many accounts are in existence and how it changed over the last phase
-              //currentCeremonyIndex={10}
-              tentativeGrowth = {2.55}
           />
 
           <Sidebar.Pusher className='encointer-map-wrapper'
