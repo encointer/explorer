@@ -2,12 +2,11 @@ import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-ui-react';
 import Big from 'big.js';
 import toFormat from 'toformat';
-import { parseEncointerBalance } from '@encointer/types';
+import { parseEncointerBalance, stringToDegree } from '@encointer/types';
 
 import { getCeremonyIncome, getNextMeetupTime } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
 import { bnToU8a } from '@polkadot/util';
-import { stringToDegree } from '@encointer/types';
 
 /**
  * Parses a location json with fields as number strings to a `Location` object.
@@ -153,17 +152,11 @@ function MapSidebarMain (props) {
     getnumRep();
   }, [allReputableNumber, setallReputableNumber, api, CommunityCeremony, cid]);
 
-  // gets the tentative growth of Reputatbles
+  // gets the tentative Growth (excluding endorsements)
   useEffect(() => {
     async function getTentativeGrowth (allReputableNumber) {
-      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
-      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
-      const lastCommunityCeremony = new CommunityCeremony(api.registry, [cid, (currentCeremonyIndex - 1)]);
-      const [currentparticipantReputation, lastparticipantReputation] = await Promise.all([
-        api.query.encointerCeremonies.participantReputation.keys(currentCommunityCeremony),
-        api.query.encointerCeremonies.participantReputation.keys(lastCommunityCeremony)
-      ]);
-      const toberounded = ((currentparticipantReputation.length - lastparticipantReputation.length) / allReputableNumber);
+      const meetupNewbieLimitDivider = await api.consts.encointerCeremonies.meetupNewbieLimitDivider;
+      const toberounded = (allReputableNumber + Math.floor(allReputableNumber / meetupNewbieLimitDivider));
       return (allReputableNumber != null) ? (Math.round(toberounded * Math.pow(10, 2)) / Math.pow(10, 2)) : null;
     }
     let isMounted = true;
@@ -175,88 +168,86 @@ function MapSidebarMain (props) {
     }
   }, [allReputableNumber, tentativeGrowth, setTentativeGrowth, api, CommunityCeremony, cid]);
 
-  const [nextMeetupTime, setNextMeetupTime]= useState([]);
+  const [nextMeetupTime, setNextMeetupTime] = useState([]);
   // gets the date of the next Meetup
   useEffect(() => {
-    async function getNextMeetupDate(){
+    async function getNextMeetupDate () {
       const meetupLocations = await api.rpc.encointer.getLocations(cid);
       const tempLocation = locationFromJson(api, meetupLocations[0]);
-      const temporaryTime = await getNextMeetupTime(api, tempLocation);
-      const tempdate = new Date(temporaryTime.toNumber());
-      const temparray = (tempdate.toString()).split("G");
-      const tempresultarray = temparray[0].split(" ");
-      setNextMeetupTime (" "+tempresultarray[0]+" "+tempresultarray[2]+" "+tempresultarray[1]+ " "+tempresultarray[3]);
+      const tempTime = await getNextMeetupTime(api, tempLocation);
+      const tempdate = new Date(tempTime.toNumber());
+      const temparray = (tempdate.toString()).split('G');
+      const tempresultarray = temparray[0].split(' ');
+      setNextMeetupTime(' ' + tempresultarray[0] + ' ' + tempresultarray[2] + ' ' + tempresultarray[1] + ' ' + tempresultarray[3]);
     }
     getNextMeetupDate();
-  }, [api,nextMeetupTime, setNextMeetupTime, cid]);
+  }, [api, nextMeetupTime, setNextMeetupTime, cid]);
 
   // gets the nominal Income of a Community
-  const [nominalIncome, setNominalIncome]= useState([]);
+  const [nominalIncome, setNominalIncome] = useState([]);
   useEffect(() => {
-    async function getNominalIncome(){
+    async function getNominalIncome () {
       const tempNominalIncome = await getCeremonyIncome(api, cid);
       return parseI64F64(tempNominalIncome);
     }
-    let isMountedNominal = true 
+    let isMountedNominal = true;
     getNominalIncome().then((data) => {
-      if (isMountedNominal) setNominalIncome(" "+data);
+      if (isMountedNominal) setNominalIncome(' ' + data);
     });
-    return () => {isMountedNominal = false; };
+    return () => { isMountedNominal = false; };
+  }, [nominalIncome, setNominalIncome, api, cid]);
 
-  },[nominalIncome, setNominalIncome,getCeremonyIncome, api, cid])
-
-  const [registeredBootstrappers, setregisteredBootstrappers]= useState([]);
-  const [registeredReputables, setregisteredReputables]= useState([]);
-  const [registeredEndorseees, setregisteredEndorsees]= useState([]);
-  const [registeredNewbies, setregisteredNewbies]= useState([]);
-  const [unassignedNewbies, setunassignedNewbies]= useState([]);
-  
-// gets the data of all people that registered for a Ceremony
-  function showPhasepeopleData(){
+  const [registeredBootstrappers, setregisteredBootstrappers] = useState([]);
+  const [registeredReputables, setregisteredReputables] = useState([]);
+  const [registeredEndorseees, setregisteredEndorsees] = useState([]);
+  const [registeredNewbies, setregisteredNewbies] = useState([]);
+  const [unassignedNewbies, setunassignedNewbies] = useState([]);
+  // gets the data of all people that registered for a Ceremony
+  function ShowCeremonyRegistrationDetails () {
     useEffect(() => {
-      async function getPhasepeopleData(){
+      async function getPhasepeopleData () {
         const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
-        const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex])
-        const [tempregisteredBootstrappers, tempregisteredReputables, tempregisteredEndorseees,tempregisteredNewbies, assignmentCounts] = await Promise.all([
+        const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+        const [tempregisteredBootstrappers, tempregisteredReputables, tempregisteredEndorseees, tempregisteredNewbies, assignmentCounts] = await Promise.all([
           api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
           api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
           api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
           api.query.encointerCeremonies.newbieCount(currentCommunityCeremony),
           api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
         ]);
-        return [tempregisteredBootstrappers, tempregisteredReputables, tempregisteredEndorseees, tempregisteredNewbies, assignmentCounts]
+        return [tempregisteredBootstrappers, tempregisteredReputables, tempregisteredEndorseees, tempregisteredNewbies, assignmentCounts];
       }
 
       let isMounted = true;
       getPhasepeopleData().then((data) => {
-        if(isMounted){
-        setregisteredBootstrappers(data[0]);
-        setregisteredReputables(data[1]);
-        setregisteredEndorsees(data[2]);
-        setregisteredNewbies(data[3]);
-        setunassignedNewbies(registeredNewbies-data[4].newbies);
+        if (isMounted) {
+          setregisteredBootstrappers(data[0]);
+          setregisteredReputables(data[1]);
+          setregisteredEndorsees(data[2]);
+          setregisteredNewbies(data[3]);
+          setunassignedNewbies(data[3] - data[4]);
         }
-      })
-      return () => {isMounted = false; }; 
-
-    },[api, cid]);
-    if(currentPhase==0){
+      });
+      return () => { isMounted = false; };
+    }, []);
+    if (currentPhase === 0) {
       return (<div>
-        <li>The registered Bootstrapper count is: {registeredBootstrappers.toString()}</li>
-        <li>The registered Reputables count is: {registeredReputables.toString()}</li>
-        <li>The registered Endorsees count is: {registeredEndorseees.toString()}</li>
-        <li>The registered Newbies count is: {registeredNewbies.toString()}</li>
+          <h4>Registered participants for this ceremony:</h4>
+          <li>Bootstrapper: {registeredBootstrappers.toString()}</li>
+          <li>Reputables: {registeredReputables.toString()}</li>
+          <li>Endorsees: {registeredEndorseees.toString()}</li>
+          <li>Newbies: {registeredNewbies.toString()}</li>
       </div>);
-    }else{
+    } else {
       return (<div>
-        <li>The registered Bootstrapper count is: {registeredBootstrappers.toString()}</li>
-        <li>The registered Reputables count is: {registeredReputables.toString()}</li>
-        <li>The registered Endorsees count is: {registeredEndorseees.toString()}</li>
-        <li>The registered Newbies count is: {registeredNewbies.toString()}</li>
-        <li color='red'>The number of unassigned Newbies is: {unassignedNewbies.toString()}</li>
+          <h4>Assigned Participants for this ceremony:</h4>
+          <li>Bootstrapper: {registeredBootstrappers.toString()}</li>
+          <li>Reputables: {registeredReputables.toString()}</li>
+          <li>Endorsees: {registeredEndorseees.toString()}</li>
+          <li>Newbies: {registeredNewbies.toString()}</li>
+          <li color='red'>unassigned Newbies: {unassignedNewbies.toString()}</li>
       </div>);
     }
-      
   }
 
   return (
@@ -284,11 +275,11 @@ function MapSidebarMain (props) {
         <Message size='small' color='blue'>{hash}</Message>
         <p>{name}</p>
         <p>The nominal Income is:{nominalIncome}</p>
-        <p>The date of the next Ceremony is: {nextMeetupTime}</p> 
+        <p>The date of the next Ceremony is: {nextMeetupTime}</p>
       </Segment>
 
       <Segment textAlign='center'>
-      {showPhasepeopleData()}
+        {ShowCeremonyRegistrationDetails()}
       </Segment>
 
       <Segment.Group>
@@ -309,7 +300,7 @@ function MapSidebarMain (props) {
             <p>{!isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2)}</p>
             <Header sub>meetups assigned:</Header>
             {meetupCount}
-            <Header sub>tentative growth of Reputables:</Header>
+            <Header sub>tentative Growth (excluding endorsements): </Header>
             {tentativeGrowth}%
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
