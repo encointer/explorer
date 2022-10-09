@@ -2,33 +2,10 @@ import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button, Segment, Header, List, Message, Sidebar } from 'semantic-ui-react';
 import Big from 'big.js';
 import toFormat from 'toformat';
-import { parseEncointerBalance, stringToDegree } from '@encointer/types';
+import { parseEncointerBalance } from '@encointer/types';
 
-import { getCeremonyIncome, getNextMeetupTime } from '@encointer/node-api';
+import { getCeremonyIncome } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
-import { bnToU8a } from '@polkadot/util';
-
-/**
- * Parses a location json with fields as number strings to a `Location` object.
- *
- * There is a rust vs. JS endian issue with numbers: https://github.com/polkadot-js/api/issues/4313.
- *
- * tl;dr: If the returned location is processed:
- *  * by a node (rust), use isLe = false.
- *  * by JS, e.g. `parseDegree`, use isLe = true.
- *
- *
- * @param api
- * @param location fields as strings, e.g. '35.2313515312'
- * @param isLe
- * @returns {Location} Location with fields as fixed-point numbers
- */
-export function locationFromJson (api, location, isLe = true) {
-  return api.createType('Location', {
-    lat: bnToU8a(stringToDegree(location.lat), 128, isLe),
-    lon: bnToU8a(stringToDegree(location.lon), 128, isLe)
-  });
-}
 
 const BigFormat = toFormat(Big);
 
@@ -141,8 +118,8 @@ function MapSidebarMain (props) {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
         promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
       }
-      const arrayOfRreputables = await Promise.all(promises);
-      for (const reputables of arrayOfRreputables) {
+      const arrayOfReputables = await Promise.all(promises);
+      for (const reputables of arrayOfReputables) {
         for (const reputable of reputables) {
           tempAllRepSet.add(reputable);
         }
@@ -167,21 +144,6 @@ function MapSidebarMain (props) {
       return () => { isMounted = false; };
     }
   }, [allReputableNumber, tentativeGrowth, setTentativeGrowth, api, CommunityCeremony, cid]);
-
-  const [nextMeetupTime, setNextMeetupTime] = useState([]);
-  // gets the date of the next Meetup
-  useEffect(() => {
-    async function getNextMeetupDate () {
-      const meetupLocations = await api.rpc.encointer.getLocations(cid);
-      const tempLocation = locationFromJson(api, meetupLocations[0]);
-      const tempTime = await getNextMeetupTime(api, tempLocation);
-      const tempdate = new Date(tempTime.toNumber());
-      const temparray = (tempdate.toString()).split('G');
-      const tempresultarray = temparray[0].split(' ');
-      setNextMeetupTime(' ' + tempresultarray[0] + ' ' + tempresultarray[2] + ' ' + tempresultarray[1] + ' ' + tempresultarray[3]);
-    }
-    getNextMeetupDate();
-  }, [api, nextMeetupTime, setNextMeetupTime, cid]);
 
   // gets the nominal Income of a Community
   const [nominalIncome, setNominalIncome] = useState([]);
@@ -290,7 +252,6 @@ function MapSidebarMain (props) {
         <Header sub textAlign='left'>Currency ID:</Header>
         <Message size='small' color='blue'>{hash}</Message>
         <p>{name}</p>
-        <p>The date of the next Ceremony is: {nextMeetupTime}</p>
       </Segment>
 
       <Segment textAlign='center'>

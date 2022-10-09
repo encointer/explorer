@@ -560,7 +560,9 @@ export default function Map (props) {
                 participantCount={state.participantCount}
                 meetupCount={state.meetupCount}
                 attestationCount={state.attestationCount}
-                currentPhase={currentPhase} />
+                currentPhase={currentPhase}
+                api={api}
+                cids={cids}/>
 
             <MapNodeInfo
                 api={api}
