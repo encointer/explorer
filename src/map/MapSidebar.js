@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
-import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-ui-react';
+import { Button, Segment, Header, List, Message, Sidebar } from 'semantic-ui-react';
 import Big from 'big.js';
 import toFormat from 'toformat';
 import { parseEncointerBalance, stringToDegree } from '@encointer/types';
@@ -225,7 +225,7 @@ function MapSidebarMain (props) {
           setregisteredReputables(data[1]);
           setregisteredEndorsees(data[2]);
           setregisteredNewbies(data[3]);
-          setunassignedNewbies(data[3] - data[4]);
+          setunassignedNewbies(data[3] - data[4].newbies);
         }
       });
       return () => { isMounted = false; };
@@ -245,10 +245,26 @@ function MapSidebarMain (props) {
           <li>Reputables: {registeredReputables.toString()}</li>
           <li>Endorsees: {registeredEndorseees.toString()}</li>
           <li>Newbies: {registeredNewbies.toString()}</li>
-          <li color='red'>unassigned Newbies: {unassignedNewbies.toString()}</li>
+          <li color='red'>unassigned Newbies: {(unassignedNewbies != null) ? unassignedNewbies.toString() : '0'}</li>
       </div>);
     }
   }
+
+  const [ipfsUrl, setIpfsUrl] = useState([]);
+  // gets the comunity logo from a public ipfs gateway
+  useEffect(() => {
+    async function getCommunityLogo () {
+      let ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
+      ipfsCidHex = (ipfsCidHex.toString()).split('x')[1];
+      // converts from hex to string
+      let ipfsCid = '';
+      for (let n = 0; n < ipfsCidHex.length; n += 2) {
+        ipfsCid += String.fromCharCode(parseInt(ipfsCidHex.substr(n, 2), 16));
+      }
+      setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
+    }
+    getCommunityLogo();
+  }, [api, cid, ipfsUrl, setIpfsUrl]);
 
   return (
     <Sidebar
@@ -265,7 +281,7 @@ function MapSidebarMain (props) {
     >
       <Segment padded>
         <Header>
-          <Icon name='money bill alternate' />
+          <img src={ipfsUrl} alt = " this is a community logo"/>
           <Header.Content>Currency info</Header.Content>
         </Header>
       </Segment>
@@ -274,7 +290,6 @@ function MapSidebarMain (props) {
         <Header sub textAlign='left'>Currency ID:</Header>
         <Message size='small' color='blue'>{hash}</Message>
         <p>{name}</p>
-        <p>The nominal Income is:{nominalIncome}</p>
         <p>The date of the next Ceremony is: {nextMeetupTime}</p>
       </Segment>
 
@@ -286,6 +301,8 @@ function MapSidebarMain (props) {
 
         <Segment.Group horizontal>
           <Segment>
+            <Header sub>nominal Income:</Header>
+            {nominalIncome}
             <Header sub>Demurrage rate (per month):</Header>
             {demurrage && demurrage.toFixed(2)}%
             <Header sub>participants registered:</Header>
@@ -300,7 +317,7 @@ function MapSidebarMain (props) {
             <p>{!isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2)}</p>
             <Header sub>meetups assigned:</Header>
             {meetupCount}
-            <Header sub>tentative Growth (excluding endorsements): </Header>
+            <Header sub>tentative Community Growth (excluding endorsements): </Header>
             {tentativeGrowth}%
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
