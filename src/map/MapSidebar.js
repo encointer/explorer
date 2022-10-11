@@ -129,12 +129,24 @@ function MapSidebarMain (props) {
     getnumRep();
   }, [allReputableNumber, setallReputableNumber, api, CommunityCeremony, cid]);
 
-  // gets the tentative Growth (excluding endorsements)
   useEffect(() => {
+    /**
+     * Gets the relative tentative growth based on the current meetups registrations.
+     * Returns the max allowed growth if the number of registered newbies exceeds the allowed newbie seats.
+     */
     async function getTentativeGrowth (allReputableNumber) {
-      const meetupNewbieLimitDivider = await api.consts.encointerCeremonies.meetupNewbieLimitDivider;
-      const toberounded = (allReputableNumber + Math.floor(allReputableNumber / meetupNewbieLimitDivider));
-      return (allReputableNumber != null) ? (Math.round(toberounded * Math.pow(10, 2)) / Math.pow(10, 2)) : null;
+      const meetupNewbieLimitDivider = api.consts.encointerCeremonies.meetupNewbieLimitDivider;
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+      const newbies = await api.query.encointerCeremonies.newbieCount(currentCommunityCeremony);
+
+      const maxGrowthAbsolute = Math.min(
+        newbies,
+        Math.floor(allReputableNumber / meetupNewbieLimitDivider)
+      );
+
+      // round to 2 digits
+      return (allReputableNumber != null) ? Math.round(maxGrowthAbsolute / allReputableNumber * 100) / 100 : null;
     }
     let isMounted = true;
     if (allReputableNumber) {
