@@ -175,7 +175,7 @@ function MapSidebarMain (props) {
   const [registeredNewbies, setregisteredNewbies] = useState([]);
   const [unassignedNewbies, setunassignedNewbies] = useState([]);
   // gets the data of all people that registered for a Ceremony
-  function getCeremonyData () {
+  function GetCeremonyData () {
     useEffect(() => {
       async function getPhasepeopleData () {
         const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
@@ -192,23 +192,22 @@ function MapSidebarMain (props) {
 
       let isMounted = true;
       getPhasepeopleData().then((data) => {
-          if (currentPhase.phase === 0) {
-            if (isMounted) {
+        if (currentPhase.phase === 0) {
+          if (isMounted) {
             setregisteredBootstrappers(data[0]);
             setregisteredReputables(data[1]);
             setregisteredEndorsees(data[2]);
             setregisteredNewbies(data[3]);
             setunassignedNewbies(0); // Todo: calculate how many newbies will not be assigned currently
-            }
-          } else {
-            if (isMounted) {
+          }
+        } else {
+          if (isMounted) {
             setregisteredBootstrappers(data[4].bootstrappers);
             setregisteredReputables(data[4].reputatbles);
             setregisteredEndorsees(data[4].endorsees);
             setregisteredNewbies(data[4].newbies);
             setunassignedNewbies(data[3] - data[4].newbies);
-            }
-          
+          }
         }
       });
       return () => { isMounted = false; };
@@ -229,11 +228,10 @@ function MapSidebarMain (props) {
           <li> Endorsees: {registeredEndorseees.toString()}</li>
           <li>Newbies: {registeredNewbies.toString()}</li>
           <li color='red'>unassigned Newbies: {(unassignedNewbies != null) ? unassignedNewbies.toString() : '0'}</li>
-          
       </div>);
     }
   }
-  
+
   const [ipfsUrl, setIpfsUrl] = useState([]);
   // gets the comunity logo from a public ipfs gateway
   useEffect(() => {
@@ -278,9 +276,8 @@ function MapSidebarMain (props) {
 
       <Segment.Group textalign='left'>
         <Segment>
-        {getCeremonyData()}
+        {GetCeremonyData()}
         </Segment>
-        
       </Segment.Group>
 
       <Segment.Group>

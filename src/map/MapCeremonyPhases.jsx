@@ -10,11 +10,6 @@ const ceremonyPhases = [
   'ASSIGNING',
   'ATTESTING'
 ];
-const encointerCeremonyPhases = {
-  REGISTERING: 0,
-  ASSIGNING: 1,
-  ATTESTING: 2
-};
 
 const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
@@ -87,12 +82,12 @@ export default React.memo(function MapCeremonyPhases (props) {
       const meetupLocations = await api.rpc.encointer.getLocations(cids[0]);
       const tempLocation = locationFromJson(api, meetupLocations[0]);
       const tempTime = await getNextMeetupTime(api, tempLocation);
-      debug && console.log("the date is: "+ formatDate(tempTime.toNumber()))
+      debug && console.log('the date is' + formatDate(tempTime.toNumber()));
       const temparray = (formatDate(tempTime.toNumber())).split(',');
       setNextMeetupTime(temparray[0]);
     }
     getNextMeetupDate();
-  }, [api, nextMeetupTime, setNextMeetupTime, cids]);
+  }, [api, nextMeetupTime, setNextMeetupTime, cids, debug]);
 
   return (<div className='encointer-map-ceremony-phase'>
     <Step.Group
