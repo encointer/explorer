@@ -98,6 +98,17 @@ function MapSidebarMain (props) {
     `offset${isVertical ? 'Height' : 'Width'}`
   ]);
 
+  useEffect(() =>{
+    async function getAttesterCount(){
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const communityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+      const numRegAttestationCount = await api.query.encointerCeremonies.attestationCount(communityCeremony);
+      debug && console.log("alkdfjakldfjagkahgiejikfjkfjkfjkdjfkjdkfjk"+ numRegAttestationCount);
+        }
+        getAttesterCount();
+   
+  }, [cid, api]);
+  
   return (
     <Sidebar
       className='details-sidebar'
