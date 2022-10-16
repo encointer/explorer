@@ -562,7 +562,8 @@ export default function Map (props) {
                 attestationCount={state.attestationCount}
                 currentPhase={currentPhase}
                 api={api}
-                cids={cids}/>
+                cids={cids}
+                debug= {debug}/>
 
             <MapNodeInfo
                 api={api}

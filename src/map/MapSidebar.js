@@ -22,9 +22,7 @@ function MapSidebarMain (props) {
     lastParticipantCount,
     lastMeetupCount,
     meetupCount,
-    currentPhase: {
-      phase: currentPhase
-    },
+    currentPhase,
     data: {
       name, cid, demurrage, demurragePerBlock
     }
@@ -177,7 +175,7 @@ function MapSidebarMain (props) {
   const [registeredNewbies, setregisteredNewbies] = useState([]);
   const [unassignedNewbies, setunassignedNewbies] = useState([]);
   // gets the data of all people that registered for a Ceremony
-  function ShowCeremonyRegistrationDetails () {
+  function getCeremonyData () {
     useEffect(() => {
       async function getPhasepeopleData () {
         const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
@@ -194,18 +192,29 @@ function MapSidebarMain (props) {
 
       let isMounted = true;
       getPhasepeopleData().then((data) => {
-        if (isMounted) {
-          setregisteredBootstrappers(data[0]);
-          setregisteredReputables(data[1]);
-          setregisteredEndorsees(data[2]);
-          setregisteredNewbies(data[3]);
-          setunassignedNewbies(data[3] - data[4].newbies);
+          if (currentPhase.phase === 0) {
+            if (isMounted) {
+            setregisteredBootstrappers(data[0]);
+            setregisteredReputables(data[1]);
+            setregisteredEndorsees(data[2]);
+            setregisteredNewbies(data[3]);
+            setunassignedNewbies(0); // Todo: calculate how many newbies will not be assigned currently
+            }
+          } else {
+            if (isMounted) {
+            setregisteredBootstrappers(data[4].bootstrappers);
+            setregisteredReputables(data[4].reputatbles);
+            setregisteredEndorsees(data[4].endorsees);
+            setregisteredNewbies(data[4].newbies);
+            setunassignedNewbies(data[3] - data[4].newbies);
+            }
+          
         }
       });
       return () => { isMounted = false; };
     }, []);
-    if (currentPhase === 0) {
-      return (<div>
+    if (currentPhase.phase === 0) {
+      return (<div textalign='left'>
           <h4>Registered participants for this ceremony:</h4>
           <li>Bootstrapper: {registeredBootstrappers.toString()}</li>
           <li>Reputables: {registeredReputables.toString()}</li>
@@ -213,17 +222,18 @@ function MapSidebarMain (props) {
           <li>Newbies: {registeredNewbies.toString()}</li>
       </div>);
     } else {
-      return (<div>
+      return (<div textalign='left'>
           <h4>Assigned Participants for this ceremony:</h4>
-          <li>Bootstrapper: {registeredBootstrappers.toString()}</li>
-          <li>Reputables: {registeredReputables.toString()}</li>
-          <li>Endorsees: {registeredEndorseees.toString()}</li>
+          <li >Bootstrapper: {registeredBootstrappers.toString()} </li>
+          <li> Reputables: {registeredReputables.toString()}</li>
+          <li> Endorsees: {registeredEndorseees.toString()}</li>
           <li>Newbies: {registeredNewbies.toString()}</li>
           <li color='red'>unassigned Newbies: {(unassignedNewbies != null) ? unassignedNewbies.toString() : '0'}</li>
+          
       </div>);
     }
   }
-
+  
   const [ipfsUrl, setIpfsUrl] = useState([]);
   // gets the comunity logo from a public ipfs gateway
   useEffect(() => {
@@ -260,15 +270,18 @@ function MapSidebarMain (props) {
         </Header>
       </Segment>
 
-      <Segment textAlign='center'>
-        <Header sub textAlign='left'>Currency ID:</Header>
+      <Segment textalign='center'>
+        <Header sub textalign='left'>Currency ID:</Header>
         <Message size='small' color='blue'>{hash}</Message>
         <p>{name}</p>
       </Segment>
 
-      <Segment textAlign='center'>
-        {ShowCeremonyRegistrationDetails()}
-      </Segment>
+      <Segment.Group textalign='left'>
+        <Segment>
+        {getCeremonyData()}
+        </Segment>
+        
+      </Segment.Group>
 
       <Segment.Group>
 
@@ -308,7 +321,7 @@ function MapSidebarMain (props) {
 
       </Segment.Group>
 
-      <Segment textAlign='right' className='map-sidebar-close'>
+      <Segment textalign='right' className='map-sidebar-close'>
         <Button
           content='Close'
           icon={'angle ' + (isVertical ? 'down' : 'right')}

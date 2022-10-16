@@ -10,6 +10,11 @@ const ceremonyPhases = [
   'ASSIGNING',
   'ATTESTING'
 ];
+const encointerCeremonyPhases = {
+  REGISTERING: 0,
+  ASSIGNING: 1,
+  ATTESTING: 2
+};
 
 const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
@@ -45,6 +50,7 @@ export default React.memo(function MapCeremonyPhases (props) {
     attestationCount,
     api,
     cids,
+    debug,
     currentPhase: {
       phase: currentPhase,
       timestamp
@@ -66,17 +72,24 @@ export default React.memo(function MapCeremonyPhases (props) {
     return (small && currentPhase === 2) ? phasesProps.reverse() : phasesProps;
   };
 
+  const apiReady = (api, queryName = '') => {
+    const query = api && api.queryMulti && api.query;
+    return query && queryName ? (!!query[queryName]) : !!query;
+  };
+
   const [nextMeetupTime, setNextMeetupTime] = useState([]);
   // gets the date of the next Meetup
   useEffect(() => {
+    if (!apiReady(api, 'encointerScheduler')) {
+      return;
+    }
     async function getNextMeetupDate () {
       const meetupLocations = await api.rpc.encointer.getLocations(cids[0]);
       const tempLocation = locationFromJson(api, meetupLocations[0]);
       const tempTime = await getNextMeetupTime(api, tempLocation);
-      const tempdate = new Date(tempTime.toNumber());
-      const temparray = (tempdate.toString()).split('G');
-      const tempresultarray = temparray[0].split(' ');
-      setNextMeetupTime(' ' + tempresultarray[0] + ' ' + tempresultarray[2] + ' ' + tempresultarray[1] + ' ' + tempresultarray[3]);
+      debug && console.log("the date is: "+ formatDate(tempTime.toNumber()))
+      const temparray = (formatDate(tempTime.toNumber())).split(',');
+      setNextMeetupTime(temparray[0]);
     }
     getNextMeetupDate();
   }, [api, nextMeetupTime, setNextMeetupTime, cids]);
@@ -110,7 +123,7 @@ export default React.memo(function MapCeremonyPhases (props) {
                 }</Step.Description>
                 <Step.Description>
                   {
-                    (props.key === 'ATTESTING')
+                    (props.key === ceremonyPhases[2])
                       ? <div>date of next ceremony: {nextMeetupTime}</div>
                       : null
                   }
