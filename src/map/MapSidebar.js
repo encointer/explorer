@@ -32,6 +32,7 @@ function MapSidebarMain (props) {
   const [entry, setEntry] = useState(null);
   const [currentBlock, setCurrentBlock] = useState(1);
   const [moneySupply, setMoneySupply] = useState(0);
+  const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
 
   useEffect(() => {
     let unsubscribeAll;
@@ -98,17 +99,28 @@ function MapSidebarMain (props) {
     `offset${isVertical ? 'Height' : 'Width'}`
   ]);
 
-  useEffect(() =>{
-    async function getAttesterCount(){
+  const [attesterCount, setAttesterCount] = useState([]);
+  // gets the number of people who have registered attestations
+  useEffect(() => {
+    async function getAttesterCount () {
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const communityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
-      const numRegAttestationCount = await api.query.encointerCeremonies.attestationCount(communityCeremony);
-      debug && console.log("alkdfjakldfjagkahgiejikfjkfjkfjkdjfkjdkfjk"+ numRegAttestationCount);
-        }
-        getAttesterCount();
-   
-  }, [cid, api]);
-  
+      const attestationArray = await api.query.encointerCeremonies.attestationRegistry.keys(communityCeremony);
+      const tempArrayOfVotes = [];
+      for (const attester of attestationArray) {
+        const numRegAttestationCount = api.query.encointerCeremonies.meetupParticipantCountVote((communityCeremony), attester);
+        tempArrayOfVotes.push(numRegAttestationCount);
+      }
+      const arrayOfVotes = await Promise.all(tempArrayOfVotes);
+      let countOfVotes = 0;
+      for (const vote of arrayOfVotes) {
+        countOfVotes += vote.toNumber();
+      }
+      setAttesterCount(countOfVotes);
+    }
+    getAttesterCount();
+  }, [cid, api, attesterCount, setAttesterCount, CommunityCeremony]);
+
   return (
     <Sidebar
       className='details-sidebar'
@@ -139,6 +151,8 @@ function MapSidebarMain (props) {
 
         <Segment.Group horizontal>
           <Segment>
+            <Header sub>Number of People that have registered Attestations: </Header>
+            {attesterCount}
             <Header sub>Demurrage rate (per month):</Header>
             {demurrage && demurrage.toFixed(2)}%
             <Header sub>participants registered:</Header>
