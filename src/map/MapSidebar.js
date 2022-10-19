@@ -100,7 +100,7 @@ function MapSidebarMain (props) {
   const handleShow = () => ref.current && onShow(ref.current.ref.current[
     `offset${isVertical ? 'Height' : 'Width'}`
   ]);
-  const [allReputableNumber, setallReputableNumber] = useState([]);
+  const [allReputableNumber, setAllReputableNumber] = useState([]);
   const [tentativeGrowth, setTentativeGrowth] = useState([]);
   const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
   // gets the current number of Reputables
@@ -122,10 +122,10 @@ function MapSidebarMain (props) {
           tempAllRepSet.add(reputable);
         }
       }
-      setallReputableNumber(tempAllRepSet.size);
+      setAllReputableNumber(tempAllRepSet.size);
     }
     getnumRep();
-  }, [allReputableNumber, setallReputableNumber, api, CommunityCeremony, cid]);
+  }, [allReputableNumber, setAllReputableNumber, api, CommunityCeremony, cid]);
 
   useEffect(() => {
     /**
