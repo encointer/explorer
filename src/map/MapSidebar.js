@@ -203,7 +203,7 @@ function MapSidebarMain (props) {
         } else {
           if (isMounted) {
             setregisteredBootstrappers(data[4].bootstrappers);
-            setregisteredReputables(data[4].reputatbles);
+            setregisteredReputables(data[4].reputables);
             setregisteredEndorsees(data[4].endorsees);
             setregisteredNewbies(data[4].newbies);
             setunassignedNewbies(data[3] - data[4].newbies);
