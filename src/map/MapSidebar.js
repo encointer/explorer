@@ -172,7 +172,7 @@ function MapSidebarMain (props) {
   const [registeredBootstrappers, setRegisteredBootstrappers] = useState([]);
   const [registeredReputables, setRegisteredReputables] = useState([]);
   const [registeredEndorsees, setRegisteredEndorsees] = useState([]);
-  const [registeredNewbies, setrRegisteredNewbies] = useState([]);
+  const [registeredNewbies, setRegisteredNewbies] = useState([]);
   const [unassignedNewbies, setUnassignedNewbies] = useState([]);
   // gets the data of all people that registered for a Ceremony
   function GetCeremonyData () {
@@ -180,14 +180,14 @@ function MapSidebarMain (props) {
       async function getPhasepeopleData () {
         const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
         const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
-        const [tempregisteredBootstrappers, tempregisteredReputables, tempregisteredEndorseees, tempregisteredNewbies, assignmentCounts] = await Promise.all([
+
+        return await Promise.all([
           api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
           api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
           api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
           api.query.encointerCeremonies.newbieCount(currentCommunityCeremony),
           api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
         ]);
-        return [tempregisteredBootstrappers, tempregisteredReputables, tempregisteredEndorseees, tempregisteredNewbies, assignmentCounts];
       }
 
       let isMounted = true;
@@ -197,7 +197,7 @@ function MapSidebarMain (props) {
             setRegisteredBootstrappers(data[0]);
             setRegisteredReputables(data[1]);
             setRegisteredEndorsees(data[2]);
-            setrRegisteredNewbies(data[3]);
+            setRegisteredNewbies(data[3]);
             setUnassignedNewbies(0); // Todo: calculate how many newbies will not be assigned currently
           }
         } else {
@@ -205,7 +205,7 @@ function MapSidebarMain (props) {
             setRegisteredBootstrappers(data[4].bootstrappers);
             setRegisteredReputables(data[4].reputables);
             setRegisteredEndorsees(data[4].endorsees);
-            setrRegisteredNewbies(data[4].newbies);
+            setRegisteredNewbies(data[4].newbies);
             setUnassignedNewbies(data[3] - data[4].newbies);
           }
         }
