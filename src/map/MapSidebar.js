@@ -263,7 +263,7 @@ function MapSidebarMain (props) {
     >
       <Segment padded>
         <Header>
-          <img src={ipfsUrl} alt = " this is a community logo"/>
+          <img src={ipfsUrl} alt = ""/>
           <Header.Content>Currency info</Header.Content>
         </Header>
       </Segment>
