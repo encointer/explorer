@@ -106,9 +106,16 @@ export default React.memo(function MapCeremonyPhases (props) {
                   {props.key} {
                     (idx <= currentPhase && props.counter) ? <Label circular color={props.active ? 'green' : 'grey'}>{props.counter}</Label> : null
                   }</Step.Title>
+                <Step.Description>
+                  {
+                    (props.key === ceremonyPhases[2])
+                      ? <div>Next ceremony: {nextMeetupTime}</div>
+                      : null
+                  }
+                </Step.Description>
                 <Step.Description>{
                   (props.active)
-                    ? <div><div>time left: </div><CeremonyPhaseTimer nextPhaseTimestamp={timestamp} /></div>
+                    ? <div><div>Time left: </div><CeremonyPhaseTimer nextPhaseTimestamp={timestamp} /></div>
                     : (small
                         ? formatStartingAt(timestamp)
                         : ((idx === (currentPhase + 1) ||
@@ -116,13 +123,6 @@ export default React.memo(function MapCeremonyPhases (props) {
                             ? formatStartingAt(timestamp)
                             : null))
                 }</Step.Description>
-                <Step.Description>
-                  {
-                    (props.key === ceremonyPhases[2])
-                      ? <div>date of next ceremony: {nextMeetupTime}</div>
-                      : null
-                  }
-                </Step.Description>
               </Step.Content>
             </Step>
           ))
