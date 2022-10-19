@@ -252,7 +252,7 @@ function MapSidebarMain (props) {
         <p>{name}</p>
       </Segment>
 
-      <Segment.Group textAlign='left'>
+      <Segment.Group textalign='left'>
         <Segment>
         {(currentPhase.phase === 0)
           ? getRegisteredParticipantsComponent(ceremonyRegistry)
@@ -299,7 +299,7 @@ function MapSidebarMain (props) {
 
       </Segment.Group>
 
-      <Segment textAlign='right' className='map-sidebar-close'>
+      <Segment textalign='right' className='map-sidebar-close'>
         <Button
           content='Close'
           icon={'angle ' + (isVertical ? 'down' : 'right')}
@@ -343,6 +343,6 @@ function getAssignedParticipantsComponent (ceremonyRegistry) {
     <li>Reputables: {ceremonyRegistry.reputables.toString()}</li>
     <li>Endorsees: {ceremonyRegistry.endorsees.toString()}</li>
     <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
-    <li color='red'>unassigned Newbies: {ceremonyRegistry.unassignedNewbies.toString()}</li>
+    <li color='red'>Unassigned Newbies: {ceremonyRegistry.unassignedNewbies.toString()}</li>
   </div>);
 }
