@@ -135,6 +135,10 @@ function MapSidebarMain (props) {
      * Returns the max allowed growth if the number of registered newbies exceeds the allowed newbie seats.
      */
     async function getTentativeGrowth (allReputableNumber) {
+      if (!allReputableNumber || allReputableNumber === 0) {
+        return 0;
+      }
+
       const meetupNewbieLimitDivider = api.consts.encointerCeremonies.meetupNewbieLimitDivider;
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
@@ -146,15 +150,12 @@ function MapSidebarMain (props) {
       );
 
       // round to 2 digits
-      return (allReputableNumber != null) ? Math.round(maxGrowthAbsolute / allReputableNumber * 100) / 100 : null;
+      return Math.round(maxGrowthAbsolute / allReputableNumber * 100) / 100;
     }
-    if (allReputableNumber) {
-      getTentativeGrowth(allReputableNumber).then(data => {
-        setTentativeGrowth(data);
-      });
-    } else {
-      setTentativeGrowth([0]);
-    }
+
+    getTentativeGrowth(allReputableNumber).then(data => {
+      setTentativeGrowth(data);
+    });
   }, [allReputableNumber, setTentativeGrowth, api, CommunityCeremony, cid]);
 
   // gets the nominal Income of a Community
