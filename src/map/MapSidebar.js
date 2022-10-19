@@ -1,9 +1,12 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
-import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-ui-react';
+import { Button, Segment, Header, List, Message, Sidebar } from 'semantic-ui-react';
 import Big from 'big.js';
 import toFormat from 'toformat';
-
 import { parseEncointerBalance } from '@encointer/types';
+
+import { getCeremonyIncome } from '@encointer/node-api';
+import { parseI64F64 } from '@encointer/util';
+import { ipfsCidFromHex } from '../utils';
 
 const BigFormat = toFormat(Big);
 
@@ -20,6 +23,7 @@ function MapSidebarMain (props) {
     lastParticipantCount,
     lastMeetupCount,
     meetupCount,
+    currentPhase,
     data: {
       name, cid, demurrage, demurragePerBlock
     }
@@ -97,6 +101,130 @@ function MapSidebarMain (props) {
   const handleShow = () => ref.current && onShow(ref.current.ref.current[
     `offset${isVertical ? 'Height' : 'Width'}`
   ]);
+  const [allReputableNumber, setAllReputableNumber] = useState([]);
+  const [tentativeGrowth, setTentativeGrowth] = useState([]);
+  // gets the current number of Reputables
+  useEffect(() => {
+    async function getReputableCount () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+
+      const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
+        api.query.encointerCeremonies.reputationLifetime(),
+        api.query.encointerScheduler.currentCeremonyIndex()
+      ]);
+
+      const promises = [];
+      const lowerIndex = Math.max(0, currentCeremonyIndex - reputationLifetime);
+
+      for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
+        const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
+        promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
+      }
+
+      const arrayOfReputablesArray = await Promise.all(promises);
+
+      // reduce the array of arrays to a single set.
+      const allReputablesSet = new Set(arrayOfReputablesArray.reduce((all, nextArray) => [...all, ...nextArray]));
+
+      setAllReputableNumber(allReputablesSet.size);
+    }
+    getReputableCount();
+  }, [api, cid]);
+
+  useEffect(() => {
+    /**
+     * Gets the relative tentative growth based on the current meetups registrations.
+     * Returns the max allowed growth if the number of registered newbies exceeds the allowed newbie seats.
+     */
+    async function getTentativeGrowth (allReputableNumber) {
+      if (!allReputableNumber || allReputableNumber === 0) {
+        return 0;
+      }
+
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+      const meetupNewbieLimitDivider = api.consts.encointerCeremonies.meetupNewbieLimitDivider;
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+      const newbies = await api.query.encointerCeremonies.newbieCount(currentCommunityCeremony);
+
+      const maxGrowthAbsolute = Math.min(
+        newbies,
+        Math.floor(allReputableNumber / meetupNewbieLimitDivider)
+      );
+
+      // round to 2 digits
+      return Math.round(maxGrowthAbsolute / allReputableNumber * 100) / 100;
+    }
+
+    getTentativeGrowth(allReputableNumber).then(data => {
+      setTentativeGrowth(data);
+    });
+  }, [allReputableNumber, api, cid]);
+
+  // gets the nominal Income of a Community
+  const [nominalIncome, setNominalIncome] = useState([]);
+  useEffect(() => {
+    async function getNominalIncome () {
+      const nominalIncome = await getCeremonyIncome(api, cid);
+      return parseI64F64(nominalIncome);
+    }
+    getNominalIncome().then((income) => {
+      setNominalIncome(income);
+    });
+  }, [api, cid]);
+
+  const [ceremonyRegistry, setRegistry] = useState({
+    bootstrappers: 0,
+    reputables: 0,
+    endorsees: 0,
+    newbies: 0,
+    unassignedNewbies: 0 // Todo: calculate how many newbies will not be assigned currently
+  });
+
+  useEffect(() => {
+    async function getCurrentCeremonyRegistry () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+
+      return Promise.all([
+        api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.newbieCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
+      ]);
+    }
+
+    getCurrentCeremonyRegistry().then((data) => {
+      if (currentPhase.phase === 0) {
+        setRegistry({
+          bootstrappers: data[0],
+          reputables: data[1],
+          endorsees: data[2],
+          newbies: data[3],
+          unassignedNewbies: 0 // Todo: calculate how many newbies will not be assigned currently
+        });
+      } else {
+        setRegistry({
+          unassignedNewbies: data[3] - data[4].newbies,
+          ...data[4]
+        });
+      }
+    });
+  }, [api, cid, participantCount, currentPhase]);
+
+  const [ipfsUrl, setIpfsUrl] = useState([]);
+  // gets the community logo from a public ipfs gateway
+  useEffect(() => {
+    async function getCommunityLogo () {
+      const ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
+      const ipfsCid = ipfsCidFromHex(ipfsCidHex);
+
+      setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
+    }
+    getCommunityLogo();
+  }, [api, cid]);
 
   return (
     <Sidebar
@@ -113,7 +241,7 @@ function MapSidebarMain (props) {
     >
       <Segment padded>
         <Header>
-          <Icon name='money bill alternate' />
+          <img src={ipfsUrl} alt = ""/>
           <Header.Content>Currency info</Header.Content>
         </Header>
       </Segment>
@@ -124,22 +252,37 @@ function MapSidebarMain (props) {
         <p>{name}</p>
       </Segment>
 
+      <Segment.Group textalign='left'>
+        <Segment>
+        {(currentPhase.phase === 0)
+          ? getRegisteredParticipantsComponent(ceremonyRegistry)
+          : getAssignedParticipantsComponent(ceremonyRegistry)
+        }
+        </Segment>
+      </Segment.Group>
+
       <Segment.Group>
 
         <Segment.Group horizontal>
           <Segment>
+            <Header sub>nominal Income:</Header>
+            {nominalIncome}
             <Header sub>Demurrage rate (per month):</Header>
             {demurrage && demurrage.toFixed(2)}%
             <Header sub>participants registered:</Header>
             {participantCount}
+            <Header sub>Number of Reputables:</Header>
+            {allReputableNumber}
             <Header sub>participants registered in last ceremony:</Header>
             {lastParticipantCount}
           </Segment>
           <Segment>
             <Header sub>Money supply:</Header>
-            <p>{ !isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2) }</p>
+            <p>{!isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2)}</p>
             <Header sub>meetups assigned:</Header>
             {meetupCount}
+            <Header sub>tentative Community Growth (excluding endorsements): </Header>
+            {tentativeGrowth}%
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
           </Segment>
@@ -156,7 +299,7 @@ function MapSidebarMain (props) {
 
       </Segment.Group>
 
-      <Segment textAlign='right' className='map-sidebar-close'>
+      <Segment textalign='right' className='map-sidebar-close'>
         <Button
           content='Close'
           icon={'angle ' + (isVertical ? 'down' : 'right')}
@@ -166,13 +309,11 @@ function MapSidebarMain (props) {
 
     </Sidebar>
   );
-}
-
-export default React.memo(function MapSidebar (props) {
+} export default React.memo(function MapSidebar (props) {
   const { api } = props;
   return api && api.query
     ? (
-    <MapSidebarMain {...props} />
+      <MapSidebarMain {...props} />
       )
     : null;
 }, (prev, cur) => (
@@ -184,3 +325,24 @@ export default React.memo(function MapSidebar (props) {
       prev.lastMeetupCount === cur.lastMeetupCount
       : true)
 ));
+
+function getRegisteredParticipantsComponent (ceremonyRegistry) {
+  return (<div>
+    <h4>Registered participants for this ceremony:</h4>
+    <li>Bootstrapper: {ceremonyRegistry.bootstrappers.toString()}</li>
+    <li>Reputables: {ceremonyRegistry.reputables.toString()}</li>
+    <li>Endorsees: {ceremonyRegistry.endorsees.toString()}</li>
+    <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
+  </div>);
+}
+
+function getAssignedParticipantsComponent (ceremonyRegistry) {
+  return (<div>
+    <h4>Assigned Participants for this ceremony:</h4>
+    <li>Bootstrapper: {ceremonyRegistry.bootstrappers.toString()}</li>
+    <li>Reputables: {ceremonyRegistry.reputables.toString()}</li>
+    <li>Endorsees: {ceremonyRegistry.endorsees.toString()}</li>
+    <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
+    <li color='red'>Unassigned Newbies: {ceremonyRegistry.unassignedNewbies.toString()}</li>
+  </div>);
+}

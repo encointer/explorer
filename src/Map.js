@@ -548,6 +548,7 @@ export default function Map (props) {
               lastParticipantCount={ui.selected ? (state.lastCeremony.participants[ui.selected] || 0) : 0}
               meetupCount={ui.selected ? (state.meetups[ui.selected] || 0) : 0}
               lastMeetupCount={ui.selected ? (state.lastCeremony.meetups[ui.selected] || 0) : 0}
+              currentPhase = {currentPhase}
               debug={debug}
           />
 
@@ -559,7 +560,10 @@ export default function Map (props) {
                 participantCount={state.participantCount}
                 meetupCount={state.meetupCount}
                 attestationCount={state.attestationCount}
-                currentPhase={currentPhase} />
+                currentPhase={currentPhase}
+                api={api}
+                cids={cids}
+                debug= {debug}/>
 
             <MapNodeInfo
                 api={api}
