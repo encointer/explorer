@@ -1,5 +1,5 @@
 import { bnToU8a } from '@polkadot/util';
-import { stringToDegree } from '@encointer/types/index.d.ts';
+import { stringToDegree } from '@encointer/types';
 
 function mapReduce (arr, mapperFn, reducerFn) {
   let result = arr;
