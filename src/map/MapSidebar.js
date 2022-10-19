@@ -105,7 +105,7 @@ function MapSidebarMain (props) {
   const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
   // gets the current number of Reputables
   useEffect(() => {
-    async function getnumRep () {
+    async function getReputableCount () {
       const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
         api.query.encointerCeremonies.reputationLifetime(),
         api.query.encointerScheduler.currentCeremonyIndex()
@@ -124,7 +124,7 @@ function MapSidebarMain (props) {
       }
       setAllReputableNumber(tempAllRepSet.size);
     }
-    getnumRep();
+    getReputableCount();
   }, [allReputableNumber, setAllReputableNumber, api, CommunityCeremony, cid]);
 
   useEffect(() => {
@@ -169,11 +169,11 @@ function MapSidebarMain (props) {
     return () => { isMountedNominal = false; };
   }, [nominalIncome, setNominalIncome, api, cid]);
 
-  const [registeredBootstrappers, setregisteredBootstrappers] = useState([]);
-  const [registeredReputables, setregisteredReputables] = useState([]);
-  const [registeredEndorseees, setregisteredEndorsees] = useState([]);
-  const [registeredNewbies, setregisteredNewbies] = useState([]);
-  const [unassignedNewbies, setunassignedNewbies] = useState([]);
+  const [registeredBootstrappers, setRegisteredBootstrappers] = useState([]);
+  const [registeredReputables, setRegisteredReputables] = useState([]);
+  const [registeredEndorsees, setRegisteredEndorsees] = useState([]);
+  const [registeredNewbies, setrRegisteredNewbies] = useState([]);
+  const [unassignedNewbies, setUnassignedNewbies] = useState([]);
   // gets the data of all people that registered for a Ceremony
   function GetCeremonyData () {
     useEffect(() => {
@@ -194,19 +194,19 @@ function MapSidebarMain (props) {
       getPhasepeopleData().then((data) => {
         if (currentPhase.phase === 0) {
           if (isMounted) {
-            setregisteredBootstrappers(data[0]);
-            setregisteredReputables(data[1]);
-            setregisteredEndorsees(data[2]);
-            setregisteredNewbies(data[3]);
-            setunassignedNewbies(0); // Todo: calculate how many newbies will not be assigned currently
+            setRegisteredBootstrappers(data[0]);
+            setRegisteredReputables(data[1]);
+            setRegisteredEndorsees(data[2]);
+            setrRegisteredNewbies(data[3]);
+            setUnassignedNewbies(0); // Todo: calculate how many newbies will not be assigned currently
           }
         } else {
           if (isMounted) {
-            setregisteredBootstrappers(data[4].bootstrappers);
-            setregisteredReputables(data[4].reputables);
-            setregisteredEndorsees(data[4].endorsees);
-            setregisteredNewbies(data[4].newbies);
-            setunassignedNewbies(data[3] - data[4].newbies);
+            setRegisteredBootstrappers(data[4].bootstrappers);
+            setRegisteredReputables(data[4].reputables);
+            setRegisteredEndorsees(data[4].endorsees);
+            setrRegisteredNewbies(data[4].newbies);
+            setUnassignedNewbies(data[3] - data[4].newbies);
           }
         }
       });
@@ -217,7 +217,7 @@ function MapSidebarMain (props) {
           <h4>Registered participants for this ceremony:</h4>
           <li>Bootstrapper: {registeredBootstrappers.toString()}</li>
           <li>Reputables: {registeredReputables.toString()}</li>
-          <li>Endorsees: {registeredEndorseees.toString()}</li>
+          <li>Endorsees: {registeredEndorsees.toString()}</li>
           <li>Newbies: {registeredNewbies.toString()}</li>
       </div>);
     } else {
@@ -225,7 +225,7 @@ function MapSidebarMain (props) {
           <h4>Assigned Participants for this ceremony:</h4>
           <li >Bootstrapper: {registeredBootstrappers.toString()} </li>
           <li> Reputables: {registeredReputables.toString()}</li>
-          <li> Endorsees: {registeredEndorseees.toString()}</li>
+          <li> Endorsees: {registeredEndorsees.toString()}</li>
           <li>Newbies: {registeredNewbies.toString()}</li>
           <li color='red'>unassigned Newbies: {(unassignedNewbies != null) ? unassignedNewbies.toString() : '0'}</li>
       </div>);
