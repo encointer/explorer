@@ -2,6 +2,8 @@ import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button, Segment, Header, Icon, List, Message, Sidebar } from 'semantic-ui-react';
 import Big from 'big.js';
 import toFormat from 'toformat';
+import { printfunnystuff } from '../Lib';
+import { doreturn } from '../Lib';
 
 import { parseEncointerBalance } from '@encointer/types';
 
@@ -70,6 +72,8 @@ function MapSidebarMain (props) {
       api.query.encointerBalances
         .totalIssuance(cid, balanceEntry => {
           debug && console.log('MONEYSUPPLY RECEIVED', JSON.stringify(balanceEntry));
+          printfunnystuff();
+          debug && console.log("aksdkkkkkkkkkkkkkkkkkkkkkkk:   "+doreturn())
           setEntry({
             principal: parseEncointerBalance(balanceEntry.principal.bits),
             lastUpdate: balanceEntry.lastUpdate.toNumber()
