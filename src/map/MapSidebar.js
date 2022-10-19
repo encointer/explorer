@@ -112,7 +112,9 @@ function MapSidebarMain (props) {
       ]);
       const tempAllRepSet = new Set();
       const promises = [];
-      for (let cIndex = currentCeremonyIndex - reputationLifetime; cIndex <= currentCeremonyIndex; cIndex++) {
+      const lowerIndex = Math.max(0, currentCeremonyIndex - reputationLifetime);
+
+      for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
         promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
       }
@@ -146,14 +148,14 @@ function MapSidebarMain (props) {
       // round to 2 digits
       return (allReputableNumber != null) ? Math.round(maxGrowthAbsolute / allReputableNumber * 100) / 100 : null;
     }
-    let isMounted = true;
     if (allReputableNumber) {
       getTentativeGrowth(allReputableNumber).then(data => {
-        if (isMounted) setTentativeGrowth(data);
+        setTentativeGrowth(data);
       });
-      return () => { isMounted = false; };
+    } else {
+      setTentativeGrowth([0]);
     }
-  }, [allReputableNumber, tentativeGrowth, setTentativeGrowth, api, CommunityCeremony, cid]);
+  }, [allReputableNumber, setTentativeGrowth, api, CommunityCeremony, cid]);
 
   // gets the nominal Income of a Community
   const [nominalIncome, setNominalIncome] = useState([]);
