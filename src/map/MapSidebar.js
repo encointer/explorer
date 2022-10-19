@@ -103,10 +103,11 @@ function MapSidebarMain (props) {
   ]);
   const [allReputableNumber, setAllReputableNumber] = useState([]);
   const [tentativeGrowth, setTentativeGrowth] = useState([]);
-  const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
   // gets the current number of Reputables
   useEffect(() => {
     async function getReputableCount () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+
       const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
         api.query.encointerCeremonies.reputationLifetime(),
         api.query.encointerScheduler.currentCeremonyIndex()
@@ -128,7 +129,7 @@ function MapSidebarMain (props) {
       setAllReputableNumber(tempAllRepSet.size);
     }
     getReputableCount();
-  }, [allReputableNumber, setAllReputableNumber, api, CommunityCeremony, cid]);
+  }, [api, cid]);
 
   useEffect(() => {
     /**
@@ -140,6 +141,7 @@ function MapSidebarMain (props) {
         return 0;
       }
 
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
       const meetupNewbieLimitDivider = api.consts.encointerCeremonies.meetupNewbieLimitDivider;
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
@@ -157,7 +159,7 @@ function MapSidebarMain (props) {
     getTentativeGrowth(allReputableNumber).then(data => {
       setTentativeGrowth(data);
     });
-  }, [allReputableNumber, setTentativeGrowth, api, CommunityCeremony, cid]);
+  }, [allReputableNumber, api, cid]);
 
   // gets the nominal Income of a Community
   const [nominalIncome, setNominalIncome] = useState([]);
@@ -171,7 +173,7 @@ function MapSidebarMain (props) {
       if (isMountedNominal) setNominalIncome(' ' + data);
     });
     return () => { isMountedNominal = false; };
-  }, [nominalIncome, setNominalIncome, api, cid]);
+  }, [api, cid]);
 
   const [registeredBootstrappers, setRegisteredBootstrappers] = useState([]);
   const [registeredReputables, setRegisteredReputables] = useState([]);
@@ -182,6 +184,7 @@ function MapSidebarMain (props) {
   function GetCeremonyData () {
     useEffect(() => {
       async function getCurrentCeremonyRegistry () {
+        const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
         const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
         const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
 
@@ -246,7 +249,7 @@ function MapSidebarMain (props) {
       setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
     }
     getCommunityLogo();
-  }, [api, cid, ipfsUrl, setIpfsUrl]);
+  }, [api, cid]);
 
   return (
     <Sidebar
