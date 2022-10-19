@@ -112,7 +112,7 @@ function MapSidebarMain (props) {
         api.query.encointerCeremonies.reputationLifetime(),
         api.query.encointerScheduler.currentCeremonyIndex()
       ]);
-      const allReputablesSet = new Set();
+
       const promises = [];
       const lowerIndex = Math.max(0, currentCeremonyIndex - reputationLifetime);
 
@@ -120,12 +120,12 @@ function MapSidebarMain (props) {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
         promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
       }
-      const arrayOfReputables = await Promise.all(promises);
-      for (const reputables of arrayOfReputables) {
-        for (const reputable of reputables) {
-          allReputablesSet.add(reputable);
-        }
-      }
+
+      const arrayOfReputablesArray = await Promise.all(promises);
+
+      // reduce the array of arrays to a single set.
+      const allReputablesSet = new Set(arrayOfReputablesArray.reduce((all, nextArray) => [...all, ...nextArray]));
+
       setAllReputableNumber(allReputablesSet.size);
     }
     getReputableCount();
