@@ -165,82 +165,57 @@ function MapSidebarMain (props) {
   const [nominalIncome, setNominalIncome] = useState([]);
   useEffect(() => {
     async function getNominalIncome () {
-      const tempNominalIncome = await getCeremonyIncome(api, cid);
-      return parseI64F64(tempNominalIncome);
+      const nominalIncome = await getCeremonyIncome(api, cid);
+      return parseI64F64(nominalIncome);
     }
-    let isMountedNominal = true;
-    getNominalIncome().then((data) => {
-      if (isMountedNominal) setNominalIncome(' ' + data);
+    getNominalIncome().then((income) => {
+      setNominalIncome(income);
     });
-    return () => { isMountedNominal = false; };
   }, [api, cid]);
 
-  const [registeredBootstrappers, setRegisteredBootstrappers] = useState([]);
-  const [registeredReputables, setRegisteredReputables] = useState([]);
-  const [registeredEndorsees, setRegisteredEndorsees] = useState([]);
-  const [registeredNewbies, setRegisteredNewbies] = useState([]);
-  const [unassignedNewbies, setUnassignedNewbies] = useState([]);
-  // gets the data of all people that registered for a Ceremony
-  function GetCeremonyData () {
-    useEffect(() => {
-      async function getCurrentCeremonyRegistry () {
-        const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
-        const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
-        const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+  const [ceremonyRegistry, setRegistry] = useState({
+    bootstrappers: 0,
+    reputables: 0,
+    endorsees: 0,
+    newbies: 0,
+    unassignedNewbies: 0 // Todo: calculate how many newbies will not be assigned currently
+  });
 
-        return await Promise.all([
-          api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
-          api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
-          api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
-          api.query.encointerCeremonies.newbieCount(currentCommunityCeremony),
-          api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
-        ]);
-      }
+  useEffect(() => {
+    async function getCurrentCeremonyRegistry () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
 
-      let isMounted = true;
-      getCurrentCeremonyRegistry().then((data) => {
-        if (currentPhase.phase === 0) {
-          if (isMounted) {
-            setRegisteredBootstrappers(data[0]);
-            setRegisteredReputables(data[1]);
-            setRegisteredEndorsees(data[2]);
-            setRegisteredNewbies(data[3]);
-            setUnassignedNewbies(0); // Todo: calculate how many newbies will not be assigned currently
-          }
-        } else {
-          if (isMounted) {
-            setRegisteredBootstrappers(data[4].bootstrappers);
-            setRegisteredReputables(data[4].reputables);
-            setRegisteredEndorsees(data[4].endorsees);
-            setRegisteredNewbies(data[4].newbies);
-            setUnassignedNewbies(data[3] - data[4].newbies);
-          }
-        }
-      });
-      return () => { isMounted = false; };
-    }, []);
-    if (currentPhase.phase === 0) {
-      return (<div textalign='left'>
-          <h4>Registered participants for this ceremony:</h4>
-          <li>Bootstrapper: {registeredBootstrappers.toString()}</li>
-          <li>Reputables: {registeredReputables.toString()}</li>
-          <li>Endorsees: {registeredEndorsees.toString()}</li>
-          <li>Newbies: {registeredNewbies.toString()}</li>
-      </div>);
-    } else {
-      return (<div textalign='left'>
-          <h4>Assigned Participants for this ceremony:</h4>
-          <li >Bootstrapper: {registeredBootstrappers.toString()} </li>
-          <li> Reputables: {registeredReputables.toString()}</li>
-          <li> Endorsees: {registeredEndorsees.toString()}</li>
-          <li>Newbies: {registeredNewbies.toString()}</li>
-          <li color='red'>unassigned Newbies: {(unassignedNewbies != null) ? unassignedNewbies.toString() : '0'}</li>
-      </div>);
+      return Promise.all([
+        api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.newbieCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
+      ]);
     }
-  }
+
+    getCurrentCeremonyRegistry().then((data) => {
+      if (currentPhase.phase === 0) {
+        setRegistry({
+          bootstrappers: data[0],
+          reputables: data[1],
+          endorsees: data[2],
+          newbies: data[3],
+          unassignedNewbies: 0 // Todo: calculate how many newbies will not be assigned currently
+        });
+      } else {
+        setRegistry({
+          unassignedNewbies: data[3] - data[4].newbies,
+          ...data[4]
+        });
+      }
+    });
+  }, [api, cid, participantCount, currentPhase]);
 
   const [ipfsUrl, setIpfsUrl] = useState([]);
-  // gets the comunity logo from a public ipfs gateway
+  // gets the community logo from a public ipfs gateway
   useEffect(() => {
     async function getCommunityLogo () {
       const ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
@@ -279,7 +254,10 @@ function MapSidebarMain (props) {
 
       <Segment.Group textAlign='left'>
         <Segment>
-        {GetCeremonyData()}
+        {(currentPhase.phase === 0)
+          ? getRegisteredParticipantsComponent(ceremonyRegistry)
+          : getAssignedParticipantsComponent(ceremonyRegistry)
+        }
         </Segment>
       </Segment.Group>
 
@@ -347,3 +325,24 @@ function MapSidebarMain (props) {
       prev.lastMeetupCount === cur.lastMeetupCount
       : true)
 ));
+
+function getRegisteredParticipantsComponent (ceremonyRegistry) {
+  return (<div>
+    <h4>Registered participants for this ceremony:</h4>
+    <li>Bootstrapper: {ceremonyRegistry.bootstrappers.toString()}</li>
+    <li>Reputables: {ceremonyRegistry.reputables.toString()}</li>
+    <li>Endorsees: {ceremonyRegistry.endorsees.toString()}</li>
+    <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
+  </div>);
+}
+
+function getAssignedParticipantsComponent (ceremonyRegistry) {
+  return (<div>
+    <h4>Assigned Participants for this ceremony:</h4>
+    <li>Bootstrapper: {ceremonyRegistry.bootstrappers.toString()}</li>
+    <li>Reputables: {ceremonyRegistry.reputables.toString()}</li>
+    <li>Endorsees: {ceremonyRegistry.endorsees.toString()}</li>
+    <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
+    <li color='red'>unassigned Newbies: {ceremonyRegistry.unassignedNewbies.toString()}</li>
+  </div>);
+}
