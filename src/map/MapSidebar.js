@@ -271,13 +271,13 @@ function MapSidebarMain (props) {
         </Header>
       </Segment>
 
-      <Segment textalign='center'>
-        <Header sub textalign='left'>Currency ID:</Header>
+      <Segment textAlign='center'>
+        <Header sub textAlign='left'>Currency ID:</Header>
         <Message size='small' color='blue'>{hash}</Message>
         <p>{name}</p>
       </Segment>
 
-      <Segment.Group textalign='left'>
+      <Segment.Group textAlign='left'>
         <Segment>
         {GetCeremonyData()}
         </Segment>
@@ -321,12 +321,12 @@ function MapSidebarMain (props) {
 
       </Segment.Group>
 
-      <Segment textalign='right' className='map-sidebar-close'>
+      <Segment textAlign='right' className='map-sidebar-close'>
         <Button
           content='Close'
           icon={'angle ' + (isVertical ? 'down' : 'right')}
           labelPosition='right'
-          onClick={onClose} />
+          onClick={onClose}/>
       </Segment>
 
     </Sidebar>
