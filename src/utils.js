@@ -1,4 +1,3 @@
-/// map and reduce helper
 import { bnToU8a } from '@polkadot/util';
 import { stringToDegree } from '@encointer/types/index.d.ts';
 
