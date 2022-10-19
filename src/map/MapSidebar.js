@@ -177,7 +177,7 @@ function MapSidebarMain (props) {
   // gets the data of all people that registered for a Ceremony
   function GetCeremonyData () {
     useEffect(() => {
-      async function getPhasepeopleData () {
+      async function getCurrentCeremonyRegistry () {
         const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
         const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
 
@@ -191,7 +191,7 @@ function MapSidebarMain (props) {
       }
 
       let isMounted = true;
-      getPhasepeopleData().then((data) => {
+      getCurrentCeremonyRegistry().then((data) => {
         if (currentPhase.phase === 0) {
           if (isMounted) {
             setRegisteredBootstrappers(data[0]);
