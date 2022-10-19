@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Step, Label } from 'semantic-ui-react';
 import { CeremonyPhaseTimer } from './CeremonyPhaseTimer';
 import { getNextMeetupTime } from '@encointer/node-api';
-import { stringToDegree } from '@encointer/types';
-import { bnToU8a } from '@polkadot/util';
+import { locationFromJson } from '../utils';
 
 const ceremonyPhases = [
   'REGISTERING',
@@ -14,28 +13,6 @@ const ceremonyPhases = [
 const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
 const formatStartingAt = (timestamp) => (<div><div>starting at:</div> {formatDate(timestamp)}</div>);
-
-/**
- * Parses a location json with fields as number strings to a `Location` object.
- *
- * There is a rust vs. JS endian issue with numbers: https://github.com/polkadot-js/api/issues/4313.
- *
- * tl;dr: If the returned location is processed:
- *  * by a node (rust), use isLe = false.
- *  * by JS, e.g. `parseDegree`, use isLe = true.
- *
- *
- * @param api
- * @param location fields as strings, e.g. '35.2313515312'
- * @param isLe
- * @returns {Location} Location with fields as fixed-point numbers
- */
-export function locationFromJson (api, location, isLe = true) {
-  return api.createType('Location', {
-    lat: bnToU8a(stringToDegree(location.lat), 128, isLe),
-    lon: bnToU8a(stringToDegree(location.lon), 128, isLe)
-  });
-}
 
 export default React.memo(function MapCeremonyPhases (props) {
   const {
