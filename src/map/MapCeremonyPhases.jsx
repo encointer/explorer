@@ -60,11 +60,10 @@ export default React.memo(function MapCeremonyPhases (props) {
       const tempLocation = locationFromJson(api, meetupLocations[0]);
       const tempTime = await getNextMeetupTime(api, tempLocation);
       debug && console.log('the date is' + formatDate(tempTime.toNumber()));
-      const temparray = (formatDate(tempTime.toNumber())).split(',');
-      setNextMeetupTime(temparray[0]);
+      setNextMeetupTime(formatDate(tempTime.toNumber()).split(',')[0]);
     }
     getNextMeetupDate();
-  }, [api, nextMeetupTime, setNextMeetupTime, cids, debug]);
+  }, [api, cids, debug]);
 
   return (<div className='encointer-map-ceremony-phase'>
     <Step.Group
