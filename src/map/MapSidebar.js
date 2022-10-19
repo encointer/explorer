@@ -6,6 +6,7 @@ import { parseEncointerBalance } from '@encointer/types';
 
 import { getCeremonyIncome } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
+import { ipfsCidFromHex } from '../utils';
 
 const BigFormat = toFormat(Big);
 
@@ -239,13 +240,9 @@ function MapSidebarMain (props) {
   // gets the comunity logo from a public ipfs gateway
   useEffect(() => {
     async function getCommunityLogo () {
-      let ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
-      ipfsCidHex = (ipfsCidHex.toString()).split('x')[1];
-      // converts from hex to string
-      let ipfsCid = '';
-      for (let n = 0; n < ipfsCidHex.length; n += 2) {
-        ipfsCid += String.fromCharCode(parseInt(ipfsCidHex.substr(n, 2), 16));
-      }
+      const ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
+      const ipfsCid = ipfsCidFromHex(ipfsCidHex);
+
       setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
     }
     getCommunityLogo();
