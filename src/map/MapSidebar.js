@@ -74,8 +74,6 @@ function MapSidebarMain (props) {
       api.query.encointerBalances
         .totalIssuance(cid, balanceEntry => {
           debug && console.log('MONEYSUPPLY RECEIVED', JSON.stringify(balanceEntry));
-          printfunnystuff();
-          debug && console.log("aksdkkkkkkkkkkkkkkkkkkkkkkk:   "+doreturn())
           setEntry({
             principal: parseEncointerBalance(balanceEntry.principal.bits),
             lastUpdate: balanceEntry.lastUpdate.toNumber()
@@ -192,7 +190,6 @@ function MapSidebarMain (props) {
         api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
       ]);
     }
-
     getCurrentCeremonyRegistry().then((data) => {
       if (currentPhase.phase === 0) {
         setRegistry({
@@ -220,6 +217,8 @@ function MapSidebarMain (props) {
 
       setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
     }
+    Printfunnystuff(api);
+    debug && console.log("this finally works! yaaaaaayyy"+ getNextMeetupDate(api, cid))
     getCommunityLogo();
   }, [api, cid]);
 
