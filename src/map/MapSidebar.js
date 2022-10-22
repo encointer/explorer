@@ -2,10 +2,7 @@ import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button, Segment, Header, List, Message, Sidebar } from 'semantic-ui-react';
 import Big from 'big.js';
 import toFormat from 'toformat';
-import {Printfunnystuff, getNextMeetupDate} from '../Lib';
-
 import { parseEncointerBalance } from '@encointer/types';
-
 import { getCeremonyIncome } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
 import { ipfsCidFromHex } from '../utils';
@@ -224,8 +221,6 @@ function MapSidebarMain (props) {
 
       setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
     }
-    Printfunnystuff(api);
-    debug && console.log("this finally works! yaaaaaayyy"+ getNextMeetupDate(api, cid))
     getCommunityLogo();
   }, [api, cid]);
 
