@@ -196,8 +196,6 @@ function MapSidebarMain (props) {
 
       setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
     }
-    Printfunnystuff(api);
-    debug && console.log("this finally works! yaaaaaayyy"+ getNextMeetupDate(api, cid))
     getCommunityLogo();
   }, [api, cid]);
 
