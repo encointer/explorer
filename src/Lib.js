@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { locationFromJson } from './utils';
-import { getNextMeetupTime } from '@encointer/node-api';
+import React, { useEffect, useState } from 'react';
+import { locationFromJson, ipfsCidFromHex } from './utils';
+import { getNextMeetupTime, getCeremonyIncome } from '@encointer/node-api';
+import { parseI64F64 } from '@encointer/util';
 
 const apiReady = (api, queryName = '') => {
   const query = api && api.queryMulti && api.query;
@@ -8,12 +9,12 @@ const apiReady = (api, queryName = '') => {
 };
 const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
+/**
+ * Gets the Meetup Date and Time and returns it
+ */
 export function GetNextMeetupDate (props) {
   const { api, cid } = props;
   const [nextMeetupTime, setNextMeetupTime] = useState([]);
-  if (!apiReady(api, 'encointerScheduler')) {
-    return;
-  }
   useEffect(() => {
     async function getNextMeetupDate () {
       const meetupLocations = await api.rpc.encointer.getLocations(cid);
@@ -23,7 +24,9 @@ export function GetNextMeetupDate (props) {
     }
     getNextMeetupDate();
   }, [api, cid]);
-
+  if (!apiReady(api, 'encointerCeremonies')) {
+    return;
+  }
   return nextMeetupTime;
 }
 
@@ -34,9 +37,6 @@ export function GetNextMeetupDate (props) {
 export function GetTentativeGrowth (props) {
   const { allReputableNumber, api, cid } = props;
   const [tentativeGrowth, setTentativeGrowth] = useState([]);
-  if (!apiReady(api, 'encointerScheduler')) {
-    return;
-  }
   useEffect(() => {
     async function getTentativeGrowth (allReputableNumber) {
       if (!allReputableNumber || allReputableNumber === 0) {
@@ -63,4 +63,120 @@ export function GetTentativeGrowth (props) {
     });
   }, [allReputableNumber, api, cid]);
   return tentativeGrowth;
+}
+
+/**
+ * gets the current number of Reputables
+ */
+export function GetReputableCount (props) {
+  const { api, cid } = props;
+  const [allReputableNumber, setAllReputableNumber] = useState([]);
+  useEffect(() => {
+    async function getReputableCount () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+      const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
+        api.query.encointerCeremonies.reputationLifetime(),
+        api.query.encointerScheduler.currentCeremonyIndex()
+      ]);
+
+      const promises = [];
+      const lowerIndex = Math.max(0, currentCeremonyIndex - reputationLifetime);
+
+      for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
+        const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
+        promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
+      }
+      const arrayOfReputablesArray = await Promise.all(promises);
+
+      // reduce the array of arrays to a single set.
+      const allReputablesSet = new Set(arrayOfReputablesArray.reduce((all, nextArray) => [...all, ...nextArray]));
+
+      setAllReputableNumber(allReputablesSet.size);
+    }
+    getReputableCount();
+  }, [api, cid]);
+  return allReputableNumber;
+}
+
+/**
+ * Gets the Bootstrapper count, Reputable count, Endorsee count, Newbie count that registered for a Ceremony
+ * The Assignment counts variable stores how many of them got assigned to a Ceremony
+ */
+export function GetCurrentCeremonyRegistry (props) {
+  const { api, cid, currentPhase } = props;
+  const [ceremonyRegistry, setRegistry] = useState({
+    bootstrappers: 0,
+    reputables: 0,
+    endorsees: 0,
+    newbies: 0,
+    unassignedNewbies: 0 // Todo: calculate how many newbies will not be assigned currently
+  });
+
+  useEffect(() => {
+    async function getCurrentCeremonyRegistry () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+
+      return Promise.all([
+        api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.newbieCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
+      ]);
+    }
+    getCurrentCeremonyRegistry().then((data) => {
+      if (currentPhase.phase === 0) {
+        setRegistry({
+          bootstrappers: data[0],
+          reputables: data[1],
+          endorsees: data[2],
+          newbies: data[3],
+          unassignedNewbies: 0 // Todo: calculate how many newbies will not be assigned currently
+        });
+      } else {
+        setRegistry({
+          unassignedNewbies: data[3] - data[4].newbies,
+          ...data[4]
+        });
+      }
+    });
+  }, [api, cid, currentPhase]);
+  return ceremonyRegistry;
+}
+
+/**
+ * Gets the Community Logo
+ */
+export function GetCommunityLogo (props) {
+  const { api, cid } = props;
+  const [ipfsUrl, setIpfsUrl] = useState([]);
+  useEffect(() => {
+    async function getCommunityLogo () {
+      const ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
+      const ipfsCid = ipfsCidFromHex(ipfsCidHex);
+
+      setIpfsUrl('https://ipfs.io/ipfs/' + ipfsCid + '/community_icon.svg');
+    }
+    getCommunityLogo();
+  }, [api, cid]);
+  return <img src ={ipfsUrl} alt= ""/>;
+}
+/**
+ * gets the nominal Income of a Community
+ */
+export function GetNominalIncome (props) {
+  const { api, cid } = props;
+  const [nominalIncome, setNominalIncome] = useState([]);
+  useEffect(() => {
+    async function getNominalIncome () {
+      const nominalIncome = await getCeremonyIncome(api, cid);
+      return parseI64F64(nominalIncome);
+    }
+    getNominalIncome().then((income) => {
+      setNominalIncome(income);
+    });
+  }, [api, cid]);
+  return nominalIncome;
 }
