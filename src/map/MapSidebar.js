@@ -252,9 +252,6 @@ function MapSidebarMain (props) {
           : getAssignedParticipantsComponent(ceremonyRegistry)
         }
         </Segment>
-      </Segment.Group>
-
-      <Segment.Group>
 
         <Segment.Group horizontal>
           <Segment>
