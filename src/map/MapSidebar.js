@@ -226,6 +226,31 @@ function MapSidebarMain (props) {
     getCommunityLogo();
   }, [api, cid]);
 
+  const [submittedAttesters, setSubmittedAttesters] = useState([]);
+
+  useEffect(() => {
+    async function getNumberOfSubmittedAttesters () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+      const numberOfSubmittedAttesters = await api.query.encointerCeremonies.attestationCount(currentCommunityCeremony);
+      setSubmittedAttesters(numberOfSubmittedAttesters.toNumber());
+    }
+    getNumberOfSubmittedAttesters();
+  }, [api, cid]);
+
+  function showNumberOfSubmittedAttesters () {
+    if (submittedAttesters === null) {
+      setSubmittedAttesters(0);
+    }
+    return (
+      <div>
+        <Header sub>Assigned Participants for this ceremony: </Header>
+        {submittedAttesters}
+      </div>
+    );
+  }
+
   return (
     <Sidebar
       className='details-sidebar'
@@ -285,6 +310,11 @@ function MapSidebarMain (props) {
             {tentativeGrowth}%
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
+            <Header sub></Header>
+            {(currentPhase.phase === 0)
+              ? showNumberOfSubmittedAttesters()
+              : null
+            }
           </Segment>
         </Segment.Group>
 
