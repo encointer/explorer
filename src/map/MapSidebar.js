@@ -142,18 +142,13 @@ function MapSidebarMain (props) {
       }
 
       const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
-      const meetupNewbieLimitDivider = api.consts.encointerCeremonies.meetupNewbieLimitDivider;
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
       const newbies = await api.query.encointerCeremonies.newbieCount(currentCommunityCeremony);
-
-      const maxGrowthAbsolute = Math.min(
-        newbies,
-        Math.floor(allReputableNumber / meetupNewbieLimitDivider)
-      );
+      const endorsees = await api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony);
 
       // round to 2 digits
-      return Math.round(maxGrowthAbsolute / allReputableNumber * 100) / 100;
+      return Math.round((newbies + endorsees) / allReputableNumber * 100) / 100;
     }
 
     getTentativeGrowth(allReputableNumber).then(data => {
@@ -281,7 +276,7 @@ function MapSidebarMain (props) {
             <p>{!isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2)}</p>
             <Header sub>meetups assigned:</Header>
             {meetupCount}
-            <Header sub>tentative Community Growth (excluding endorsements): </Header>
+            <Header sub>tentative Community Growth: </Header>
             {tentativeGrowth}%
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
