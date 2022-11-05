@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { locationFromJson, ipfsCidFromHex } from './utils';
 import { getNextMeetupTime, getCeremonyIncome } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
+import { Header } from 'semantic-ui-react';
 
 const apiReady = (api, queryName = '') => {
   const query = api && api.queryMulti && api.query;
@@ -199,20 +200,25 @@ function getAssignedParticipantsComponent (ceremonyRegistry) {
   </div>);
 }
 
-const [submittedAttesters, setSubmittedAttesters] = useState([]);
+export function ShowNumberOfSubmittedAttesters (props) {
+  const { api, cid } = props;
+  const [submittedAttesters, setSubmittedAttesters] = useState([]);
 
-useEffect(() => {
-  async function getNumberOfSubmittedAttesters () {
-    const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
-    const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
-    const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
-    const numberOfSubmittedAttesters = await api.query.encointerCeremonies.attestationCount(currentCommunityCeremony);
-    setSubmittedAttesters(numberOfSubmittedAttesters.toNumber());
-  }
-  getNumberOfSubmittedAttesters();
-}, [api, cid]);
+  useEffect(() => {
+    async function getNumberOfSubmittedAttesters () {
+      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+      const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+      const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+      const numberOfSubmittedAttesters = await api.query.encointerCeremonies.attestationCount(currentCommunityCeremony);
+      setSubmittedAttesters(numberOfSubmittedAttesters.toNumber());
+    }
+    getNumberOfSubmittedAttesters();
+  }, [api, cid]);
 
-function showNumberOfSubmittedAttesters () {
+  return showNumberOfSubmittedAttesters(submittedAttesters, setSubmittedAttesters);
+}
+
+function showNumberOfSubmittedAttesters (submittedAttesters, setSubmittedAttesters) {
   if (submittedAttesters === null) {
     setSubmittedAttesters(0);
   }
