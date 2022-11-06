@@ -42,7 +42,7 @@ export const getClusterIcon = (phase, count, active) => {
   if (phase === 0) { // in REGISTERING phase
     className = count ? 'green' : 'yellow'; // green if >0 registered
   } else if (count !== 0) {
-    className = count > 1 ? 'green' : 'yellow'; // if 1 meetup then yellow, if >1 green
+    className = count >= 1 ? 'green' : 'yellow'; // if 0 meetup then yellow, if >=1 green
   } else {
     className = 'red'; // in ASSIGNING and ATTESTING if 0 meetups
   }
