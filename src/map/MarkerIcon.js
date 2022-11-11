@@ -41,11 +41,9 @@ export const getClusterIcon = (phase, count, active) => {
   let className;
   if (phase === 0) { // in REGISTERING phase
     className = count ? 'green' : 'yellow'; // green if >0 registered
-  } else if (count !== 0) {
-    className = count >= 1 ? 'green' : 'yellow'; // if 0 meetup then yellow, if >=1 green
   } else {
-    className = 'red'; // in ASSIGNING and ATTESTING if 0 meetups
-  }
+    className = count >= 1 ? 'green' : 'red'; // if 0 meetup then red, if >=1 green
+  } 
   if (active) { // animated icon
     return className.concat(' pulse');
   } else {
