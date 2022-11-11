@@ -43,7 +43,7 @@ export const getClusterIcon = (phase, count, active) => {
     className = count ? 'green' : 'yellow'; // green if >0 registered
   } else {
     className = count >= 1 ? 'green' : 'red'; // if 0 meetup then red, if >=1 green
-  } 
+  }
   if (active) { // animated icon
     return className.concat(' pulse');
   } else {
