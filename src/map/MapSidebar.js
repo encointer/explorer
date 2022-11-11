@@ -234,6 +234,7 @@ function MapSidebarMain (props) {
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
       const numberOfSubmittedAttesters = await api.query.encointerCeremonies.attestationCount(currentCommunityCeremony);
+
       setSubmittedAttesters(numberOfSubmittedAttesters.toNumber());
     }
     getNumberOfSubmittedAttesters();
@@ -245,7 +246,7 @@ function MapSidebarMain (props) {
     }
     return (
       <div>
-        <Header sub>Assigned Participants for this ceremony: </Header>
+        <Header sub>Number of attestation submissions: </Header>
         {submittedAttesters}
       </div>
     );
@@ -311,7 +312,7 @@ function MapSidebarMain (props) {
             <Header sub>meetups assigned in last ceremony:</Header>
             {lastMeetupCount}
             <Header sub></Header>
-            {(currentPhase.phase === 0)
+            {(currentPhase.phase === 2)
               ? showNumberOfSubmittedAttesters()
               : null
             }
