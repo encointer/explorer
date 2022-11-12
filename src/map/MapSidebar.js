@@ -10,6 +10,11 @@ import { ipfsCidFromHex } from '../utils';
 
 const BigFormat = toFormat(Big);
 
+const apiReady = (api, queryName = '') => {
+  const query = api && api.queryMulti && api.query;
+  return query && queryName ? (!!query[queryName]) : !!query;
+};
+
 function MapSidebarMain (props) {
   const {
     api,
@@ -144,6 +149,9 @@ function MapSidebarMain (props) {
   const [nominalIncome, setNominalIncome] = useState([]);
   useEffect(() => {
     async function getNominalIncome () {
+      if (!apiReady(api, 'encointerScheduler') || cid === undefined) {
+        return 0;
+      }
       const nominalIncome = await getCeremonyIncome(api, cid);
       return parseI64F64(nominalIncome);
     }
@@ -197,6 +205,9 @@ function MapSidebarMain (props) {
   // gets the community logo from a public ipfs gateway
   useEffect(() => {
     async function getCommunityLogo () {
+      if (!apiReady(api, 'encointerScheduler') || cid === undefined) {
+        return;
+      }
       const ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
       const ipfsCid = ipfsCidFromHex(ipfsCidHex);
 
