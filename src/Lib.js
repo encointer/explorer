@@ -47,7 +47,6 @@ export function GetTentativeGrowth (props) {
       const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
-
       const [assignmentCounts, endorsees] = await Promise.all([
         api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony),
         api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony)
@@ -228,7 +227,7 @@ function showNumberOfSubmittedAttesters (submittedAttesters, setSubmittedAtteste
   }
   return (
     <div>
-      <Header sub>Assigned Participants for this ceremony: </Header>
+      <Header sub>Number of attestation submissions: </Header>
       {submittedAttesters}
     </div>
   );
