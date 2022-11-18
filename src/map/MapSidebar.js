@@ -152,7 +152,7 @@ function MapSidebarMain (props) {
 
       const newbies = assignmentCounts.newbies;
       // round to 2 digits
-      return (Math.round(((newbies.toNumber() + endorsees.toNumber()) / allReputableNumber) * 100));
+      return Math.round(((newbies.toNumber() + endorsees.toNumber()) / allReputableNumber) * 100);
     }
 
     getTentativeGrowth(allReputableNumber).then(data => {
