@@ -8,6 +8,9 @@ import { getCeremonyIncome } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
 import { ipfsCidFromHex } from '../utils';
 
+
+import CommunityBusinessSwitch from './communityBusiness';
+
 const BigFormat = toFormat(Big);
 
 function MapSidebarMain (props) {
@@ -300,6 +303,7 @@ function MapSidebarMain (props) {
             {allReputableNumber}
             <Header sub>participants registered in last ceremony:</Header>
             {lastParticipantCount}
+            <CommunityBusinessSwitch/>
           </Segment>
           <Segment>
             <Header sub>Money supply:</Header>
