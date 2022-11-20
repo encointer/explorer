@@ -8,7 +8,6 @@ import { getCeremonyIncome } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
 import { ipfsCidFromHex } from '../utils';
 
-
 import CommunityBusinessSwitch from './communityBusiness';
 
 const BigFormat = toFormat(Big);
