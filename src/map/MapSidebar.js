@@ -263,7 +263,7 @@ function MapSidebarMain (props) {
       setNextMeetupTime(formatDate(tempTime.toNumber()).split(',')[0]);
     }
     getNextMeetupDate();
-  }, [api, cids, debug]);
+  }, [api, cid, debug]);
 
   return (
     <Sidebar
