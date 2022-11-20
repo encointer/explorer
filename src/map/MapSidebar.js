@@ -4,11 +4,12 @@ import Big from 'big.js';
 import toFormat from 'toformat';
 import { parseEncointerBalance } from '@encointer/types';
 
-import { getCeremonyIncome } from '@encointer/node-api';
+import { getCeremonyIncome, getNextMeetupTime } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
-import { ipfsCidFromHex } from '../utils';
+import { ipfsCidFromHex, locationFromJson } from '../utils';
 
 const BigFormat = toFormat(Big);
+const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
 function MapSidebarMain (props) {
   const {
@@ -254,9 +255,6 @@ function MapSidebarMain (props) {
   const [nextMeetupTime, setNextMeetupTime] = useState([]);
   // gets the date of the next Meetup
   useEffect(() => {
-    if (!apiReady(api, 'encointerScheduler')) {
-      return;
-    }
     async function getNextMeetupDate () {
       const meetupLocations = await api.rpc.encointer.getLocations(cid);
       const tempLocation = locationFromJson(api, meetupLocations[0]);
