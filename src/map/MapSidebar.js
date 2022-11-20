@@ -251,6 +251,22 @@ function MapSidebarMain (props) {
     );
   }
 
+  const [nextMeetupTime, setNextMeetupTime] = useState([]);
+  // gets the date of the next Meetup
+  useEffect(() => {
+    if (!apiReady(api, 'encointerScheduler')) {
+      return;
+    }
+    async function getNextMeetupDate () {
+      const meetupLocations = await api.rpc.encointer.getLocations(cid);
+      const tempLocation = locationFromJson(api, meetupLocations[0]);
+      const tempTime = await getNextMeetupTime(api, tempLocation);
+      debug && console.log('the date is' + formatDate(tempTime.toNumber()));
+      setNextMeetupTime(formatDate(tempTime.toNumber()).split(',')[0]);
+    }
+    getNextMeetupDate();
+  }, [api, cids, debug]);
+
   return (
     <Sidebar
       className='details-sidebar'
@@ -268,6 +284,7 @@ function MapSidebarMain (props) {
         <Header>
           <img src={ipfsUrl} alt = ""/>
           <Header.Content>Currency info</Header.Content>
+          <Header.Content>Next ceremony: {nextMeetupTime}</Header.Content>
         </Header>
       </Segment>
 
