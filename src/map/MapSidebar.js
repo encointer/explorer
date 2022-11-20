@@ -282,7 +282,6 @@ function MapSidebarMain (props) {
         <Header>
           <img src={ipfsUrl} alt = ""/>
           <Header.Content>Currency info</Header.Content>
-          <Header.Content>Next ceremony: {nextMeetupTime}</Header.Content>
         </Header>
       </Segment>
 
@@ -290,6 +289,7 @@ function MapSidebarMain (props) {
         <Header sub textAlign='left'>Currency ID:</Header>
         <Message size='small' color='blue'>{hash}</Message>
         <p>{name}</p>
+        <div>Next ceremony: {nextMeetupTime}</div>
       </Segment>
 
       <Segment.Group textalign='left'>
