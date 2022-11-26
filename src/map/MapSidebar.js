@@ -8,7 +8,7 @@ import { getCeremonyIncome } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
 import { ipfsCidFromHex } from '../utils';
 
-import CommunityBusinessSwitch from './communityBusiness';
+import { FormControlLabel, Switch } from '@material-ui/core';
 
 const BigFormat = toFormat(Big);
 
@@ -252,7 +252,19 @@ function MapSidebarMain (props) {
       </div>
     );
   }
+  /* useEffect(() => {
+    async function getBusinessLocations () {
+      const locations = await api.query.encointerCommunities.locations.keys(cid);
+      // console.log(locations);
+    }
+    getBusinessLocations();
+  },[cid]) */
 
+  const [checked, setChecked] = useState(false);
+  const handleChange = (event) => {
+    setChecked(event.target.checked);
+    // console.log ('checked is: '+ checked);
+  };
   return (
     <Sidebar
       className='details-sidebar'
@@ -302,7 +314,6 @@ function MapSidebarMain (props) {
             {allReputableNumber}
             <Header sub>participants registered in last ceremony:</Header>
             {lastParticipantCount}
-            <CommunityBusinessSwitch/>
           </Segment>
           <Segment>
             <Header sub>Money supply:</Header>
@@ -318,6 +329,13 @@ function MapSidebarMain (props) {
               ? showNumberOfSubmittedAttesters()
               : null
             }
+            <FormControlLabel
+            control = {<Switch
+              color='primary'
+              checked={checked}
+              onChange={handleChange}
+              inputProps={{ 'aria-label': 'controlled' }}/>}
+            label = "Togggle to see Businesses"/>
           </Segment>
         </Segment.Group>
 
