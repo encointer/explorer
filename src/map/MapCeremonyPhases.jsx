@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Step, Label } from 'semantic-ui-react';
 import { CeremonyPhaseTimer } from './CeremonyPhaseTimer';
-import { getNextMeetupTime } from '@encointer/node-api';
-import { locationFromJson } from '../utils';
+import { getStartOfAttestingPhase } from '@encointer/node-api';
 
 const ceremonyPhases = [
   'REGISTERING',
@@ -10,9 +9,11 @@ const ceremonyPhases = [
   'ATTESTING'
 ];
 
-const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
+const formatDateTime = (timestamp) => (new Date(timestamp)).toLocaleString();
 
-const formatStartingAt = (timestamp) => (<div><div>starting at:</div> {formatDate(timestamp)}</div>);
+const formatDate = (timestamp) => (new Date(timestamp)).toLocaleDateString();
+
+const formatStartingAt = (timestamp) => (<div><div>starting at:</div> {formatDateTime(timestamp)}</div>);
 
 export default React.memo(function MapCeremonyPhases (props) {
   const {
@@ -56,11 +57,10 @@ export default React.memo(function MapCeremonyPhases (props) {
       return;
     }
     async function getNextMeetupDate () {
-      const meetupLocations = await api.rpc.encointer.getLocations(cids[0]);
-      const tempLocation = locationFromJson(api, meetupLocations[0]);
-      const tempTime = await getNextMeetupTime(api, tempLocation);
-      debug && console.log('the date is' + formatDate(tempTime.toNumber()));
-      setNextMeetupTime(formatDate(tempTime.toNumber()).split(',')[0]);
+      const startOfAttestingPhase = await getStartOfAttestingPhase(api);
+      const date = formatDate(startOfAttestingPhase.toNumber());
+      debug && console.log('startOfAttestingPhase: ' + date);
+      setNextMeetupTime([date]);
     }
     getNextMeetupDate();
   }, [api, cids, debug]);
