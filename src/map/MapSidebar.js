@@ -376,7 +376,7 @@ async function getAllReputables (api, cid, debug = false) {
   const arrayOfReputablesArray = await Promise.all(promises);
   const arrayOfReputables = arrayOfReputablesArray.flat();
 
-  // JSON.stringify needed as objects are only equal if they point to the same reference.
+  // JSON.stringify is needed because objects are only equal if they point to the same reference.
   const setOfReputables = [...new Set(arrayOfReputables.map((account) => JSON.stringify(account)))];
   debug && console.log(`All  set: ${setOfReputables}`);
 
