@@ -118,21 +118,18 @@ function MapSidebarMain (props) {
 
       for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
-        promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
-          // .then((accounts) => JSON.stringify(accounts)));
+        promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony)
+          .then((keys) => keys.map(extractAccountIdFromReputationMapKey))
+        );
       }
 
       const arrayOfReputablesArray = await Promise.all(promises);
-      console.log(`All reputables: ${arrayOfReputablesArray}`);
-
-      // reduce the array of arrays to a single set.
       const arrayOfReputables = arrayOfReputablesArray.flat();
-      console.log(`All  set: ${JSON.stringify(arrayOfReputables)}`);
 
-      const setOfReputables = new Set(arrayOfReputables.map((account) => JSON.stringify(account)));
-      console.log(`All  set: ${JSON.stringify(setOfReputables)}`);
+      const setOfReputables = [...new Set(arrayOfReputables.map((account) => JSON.stringify(account)))];
+      debug && console.log(`All  set: ${setOfReputables}`);
 
-      setAllReputableNumber([setOfReputables.size]);
+      setAllReputableNumber([setOfReputables.length]);
     }
     getReputableCount();
   }, [api, cid]);
@@ -381,4 +378,17 @@ function getAssignedParticipantsComponent (ceremonyRegistry) {
     <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
     <li color='red'>Unassigned Newbies: {ceremonyRegistry.unassignedNewbies.toString()}</li>
   </div>);
+}
+
+/**
+ * This is not intuitive.
+ * See explanation https://polkadot.js.org/docs/api/start/api.query.other/#map-keys--entries
+ */
+function extractAccountIdFromReputationMapKey (key) {
+  return key.args[1];
+  // promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony)
+  //   .then((keys) => {
+  //     // See explanation https://polkadot.js.org/docs/api/start/api.query.other/#map-keys--entries
+  //     return keys.map(({ args: [_, accountId] }) => accountId);
+  //   }));
 }
