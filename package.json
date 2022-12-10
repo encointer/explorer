@@ -99,5 +99,6 @@
     "substrate",
     "substrate-ui",
     "polkadot-js"
-  ]
+  ],
+  "packageManager": "yarn@3.3.0"
 }
