@@ -2,3 +2,12 @@ node_modules
 .vscode
 **/.DS_Store
 build
+
+# yarn v3 zero install mode
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
