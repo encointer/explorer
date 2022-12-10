@@ -369,7 +369,7 @@ async function getAllReputables (api, cid, debug = false) {
     const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
     promises.push(
       api.query.encointerCeremonies.participantReputation.keys(communityCeremony)
-        .then(extractAccountIdFromReputationMapKeys)
+        .then(extractAccountIdFromParticipantReputationMapKeys)
     );
   }
 
@@ -387,6 +387,6 @@ async function getAllReputables (api, cid, debug = false) {
  * This is not intuitive.
  * See explanation https://polkadot.js.org/docs/api/start/api.query.other/#map-keys--entries.
  */
-function extractAccountIdFromReputationMapKeys (keys) {
+function extractAccountIdFromParticipantReputationMapKeys (keys) {
   return keys.map(({ args: [_cc, accountId] }) => accountId);
 }
