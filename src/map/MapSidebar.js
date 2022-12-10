@@ -119,14 +119,20 @@ function MapSidebarMain (props) {
       for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
         promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
+          // .then((accounts) => JSON.stringify(accounts)));
       }
 
       const arrayOfReputablesArray = await Promise.all(promises);
+      console.log(`All reputables: ${arrayOfReputablesArray}`);
 
       // reduce the array of arrays to a single set.
-      const allReputablesSet = new Set(arrayOfReputablesArray.reduce((all, nextArray) => [...all, ...nextArray]));
+      const arrayOfReputables = arrayOfReputablesArray.flat();
+      console.log(`All  set: ${JSON.stringify(arrayOfReputables)}`);
 
-      setAllReputableNumber(allReputablesSet.size);
+      const setOfReputables = new Set(arrayOfReputables.map((account) => JSON.stringify(account)));
+      console.log(`All  set: ${JSON.stringify(setOfReputables)}`);
+
+      setAllReputableNumber([setOfReputables.size]);
     }
     getReputableCount();
   }, [api, cid]);
