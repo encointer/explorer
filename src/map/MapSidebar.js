@@ -105,7 +105,10 @@ function MapSidebarMain (props) {
   const [tentativeGrowth, setTentativeGrowth] = useState([]);
   // gets the current number of Reputables
   useEffect(() => {
-    getAllReputables(api, cid, debug).then((reputables) => setAllReputableNumber([reputables.length]));
+    getAllReputables(api, cid).then((reputables) => {
+      debug && console.log(`All unique reputables: ${reputables}`);
+      setAllReputableNumber([reputables.length]);
+    });
   }, [api, cid, debug]);
 
   useEffect(() => {
@@ -354,7 +357,7 @@ function getAssignedParticipantsComponent (ceremonyRegistry) {
   </div>);
 }
 
-async function getAllReputables (api, cid, debug = false) {
+async function getAllReputables (api, cid) {
   const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
 
   const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
@@ -377,10 +380,7 @@ async function getAllReputables (api, cid, debug = false) {
   const arrayOfReputables = arrayOfReputablesArray.flat();
 
   // JSON.stringify is needed because objects are only equal if they point to the same reference.
-  const setOfReputables = [...new Set(arrayOfReputables.map((account) => JSON.stringify(account)))];
-  debug && console.log(`All  set: ${setOfReputables}`);
-
-  return setOfReputables;
+  return [...new Set(arrayOfReputables.map((account) => JSON.stringify(account)))];
 }
 
 /**
