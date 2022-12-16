@@ -106,31 +106,11 @@ function MapSidebarMain (props) {
   const [tentativeGrowth, setTentativeGrowth] = useState([]);
   // gets the current number of Reputables
   useEffect(() => {
-    async function getReputableCount () {
-      const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
-
-      const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
-        api.query.encointerCeremonies.reputationLifetime(),
-        api.query.encointerScheduler.currentCeremonyIndex()
-      ]);
-
-      const promises = [];
-      const lowerIndex = Math.max(0, currentCeremonyIndex - reputationLifetime);
-
-      for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
-        const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
-        promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
-      }
-
-      const arrayOfReputablesArray = await Promise.all(promises);
-
-      // reduce the array of arrays to a single set.
-      const allReputablesSet = new Set(arrayOfReputablesArray.reduce((all, nextArray) => [...all, ...nextArray]));
-
-      setAllReputableNumber(allReputablesSet.size);
-    }
-    getReputableCount();
-  }, [api, cid]);
+    getAllReputables(api, cid).then((reputables) => {
+      debug && console.log(`All unique reputables: ${reputables}`);
+      setAllReputableNumber([reputables.length]);
+    });
+  }, [api, cid, debug]);
 
   useEffect(() => {
     /**
@@ -390,4 +370,38 @@ function getAssignedParticipantsComponent (ceremonyRegistry) {
     <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
     <li color='red'>Unassigned Newbies: {ceremonyRegistry.unassignedNewbies.toString()}</li>
   </div>);
+}
+
+async function getAllReputables (api, cid) {
+  const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+
+  const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
+    api.query.encointerCeremonies.reputationLifetime(),
+    api.query.encointerScheduler.currentCeremonyIndex()
+  ]);
+
+  const promises = [];
+  const lowerIndex = Math.max(0, currentCeremonyIndex - reputationLifetime);
+
+  for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
+    const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
+    promises.push(
+      api.query.encointerCeremonies.participantReputation.keys(communityCeremony)
+        .then(extractAccountIdFromParticipantReputationMapKeys)
+    );
+  }
+
+  const arrayOfReputablesArray = await Promise.all(promises);
+  const arrayOfReputables = arrayOfReputablesArray.flat();
+
+  // JSON.stringify is needed because objects are only equal if they point to the same reference.
+  return [...new Set(arrayOfReputables.map((account) => JSON.stringify(account)))];
+}
+
+/**
+ * This is not intuitive.
+ * See explanation https://polkadot.js.org/docs/api/start/api.query.other/#map-keys--entries.
+ */
+function extractAccountIdFromParticipantReputationMapKeys (keys) {
+  return keys.map(({ args: [_cc, accountId] }) => accountId);
 }
