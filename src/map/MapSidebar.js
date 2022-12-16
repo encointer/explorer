@@ -239,8 +239,8 @@ function MapSidebarMain (props) {
       const meetupLocations = await api.rpc.encointer.getLocations(cid);
       const tempLocation = locationFromJson(api, meetupLocations[0]);
       const tempTime = await getNextMeetupTime(api, tempLocation);
-      debug && console.log('the date is' + formatDate(tempTime.toNumber()));
-      setNextMeetupTime(formatDate(tempTime.toNumber()).split(',')[0]);
+      const nextMeetupDate = formatDate(tempTime.toNumber()).split(',');
+      setNextMeetupTime(nextMeetupDate[0] + ' ' + nextMeetupDate[1]);
     }
     getNextMeetupDate();
   }, [api, cid, debug]);
