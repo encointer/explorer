@@ -2454,10 +2454,36 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mapbox/tilebelt@npm:^1.0.2":
+"@mapbox/tile-cover@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@mapbox/tile-cover@npm:3.0.2"
+  dependencies:
+    "@mapbox/tilebelt": ^1.0.1
+  checksum: 22ee9ddac5da1781a354bf43e4e7e95f43b8bad9595c86698ffa6634cf8d3b09bdca321ae0c2008b3b14412770c0681f27ff00cc7e4a7fa09408b26e75d76ee4
+  languageName: node
+  linkType: hard
+
+"@mapbox/tilebelt@npm:^1.0.1, @mapbox/tilebelt@npm:^1.0.2":
   version: 1.0.2
   resolution: "@mapbox/tilebelt@npm:1.0.2"
   checksum: 923bdcd93f4db4ef9cee64c622fc1852f4da461af0fb14864083e791192a84ce9d5b8e237db1cc71944c63ed3d0121f8e9da2b28c46e0d61bcbe1f99ebbde6f7
+  languageName: node
+  linkType: hard
+
+"@mapbox/timespace@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "@mapbox/timespace@npm:2.0.4"
+  dependencies:
+    "@mapbox/tile-cover": ^3.0.2
+    "@mapbox/tilebelt": ^1.0.1
+    d3-queue: ^3.0.3
+    mkdirp: ^0.5.1
+    moment: ^2.12.0
+    moment-timezone: ^0.5.5
+    rimraf: ^2.5.4
+    simple-statistics: ^2.3.0
+    tile-cover: ^3.0.1
+  checksum: 4d1f3ea3745c66f28af5ab58448bf8feeece4c23b2be3815ba4d3b98d1d3a77b2d9964fa52dd324c30a586a5eab98dd923d49586e7c0964bcf1e097fb0bf7b1d
   languageName: node
   linkType: hard
 
@@ -6361,6 +6387,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"d3-queue@npm:^3.0.3":
+  version: 3.0.7
+  resolution: "d3-queue@npm:3.0.7"
+  checksum: 04d084dc0f031af29c7378f70c0a650f11d5880efa05ffda509d1c88332b0c63b41ce36226e74a59554f64fcc59b171d21023670972ac5ab23cbc36d475ae8c6
+  languageName: node
+  linkType: hard
+
 "d@npm:1, d@npm:^1.0.1":
   version: 1.0.1
   resolution: "d@npm:1.0.1"
@@ -7881,6 +7914,7 @@ __metadata:
     "@encointer/util": ^0.8.6
     "@encointer/worker-api": ^0.8.6
     "@mapbox/tilebelt": ^1.0.2
+    "@mapbox/timespace": ^2.0.4
     "@polkadot/api": ^7.3.1
     "@polkadot/extension-dapp": ^0.42.5
     "@polkadot/keyring": ^8.3.1
@@ -10872,6 +10906,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minimist@npm:^1.2.6":
+  version: 1.2.7
+  resolution: "minimist@npm:1.2.7"
+  checksum: 7346574a1038ca23c32e02252f603801f09384dd1d78b69a943a4e8c2c28730b80e96193882d3d3b22a063445f460e48316b29b8a25addca2d7e5e8f75478bec
+  languageName: node
+  linkType: hard
+
 "minipass-collect@npm:^1.0.2":
   version: 1.0.2
   resolution: "minipass-collect@npm:1.0.2"
@@ -10949,6 +10990,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mkdirp@npm:^0.5.1":
+  version: 0.5.6
+  resolution: "mkdirp@npm:0.5.6"
+  dependencies:
+    minimist: ^1.2.6
+  bin:
+    mkdirp: bin/cmd.js
+  checksum: 0c91b721bb12c3f9af4b77ebf73604baf350e64d80df91754dc509491ae93bf238581e59c7188360cec7cb62fc4100959245a42cfe01834efedc5e9d068376c2
+  languageName: node
+  linkType: hard
+
 "mkdirp@npm:^0.5.5, mkdirp@npm:~0.5.1":
   version: 0.5.5
   resolution: "mkdirp@npm:0.5.5"
@@ -10980,6 +11032,22 @@ __metadata:
   version: 9.1.2
   resolution: "mock-socket@npm:9.1.2"
   checksum: ef25dbd57b7360a0c1e0bb072aa0d73ac53d11d88c1efebedd48da006ccff77327628d707fecf651906e81cc488e8929c733bdb9f2c4c4f3772e99d6b903aace
+  languageName: node
+  linkType: hard
+
+"moment-timezone@npm:^0.5.5":
+  version: 0.5.40
+  resolution: "moment-timezone@npm:0.5.40"
+  dependencies:
+    moment: ">= 2.9.0"
+  checksum: 6f6be5412b37fd937bb143efe74bf65b2c3f115fd967a6dc13b717a126ed6dd198bff6db6e179d69a089e20ac03ce7622c6b5598dd585005195554487a91b528
+  languageName: node
+  linkType: hard
+
+"moment@npm:>= 2.9.0, moment@npm:^2.12.0":
+  version: 2.29.4
+  resolution: "moment@npm:2.29.4"
+  checksum: 0ec3f9c2bcba38dc2451b1daed5daded747f17610b92427bebe1d08d48d8b7bdd8d9197500b072d14e326dd0ccf3e326b9e3d07c5895d3d49e39b6803b76e80e
   languageName: node
   linkType: hard
 
@@ -13624,6 +13692,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rimraf@npm:^2.5.4":
+  version: 2.7.1
+  resolution: "rimraf@npm:2.7.1"
+  dependencies:
+    glob: ^7.1.3
+  bin:
+    rimraf: ./bin.js
+  checksum: cdc7f6eacb17927f2a075117a823e1c5951792c6498ebcce81ca8203454a811d4cf8900314154d3259bb8f0b42ab17f67396a8694a54cae3283326e57ad250cd
+  languageName: node
+  linkType: hard
+
 "rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
@@ -14115,6 +14194,13 @@ __metadata:
     once: ^1.3.1
     simple-concat: ^1.0.0
   checksum: 80195e70bf171486e75c31e28e5485468195cc42f85940f8b45c4a68472160144d223eb4d07bc82ef80cb974b7c401db021a540deb2d34ac4b3b8883da2d6401
+  languageName: node
+  linkType: hard
+
+"simple-statistics@npm:^2.3.0":
+  version: 2.5.0
+  resolution: "simple-statistics@npm:2.5.0"
+  checksum: fa6c614d87c650ce5668af598cffda8c33f28423a53a3a98c12abd87d0d92b8887b1009055fd1376a82b86dc37b4a7e02d27224b9cc0eca7ba12ad1bf3310b81
   languageName: node
   linkType: hard
 
@@ -14979,6 +15065,22 @@ __metadata:
   version: 1.1.0
   resolution: "thunky@npm:1.1.0"
   checksum: 993096c472b6b8f30e29dc777a8d17720e4cab448375041f20c0cb802a09a7fb2217f2a3e8cdc11851faa71c957e2db309357367fc9d7af3cb7a4d00f4b66034
+  languageName: node
+  linkType: hard
+
+"tile-cover@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "tile-cover@npm:3.0.1"
+  dependencies:
+    tilebelt: ^1.0.1
+  checksum: 2ffbba233d1f568c6cd64cd6eea7f676185fbd9c64e56708ecbe4ea05483ff9ac5c736389229c8017a70c40658fb63904a7157d393b24fa1fd041290379d5e26
+  languageName: node
+  linkType: hard
+
+"tilebelt@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "tilebelt@npm:1.0.1"
+  checksum: f201cf1718f53b8d7b2e89f53f90bbcf6eba5f58fe578da5ce35f93ea4e2302100f019fe2d388a0fb7ec5ceda0b6a0f08d10657b6b54eb5d74db218ad4bad177
   languageName: node
   linkType: hard
 
