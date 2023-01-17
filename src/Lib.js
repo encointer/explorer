@@ -54,7 +54,7 @@ export function GetTentativeGrowth (props) {
 
       const newbies = assignmentCounts.newbies;
       // round to 2 digits
-      return Math.round(((newbies.toNumber() + endorsees.toNumber()) / allReputableNumber) * 100);
+      return (Math.round(((newbies.toNumber() + endorsees.toNumber()) / allReputableNumber) * 100) / 100);
     }
 
     getTentativeGrowth(allReputableNumber).then(data => {
