@@ -155,9 +155,6 @@ export function GetCommunityLogo (props) {
   const [ipfsUrl, setIpfsUrl] = useState([]);
   useEffect(() => {
     async function getCommunityLogo () {
-      if (!apiReady(api, 'encointerScheduler') || cid === undefined) {
-        return;
-      }
       const ipfsCidHex = (await api.query.encointerCommunities.communityMetadata(cid)).assets;
       const ipfsCid = ipfsCidFromHex(ipfsCidHex);
 
@@ -175,9 +172,6 @@ export function GetNominalIncome (props) {
   const [nominalIncome, setNominalIncome] = useState([]);
   useEffect(() => {
     async function getNominalIncome () {
-      if (!apiReady(api, 'encointerScheduler') || cid === undefined) {
-        return;
-      }
       const nominalIncome = await getCeremonyIncome(api, cid);
       return parseI64F64(nominalIncome);
     }
