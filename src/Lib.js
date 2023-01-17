@@ -1,49 +1,24 @@
-import React,{useEffect, useState} from "react";
-import { locationFromJson } from "./utils";
-import { getNextMeetupTime } from "@encointer/node-api";
+import React,{useEffect} from "react";
+import { useSubstrate } from "./substrate-lib";
+
 
 const apiReady = (api, queryName = '') => {
     const query = api && api.queryMulti && api.query;
     return query && queryName ? (!!query[queryName]) : !!query;
 };
-const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
-
-
-
-
-
-
-export function getNextMeetupDate(api, cid){
-
-  
-    const [nextMeetupTime, setNextMeetupTime] = useState([]);
-  if (!apiReady(api, 'encointerScheduler')) {
-    return;
-  }
-  useEffect(() => {
-    
-    async function getNextMeetupDate () {
-      const meetupLocations = await api.rpc.encointer.getLocations(cid);
-      const tempLocation = locationFromJson(api, meetupLocations[0]);
-      const tempTime = await getNextMeetupTime(api, tempLocation);
-      setNextMeetupTime(formatDate(tempTime.toNumber()).split(',')[0]);
-    }
-    getNextMeetupDate();
-      },[api,cid]);
-  
-return nextMeetupTime;
-}
 
 
 //const { api, apiState, socket } = useSubstrate();
 
-export function Printfunnystuff(api){
-  if(apiReady(api, 'encointerScheduler')){
-    console.log("this thing works as it is planned")
-  }
+export function printfunnystuff(){
+  useEffect(() =>{
+    const { api, apiState, socket } = useSubstrate(); //needs to be put in a export function
+    if(apiReady(api, 'encointerScheduler')){
+      console.log("this thing works as it is planned")
+    }
+  },[]);
   
   console.log("ldafjksjffjfjfjfjfjfj heeeeeeeeeeyyyyyyyyyyyyyyyyyyyyyyyaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!!");
-  
 }
 export function doreturn(){
   
