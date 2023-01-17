@@ -74,8 +74,6 @@ function MapSidebarMain (props) {
       api.query.encointerBalances
         .totalIssuance(cid, balanceEntry => {
           debug && console.log('MONEYSUPPLY RECEIVED', JSON.stringify(balanceEntry));
-          printfunnystuff();
-          debug && console.log("aksdkkkkkkkkkkkkkkkkkkkkkkk:   "+doreturn())
           setEntry({
             principal: parseEncointerBalance(balanceEntry.principal.bits),
             lastUpdate: balanceEntry.lastUpdate.toNumber()
