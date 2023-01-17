@@ -205,7 +205,7 @@ function MapSidebarMain (props) {
         });
       }
     });
-  }, [api, cid, currentPhase]);
+  }, [api, cid, participantCount, currentPhase]);
 
   const [ipfsUrl, setIpfsUrl] = useState([]);
   // gets the community logo from a public ipfs gateway
