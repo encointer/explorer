@@ -127,14 +127,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/generator@npm:^7.19.3":
-  version: 7.19.3
-  resolution: "@babel/generator@npm:7.19.3"
+"@babel/generator@npm:^7.20.1":
+  version: 7.20.4
+  resolution: "@babel/generator@npm:7.20.4"
   dependencies:
-    "@babel/types": ^7.19.3
+    "@babel/types": ^7.20.2
     "@jridgewell/gen-mapping": ^0.3.2
     jsesc: ^2.5.1
-  checksum: b1585e398f6c37f442a2fdac964a326b348fbc8fb99a6aaf4f72bbe993adb0ca792bc0a9c65e59930b2a2e55eb5aa3aab360ceb678d3d40692eb0cda2b7b6aa6
+  checksum: 967b59f18e5ce999e5a741825bcecb2be4bbfc1824a92c21b47d0b5694e0eb09314a70f8b9142e9591c149c7fb83d51f73ae8fbd96d30a42666425889e51ceb1
   languageName: node
   linkType: hard
 
@@ -198,19 +198,19 @@ __metadata:
   linkType: hard
 
 "@babel/helper-create-class-features-plugin@npm:^7.18.6":
-  version: 7.19.0
-  resolution: "@babel/helper-create-class-features-plugin@npm:7.19.0"
+  version: 7.20.2
+  resolution: "@babel/helper-create-class-features-plugin@npm:7.20.2"
   dependencies:
     "@babel/helper-annotate-as-pure": ^7.18.6
     "@babel/helper-environment-visitor": ^7.18.9
     "@babel/helper-function-name": ^7.19.0
     "@babel/helper-member-expression-to-functions": ^7.18.9
     "@babel/helper-optimise-call-expression": ^7.18.6
-    "@babel/helper-replace-supers": ^7.18.9
+    "@babel/helper-replace-supers": ^7.19.1
     "@babel/helper-split-export-declaration": ^7.18.6
   peerDependencies:
     "@babel/core": ^7.0.0
-  checksum: f0c6fb77b6f113d70f308e7093f60dd465b697818badf5df0519d8dd12b6bfb1f4ad300b923207ce9f9c1c940ef58bff12ac4270c0863eadf9e303b7dd6d01b6
+  checksum: e89a8841db3f6340996f395fc372ee4bec361230eb9345b763314f768e68421d43461918fdedfb9a69b71f1d0433439f3e318d1b1b9ba04fbd7aac1c84959e37
   languageName: node
   linkType: hard
 
@@ -386,9 +386,9 @@ __metadata:
   linkType: hard
 
 "@babel/helper-plugin-utils@npm:^7.18.6":
-  version: 7.19.0
-  resolution: "@babel/helper-plugin-utils@npm:7.19.0"
-  checksum: eedc996c633c8c207921c26ec2989eae0976336ecd9b9f1ac526498f52b5d136f7cd03c32b6fdf8d46a426f907c142de28592f383c42e5fba1e904cbffa05345
+  version: 7.20.2
+  resolution: "@babel/helper-plugin-utils@npm:7.20.2"
+  checksum: f6cae53b7fdb1bf3abd50fa61b10b4470985b400cc794d92635da1e7077bb19729f626adc0741b69403d9b6e411cddddb9c0157a709cc7c4eeb41e663be5d74b
   languageName: node
   linkType: hard
 
@@ -427,7 +427,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-replace-supers@npm:^7.18.9":
+"@babel/helper-replace-supers@npm:^7.19.1":
   version: 7.19.1
   resolution: "@babel/helper-replace-supers@npm:7.19.1"
   dependencies:
@@ -476,10 +476,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-string-parser@npm:^7.18.10":
-  version: 7.18.10
-  resolution: "@babel/helper-string-parser@npm:7.18.10"
-  checksum: d554a4393365b624916b5c00a4cc21c990c6617e7f3fe30be7d9731f107f12c33229a7a3db9d829bfa110d2eb9f04790745d421640e3bd245bb412dc0ea123c1
+"@babel/helper-string-parser@npm:^7.19.4":
+  version: 7.19.4
+  resolution: "@babel/helper-string-parser@npm:7.19.4"
+  checksum: b2f8a3920b30dfac81ec282ac4ad9598ea170648f8254b10f475abe6d944808fb006aab325d3eb5a8ad3bea8dfa888cfa6ef471050dae5748497c110ec060943
   languageName: node
   linkType: hard
 
@@ -579,12 +579,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/parser@npm:^7.18.10, @babel/parser@npm:^7.19.3":
-  version: 7.19.3
-  resolution: "@babel/parser@npm:7.19.3"
+"@babel/parser@npm:^7.18.10, @babel/parser@npm:^7.20.1":
+  version: 7.20.3
+  resolution: "@babel/parser@npm:7.20.3"
   bin:
     parser: ./bin/babel-parser.js
-  checksum: 854f1390328a8cea5d95ed2a8655a8976cdb41e72393845df0f86088dc777817a5e015a1a61739d312accccf1a22358fb70707a013d25596251cceba2c8985ee
+  checksum: 33bcdb45de65a3cf27ed376cb34f32be3c3485a10e3252f8d0126f6a034efc3145c0d219e57fcd5a8956361552008bc30b9bae4a723823fb3633027071be8a45
   languageName: node
   linkType: hard
 
@@ -1851,20 +1851,20 @@ __metadata:
   linkType: hard
 
 "@babel/traverse@npm:^7.19.1":
-  version: 7.19.3
-  resolution: "@babel/traverse@npm:7.19.3"
+  version: 7.20.1
+  resolution: "@babel/traverse@npm:7.20.1"
   dependencies:
     "@babel/code-frame": ^7.18.6
-    "@babel/generator": ^7.19.3
+    "@babel/generator": ^7.20.1
     "@babel/helper-environment-visitor": ^7.18.9
     "@babel/helper-function-name": ^7.19.0
     "@babel/helper-hoist-variables": ^7.18.6
     "@babel/helper-split-export-declaration": ^7.18.6
-    "@babel/parser": ^7.19.3
-    "@babel/types": ^7.19.3
+    "@babel/parser": ^7.20.1
+    "@babel/types": ^7.20.0
     debug: ^4.1.0
     globals: ^11.1.0
-  checksum: ef16c98fca7f2c347febd06737c13230ea103d619a0d6c142445bc8eff6359d2fce026f27dece02b4838f614cda8a9330bc4a576ccc6cd0ce21844d1d0205769
+  checksum: 6696176d574b7ff93466848010bc7e94b250169379ec2a84f1b10da46a7cc2018ea5e3a520c3078487db51e3a4afab9ecff48f25d1dbad8c1319362f4148fb4b
   languageName: node
   linkType: hard
 
@@ -1888,14 +1888,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.18.10, @babel/types@npm:^7.18.6, @babel/types@npm:^7.18.9, @babel/types@npm:^7.19.0, @babel/types@npm:^7.19.3, @babel/types@npm:^7.8.3":
-  version: 7.19.3
-  resolution: "@babel/types@npm:7.19.3"
+"@babel/types@npm:^7.18.10, @babel/types@npm:^7.18.6, @babel/types@npm:^7.18.9, @babel/types@npm:^7.19.0, @babel/types@npm:^7.20.0, @babel/types@npm:^7.20.2, @babel/types@npm:^7.8.3":
+  version: 7.20.2
+  resolution: "@babel/types@npm:7.20.2"
   dependencies:
-    "@babel/helper-string-parser": ^7.18.10
+    "@babel/helper-string-parser": ^7.19.4
     "@babel/helper-validator-identifier": ^7.19.1
     to-fast-properties: ^2.0.0
-  checksum: 34a5b3db3b99a1a80ec2a784c2bb0e48769a38f1526dc377a5753a3ac5e5704663c405a393117ecc7a9df9da07b01625be7c4c3fee43ae46aba23b0c40928d77
+  checksum: 57e76e5f21876135f481bfd4010c87f2d38196bb0a2bc60a28d6e55e3afa90cdd9accf164e4cb71bdfb620517fa0a0cb5600cdce36c21d59fdaccfbb899c024c
   languageName: node
   linkType: hard
 
@@ -4358,13 +4358,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abbrev@npm:1":
+"abbrev@npm:^1.0.0":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
   checksum: a4a97ec07d7ea112c517036882b2ac22f3109b7b19077dc656316d07d308438aac28e4d9746dc4d84bf6b1e75b4a7b0a5f3cb30592419f128ca9a8cee3bcfa17
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -4439,6 +4440,9 @@ __metadata:
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
 =======
 "accepts@npm:~1.3.4, accepts@npm:~1.3.5, accepts@npm:~1.3.7":
+=======
+"accepts@npm:~1.3.4, accepts@npm:~1.3.5":
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   version: 1.3.7
   resolution: "accepts@npm:1.3.7"
   dependencies:
@@ -4446,6 +4450,16 @@ __metadata:
     negotiator: 0.6.2
   checksum: 27fc8060ffc69481ff6719cd3ee06387d2b88381cb0ce626f087781bbd02201a645a9febc8e7e7333558354b33b1d2f922ad13560be4ec1b7ba9e76fc1c1241d
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+  languageName: node
+  linkType: hard
+
+"accepts@npm:~1.3.8":
+  version: 1.3.8
+  resolution: "accepts@npm:1.3.8"
+  dependencies:
+    mime-types: ~2.1.34
+    negotiator: 0.6.3
+  checksum: 50c43d32e7b50285ebe84b613ee4a3aa426715a7d131b65b786e2ead0fd76b6b60091b9916d3478a75f11f162628a2139991b6c03ab3f1d9ab7c86075dc8eab4
   languageName: node
   linkType: hard
 
@@ -6475,21 +6489,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.19.1":
-  version: 1.19.1
-  resolution: "body-parser@npm:1.19.1"
+"body-parser@npm:1.20.1":
+  version: 1.20.1
+  resolution: "body-parser@npm:1.20.1"
   dependencies:
-    bytes: 3.1.1
+    bytes: 3.1.2
     content-type: ~1.0.4
     debug: 2.6.9
-    depd: ~1.1.2
-    http-errors: 1.8.1
+    depd: 2.0.0
+    destroy: 1.2.0
+    http-errors: 2.0.0
     iconv-lite: 0.4.24
-    on-finished: ~2.3.0
-    qs: 6.9.6
-    raw-body: 2.4.2
+    on-finished: 2.4.1
+    qs: 6.11.0
+    raw-body: 2.5.1
     type-is: ~1.6.18
-  checksum: 9197a300a6580b8723c7b6b1e22cebd5ba47cd4a6fd45c153350efcde79293869ddee8d17d95fb52724812d649d89d62775faab072608d3243a0cbb00582234e
+    unpipe: 1.0.0
+  checksum: f1050dbac3bede6a78f0b87947a8d548ce43f91ccc718a50dd774f3c81f2d8b04693e52acf62659fad23101827dd318da1fb1363444ff9a8482b886a3e4a5266
   languageName: node
   linkType: hard
 
@@ -6868,6 +6884,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6888,10 +6905,13 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
 "bytes@npm:3.1.2":
   version: 3.1.2
   resolution: "bytes@npm:3.1.2"
   checksum: e4bcd3948d289c5127591fbedf10c0b639ccbf00243504e4e127374a15c3bc8eed0d28d4aaab08ff6f1cf2abc0cce6ba3085ed32f4f90e82a5683ce0014e1b6e
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6939,6 +6959,8 @@ __metadata:
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
 =======
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -7067,6 +7089,7 @@ __metadata:
 =======
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001286, caniuse-lite@npm:^1.0.30001295, caniuse-lite@npm:^1.0.30001297":
+<<<<<<< HEAD
   version: 1.0.30001298
   resolution: "caniuse-lite@npm:1.0.30001298"
   checksum: 43566732d1b8746e3dfae57f558471c701b26b2c166fb9fc53ad750d83128b2eb680a5e08233717e64055779b408c72d3b2cfad6d4ae33a3e647a11dc1c0d515
@@ -7094,6 +7117,11 @@ __metadata:
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
 =======
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+  version: 1.0.30001439
+  resolution: "caniuse-lite@npm:1.0.30001439"
+  checksum: 3912dd536c9735713ca85e47721988bbcefb881ddb4886b0b9923fa984247fd22cba032cf268e57d158af0e8a2ae2eae042ae01942a1d6d7849fa9fa5d62fb82
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -7844,6 +7872,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7864,16 +7893,21 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
 "cookie@npm:0.5.0":
   version: 0.5.0
   resolution: "cookie@npm:0.5.0"
   checksum: 1f4bd2ca5765f8c9689a7e8954183f5332139eb72b6ff783d8947032ec1fdf43109852c178e21a953a30c0dd42257828185be01b49d1eb1a67fd054ca588a180
+<<<<<<< HEAD
 =======
 "cookie@npm:0.4.1":
   version: 0.4.1
   resolution: "cookie@npm:0.4.1"
   checksum: bd7c47f5d94ab70ccdfe8210cde7d725880d2fcda06d8e375afbdd82de0c8d3b73541996e9ce57d35f67f672c4ee6d60208adec06b3c5fc94cebb85196084cf8
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -9158,9 +9192,9 @@ __metadata:
   linkType: hard
 
 "decode-uri-component@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "decode-uri-component@npm:0.2.0"
-  checksum: f3749344ab9305ffcfe4bfe300e2dbb61fc6359e2b736812100a3b1b6db0a5668cba31a05e4b45d4d63dbf1a18dfa354cd3ca5bb3ededddabb8cd293f4404f94
+  version: 0.2.2
+  resolution: "decode-uri-component@npm:0.2.2"
+  checksum: 95476a7d28f267292ce745eac3524a9079058bbb35767b76e3ee87d42e34cd0275d2eb19d9d08c3e167f97556e8a2872747f5e65cbebcac8b0c98d83e285f139
   languageName: node
   linkType: hard
 
@@ -9361,6 +9395,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9381,6 +9416,8 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
 "depd@npm:2.0.0":
   version: 2.0.0
   resolution: "depd@npm:2.0.0"
@@ -9388,6 +9425,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9425,6 +9463,8 @@ __metadata:
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
 =======
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
 "depd@npm:^1.1.2, depd@npm:~1.1.2":
   version: 1.1.2
   resolution: "depd@npm:1.1.2"
@@ -9432,6 +9472,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9456,10 +9497,13 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
 "destroy@npm:1.2.0":
   version: 1.2.0
   resolution: "destroy@npm:1.2.0"
   checksum: 0acb300b7478a08b92d810ab229d5afe0d2f4399272045ab22affa0d99dbaf12637659411530a6fcd597a9bdac718fc94373a61a95b4651bbc7b83684a565e38
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9504,6 +9548,8 @@ __metadata:
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
 =======
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -12616,40 +12662,47 @@ __metadata:
   resolution: "express@npm:4.18.2"
 =======
 "express@npm:^4.17.1":
+<<<<<<< HEAD
   version: 4.17.2
   resolution: "express@npm:4.17.2"
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+  version: 4.18.2
+  resolution: "express@npm:4.18.2"
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   dependencies:
-    accepts: ~1.3.7
+    accepts: ~1.3.8
     array-flatten: 1.1.1
-    body-parser: 1.19.1
+    body-parser: 1.20.1
     content-disposition: 0.5.4
     content-type: ~1.0.4
-    cookie: 0.4.1
+    cookie: 0.5.0
     cookie-signature: 1.0.6
     debug: 2.6.9
-    depd: ~1.1.2
+    depd: 2.0.0
     encodeurl: ~1.0.2
     escape-html: ~1.0.3
     etag: ~1.8.1
-    finalhandler: ~1.1.2
+    finalhandler: 1.2.0
     fresh: 0.5.2
+    http-errors: 2.0.0
     merge-descriptors: 1.0.1
     methods: ~1.1.2
-    on-finished: ~2.3.0
+    on-finished: 2.4.1
     parseurl: ~1.3.3
     path-to-regexp: 0.1.7
     proxy-addr: ~2.0.7
-    qs: 6.9.6
+    qs: 6.11.0
     range-parser: ~1.2.1
     safe-buffer: 5.2.1
-    send: 0.17.2
-    serve-static: 1.14.2
+    send: 0.18.0
+    serve-static: 1.15.0
     setprototypeof: 1.2.0
-    statuses: ~1.5.0
+    statuses: 2.0.1
     type-is: ~1.6.18
     utils-merge: 1.0.1
     vary: ~1.1.2
+<<<<<<< HEAD
 <<<<<<< HEAD
   checksum: 3c4b9b076879442f6b968fe53d85d9f1eeacbb4f4c41e5f16cc36d77ce39a2b0d81b3f250514982110d815b2f7173f5561367f9110fcc541f9371948e8c8b037
 <<<<<<< HEAD
@@ -12662,6 +12715,15 @@ __metadata:
 "express@npm:^4.17.1":
   version: 4.17.2
   resolution: "express@npm:4.17.2"
+=======
+  checksum: 3c4b9b076879442f6b968fe53d85d9f1eeacbb4f4c41e5f16cc36d77ce39a2b0d81b3f250514982110d815b2f7173f5561367f9110fcc541f9371948e8c8b037
+  languageName: node
+  linkType: hard
+
+"ext@npm:^1.1.2":
+  version: 1.6.0
+  resolution: "ext@npm:1.6.0"
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   dependencies:
     accepts: ~1.3.7
     array-flatten: 1.1.1
@@ -13111,6 +13173,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 "finalhandler@npm:1.2.0":
   version: 1.2.0
   resolution: "finalhandler@npm:1.2.0"
@@ -13161,10 +13224,16 @@ __metadata:
   version: 1.1.2
   resolution: "finalhandler@npm:1.1.2"
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+"finalhandler@npm:1.2.0":
+  version: 1.2.0
+  resolution: "finalhandler@npm:1.2.0"
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   dependencies:
     debug: 2.6.9
     encodeurl: ~1.0.2
     escape-html: ~1.0.3
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13203,9 +13272,13 @@ __metadata:
     on-finished: ~2.3.0
 >>>>>>> 70f63f6 (having some problems. hope I can resolve them)
 <<<<<<< HEAD
+=======
+    on-finished: 2.4.1
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
     parseurl: ~1.3.3
-    statuses: ~1.5.0
+    statuses: 2.0.1
     unpipe: ~1.0.0
+<<<<<<< HEAD
 <<<<<<< HEAD
   checksum: 92effbfd32e22a7dff2994acedbd9bcc3aa646a3e919ea6a53238090e87097f8ef07cced90aa2cc421abdf993aefbdd5b00104d55c7c5479a8d00ed105b45716
 =======
@@ -13248,6 +13321,9 @@ __metadata:
 =======
   checksum: 617880460c5138dd7ccfd555cb5dde4d8f170f4b31b8bd51e4b646bb2946c30f7db716428a1f2882d730d2b72afb47d1f67cc487b874cb15426f95753a88965e
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+  checksum: 92effbfd32e22a7dff2994acedbd9bcc3aa646a3e919ea6a53238090e87097f8ef07cced90aa2cc421abdf993aefbdd5b00104d55c7c5479a8d00ed105b45716
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -13774,7 +13850,7 @@ __metadata:
 
 "fsevents@patch:fsevents@^2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -14787,6 +14863,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14829,12 +14906,18 @@ __metadata:
 "http-errors@npm:1.8.1":
   version: 1.8.1
   resolution: "http-errors@npm:1.8.1"
+=======
+"http-errors@npm:2.0.0":
+  version: 2.0.0
+  resolution: "http-errors@npm:2.0.0"
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   dependencies:
-    depd: ~1.1.2
+    depd: 2.0.0
     inherits: 2.0.4
     setprototypeof: 1.2.0
-    statuses: ">= 1.5.0 < 2"
+    statuses: 2.0.1
     toidentifier: 1.0.1
+<<<<<<< HEAD
   checksum: d3c7e7e776fd51c0a812baff570bdf06fe49a5dc448b700ab6171b1250e4cf7db8b8f4c0b133e4bfe2451022a5790c1ca6c2cae4094dedd6ac8304a1267f91d2
 >>>>>>> master
 =======
@@ -14862,6 +14945,9 @@ __metadata:
 =======
   checksum: d3c7e7e776fd51c0a812baff570bdf06fe49a5dc448b700ab6171b1250e4cf7db8b8f4c0b133e4bfe2451022a5790c1ca6c2cae4094dedd6ac8304a1267f91d2
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+  checksum: 9b0a3782665c52ce9dc658a0d1560bcb0214ba5699e4ea15aefb2a496e2ca83db03ebc42e1cce4ac1f413e4e0d2d736a3fd755772c556a9a06853ba2a0b7d920
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -19346,6 +19432,7 @@ __metadata:
 "lru-cache@npm:^7.7.1":
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   version: 7.14.0
   resolution: "lru-cache@npm:7.14.0"
   checksum: efdd329f2c1bb790b71d497c6c59272e6bc2d7dd060ba55fc136becd3dd31fc8346edb446275504d94cb60d3c8385dbf5267b79b23789e409b2bdf302d13f0d7
@@ -19371,6 +19458,11 @@ __metadata:
 >>>>>>> 651aaf3 (having some problems. hope I can resolve them)
 =======
 >>>>>>> f3a38cc43f30d0ac04b923204635bf0b6dfdaa6c
+=======
+  version: 7.14.1
+  resolution: "lru-cache@npm:7.14.1"
+  checksum: d72c6713c6a6d86836a7a6523b3f1ac6764768cca47ec99341c3e76db06aacd4764620e5e2cda719a36848785a52a70e531822dc2b33fb071fa709683746c104
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -19674,6 +19766,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 "mime-types@npm:^2.1.12, mime-types@npm:^2.1.27, mime-types@npm:^2.1.31, mime-types@npm:~2.1.17, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
 =======
 <<<<<<< HEAD
@@ -19707,6 +19800,9 @@ __metadata:
 =======
 "mime-types@npm:^2.1.12":
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+"mime-types@npm:^2.1.12, mime-types@npm:~2.1.34":
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   version: 2.1.35
   resolution: "mime-types@npm:2.1.35"
   dependencies:
@@ -20350,6 +20446,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "negotiator@npm:^0.6.3":
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -20375,6 +20472,9 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+"negotiator@npm:0.6.3, negotiator@npm:^0.6.3":
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   version: 0.6.3
   resolution: "negotiator@npm:0.6.3"
   checksum: b8ffeb1e262eff7968fc90a2b6767b04cfd9842582a9d0ece0af7049537266e7b2506dfb1d107a32f06dd849ab2aea834d5830f7f4d0e5cb7d36e1ae55d021d9
@@ -20684,14 +20784,14 @@ __metadata:
   linkType: hard
 
 "node-gyp@npm:latest":
-  version: 9.1.0
-  resolution: "node-gyp@npm:9.1.0"
+  version: 9.3.0
+  resolution: "node-gyp@npm:9.3.0"
   dependencies:
     env-paths: ^2.2.0
     glob: ^7.1.4
     graceful-fs: ^4.2.6
     make-fetch-happen: ^10.0.3
-    nopt: ^5.0.0
+    nopt: ^6.0.0
     npmlog: ^6.0.0
     rimraf: ^3.0.2
     semver: ^7.3.5
@@ -20699,7 +20799,7 @@ __metadata:
     which: ^2.0.2
   bin:
     node-gyp: bin/node-gyp.js
-  checksum: 1437fa4a879b5b9010604128e8da8609b57c66034262087539ee04a8b764b8436af2be01bab66f8fc729a3adba2dcc21b10a32b9f552696c3fa8cd657d134fc4
+  checksum: 589ddd3ed967724ef425f9624bfa47cf73022640ab3eba6d556e92cdc4ddef33b63fce3a467c93b995a3f61df92eafd3c3d1e8dbe4a2c00c383334487dea99c3
   languageName: node
   linkType: hard
 
@@ -20783,14 +20883,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nopt@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "nopt@npm:5.0.0"
+"nopt@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "nopt@npm:6.0.0"
   dependencies:
-    abbrev: 1
+    abbrev: ^1.0.0
   bin:
     nopt: bin/nopt.js
-  checksum: d35fdec187269503843924e0114c0c6533fb54bbf1620d0f28b4b60ba01712d6687f62565c55cc20a504eff0fbe5c63e22340c3fad549ad40469ffb611b04f2f
+  checksum: 82149371f8be0c4b9ec2f863cc6509a7fd0fa729929c009f3a58e4eb0c9e4cae9920e8f1f8eb46e7d032fec8fb01bede7f0f41a67eb3553b7b8e14fa53de1dac
   languageName: node
   linkType: hard
 
@@ -21557,6 +21657,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21628,6 +21729,14 @@ __metadata:
     ee-first: 1.1.1
   checksum: 1db595bd963b0124d6fa261d18320422407b8f01dc65863840f3ddaaf7bcad5b28ff6847286703ca53f4ec19595bd67a2f1253db79fc4094911ec6aa8df1671b
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+"on-finished@npm:2.4.1":
+  version: 2.4.1
+  resolution: "on-finished@npm:2.4.1"
+  dependencies:
+    ee-first: 1.1.1
+  checksum: d20929a25e7f0bb62f937a425b5edeb4e4cde0540d77ba146ec9357f00b0d497cdb3b9b05b9c8e46222407d1548d08166bff69cc56dfa55ba0e4469228920ff0
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -25406,6 +25515,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25426,12 +25536,15 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
 "qs@npm:6.11.0":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
   dependencies:
     side-channel: ^1.0.4
   checksum: 6e1f29dd5385f7488ec74ac7b6c92f4d09a90408882d0c208414a34dd33badc1a621019d4c799a3df15ab9b1d0292f97c1dd71dc7c045e69f81a8064e5af7297
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25476,6 +25589,8 @@ __metadata:
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
 =======
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -25610,6 +25725,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25651,11 +25767,17 @@ __metadata:
 "raw-body@npm:2.4.2":
   version: 2.4.2
   resolution: "raw-body@npm:2.4.2"
+=======
+"raw-body@npm:2.5.1":
+  version: 2.5.1
+  resolution: "raw-body@npm:2.5.1"
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   dependencies:
-    bytes: 3.1.1
-    http-errors: 1.8.1
+    bytes: 3.1.2
+    http-errors: 2.0.0
     iconv-lite: 0.4.24
     unpipe: 1.0.0
+<<<<<<< HEAD
   checksum: c6f8d6a75c65c0a047f888cb29efc97f60fb36e950ba2cb31fefce694f98186e844a03367920faa7dc5bffaf33df08aee0b9dd935280e366439fa6492a5b163e
 >>>>>>> master
 =======
@@ -25683,6 +25805,9 @@ __metadata:
 =======
   checksum: c6f8d6a75c65c0a047f888cb29efc97f60fb36e950ba2cb31fefce694f98186e844a03367920faa7dc5bffaf33df08aee0b9dd935280e366439fa6492a5b163e
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+  checksum: 5362adff1575d691bb3f75998803a0ffed8c64eabeaa06e54b4ada25a0cd1b2ae7f4f5ec46565d1bec337e08b5ac90c76eaa0758de6f72a633f025d754dec29e
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -27030,7 +27155,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.10.1#~builtin<compat/resolve>":
   version: 1.15.1
-  resolution: "resolve@patch:resolve@npm%3A1.15.1#~builtin<compat/resolve>::version=1.15.1&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.15.1#~builtin<compat/resolve>::version=1.15.1&hash=c3c19d"
   dependencies:
     path-parse: ^1.0.6
   checksum: db40f1203ef19e18edc66801c7a5903b903f20c318c1d7d234dd5b792361bf336b556d27e7f1831871d15471d3d7ed7baad979a781fb57463a36ea1abd293608
@@ -27040,7 +27165,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.19.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.20.0#~builtin<compat/resolve>":
   version: 1.21.0
-  resolution: "resolve@patch:resolve@npm%3A1.21.0#~builtin<compat/resolve>::version=1.21.0&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.21.0#~builtin<compat/resolve>::version=1.21.0&hash=c3c19d"
   dependencies:
     is-core-module: ^2.8.0
     path-parse: ^1.0.7
@@ -27064,7 +27189,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.18.1#~builtin<compat/resolve>":
   version: 1.20.0
-  resolution: "resolve@patch:resolve@npm%3A1.20.0#~builtin<compat/resolve>::version=1.20.0&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.20.0#~builtin<compat/resolve>::version=1.20.0&hash=c3c19d"
   dependencies:
     is-core-module: ^2.2.0
     path-parse: ^1.0.6
@@ -27129,7 +27254,7 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
   version: 2.0.0-next.3
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.3#~builtin<compat/resolve>::version=2.0.0-next.3&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.3#~builtin<compat/resolve>::version=2.0.0-next.3&hash=c3c19d"
   dependencies:
     is-core-module: ^2.2.0
     path-parse: ^1.0.6
@@ -28028,11 +28153,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"send@npm:0.17.2":
-  version: 0.17.2
-  resolution: "send@npm:0.17.2"
+"send@npm:0.18.0":
+  version: 0.18.0
+  resolution: "send@npm:0.18.0"
   dependencies:
     debug: 2.6.9
+<<<<<<< HEAD
     depd: ~1.1.2
     destroy: ~1.0.4
 >>>>>>> master
@@ -28064,10 +28190,15 @@ __metadata:
     depd: ~1.1.2
     destroy: ~1.0.4
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+    depd: 2.0.0
+    destroy: 1.2.0
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
     encodeurl: ~1.0.2
     escape-html: ~1.0.3
     etag: ~1.8.1
     fresh: 0.5.2
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -28107,10 +28238,14 @@ __metadata:
 >>>>>>> f3a38cc43f30d0ac04b923204635bf0b6dfdaa6c
 =======
     http-errors: 1.8.1
+=======
+    http-errors: 2.0.0
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
     mime: 1.6.0
     ms: 2.1.3
-    on-finished: ~2.3.0
+    on-finished: 2.4.1
     range-parser: ~1.2.1
+<<<<<<< HEAD
     statuses: ~1.5.0
   checksum: c28f36deb4ccba9b8d6e6a1e472b8e7c40a1f51575bdf8f67303568cc9e71131faa3adc36fdb72611616ccad1584358bbe4c3ebf419e663ecc5de868ad3d3f03
 >>>>>>> master
@@ -28142,6 +28277,10 @@ __metadata:
     statuses: ~1.5.0
   checksum: c28f36deb4ccba9b8d6e6a1e472b8e7c40a1f51575bdf8f67303568cc9e71131faa3adc36fdb72611616ccad1584358bbe4c3ebf419e663ecc5de868ad3d3f03
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+    statuses: 2.0.1
+  checksum: 74fc07ebb58566b87b078ec63e5a3e41ecd987e4272ba67b7467e86c6ad51bc6b0b0154133b6d8b08a2ddda360464f71382f7ef864700f34844a76c8027817a8
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -28182,6 +28321,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 "serve-static@npm:1.15.0":
   version: 1.15.0
   resolution: "serve-static@npm:1.15.0"
@@ -28244,6 +28384,11 @@ __metadata:
   version: 1.14.2
   resolution: "serve-static@npm:1.14.2"
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+"serve-static@npm:1.15.0":
+  version: 1.15.0
+  resolution: "serve-static@npm:1.15.0"
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   dependencies:
     encodeurl: ~1.0.2
     escape-html: ~1.0.3
@@ -28252,6 +28397,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     send: 0.18.0
   checksum: af57fc13be40d90a12562e98c0b7855cf6e8bd4c107fe9a45c212bf023058d54a1871b1c89511c3958f70626fff47faeb795f5d83f8cf88514dbaeb2b724464d
 =======
@@ -28303,6 +28449,10 @@ __metadata:
     send: 0.17.2
   checksum: d97f3183b1dfcd8ce9c0e37e18e87fd31147ed6c8ee0b2c3a089d795e44ee851ca5061db01574f806d54f4e4b70bc694d9ca64578653514e04a28cbc97a1de05
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+    send: 0.18.0
+  checksum: af57fc13be40d90a12562e98c0b7855cf6e8bd4c107fe9a45c212bf023058d54a1871b1c89511c3958f70626fff47faeb795f5d83f8cf88514dbaeb2b724464d
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
@@ -29071,6 +29221,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -29091,6 +29242,8 @@ __metadata:
 >>>>>>> parent of 50c59da (fixed the tentative Growth function)
 =======
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
 "statuses@npm:2.0.1":
   version: 2.0.1
   resolution: "statuses@npm:2.0.1"
@@ -29099,6 +29252,7 @@ __metadata:
   linkType: hard
 
 "statuses@npm:>= 1.4.0 < 2":
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -29136,6 +29290,8 @@ __metadata:
 =======
 "statuses@npm:>= 1.4.0 < 2, statuses@npm:>= 1.5.0 < 2, statuses@npm:~1.5.0":
 >>>>>>> parent of 3fff9da (fixed the tentative Growth function)
+=======
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   version: 1.5.0
   resolution: "statuses@npm:1.5.0"
   checksum: c469b9519de16a4bb19600205cffb39ee471a5f17b82589757ca7bd40a8d92ebb6ed9f98b5a540c5d302ccbc78f15dc03cc0280dd6e00df1335568a5d5758a5c
@@ -29981,6 +30137,7 @@ __metadata:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   version: 6.1.11
   resolution: "tar@npm:6.1.11"
 =======
@@ -30006,6 +30163,10 @@ __metadata:
   version: 6.1.11
   resolution: "tar@npm:6.1.11"
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+  version: 6.1.12
+  resolution: "tar@npm:6.1.12"
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   dependencies:
     chownr: ^2.0.0
     fs-minipass: ^2.0.0
@@ -30013,6 +30174,7 @@ __metadata:
     minizlib: ^2.1.1
     mkdirp: ^1.0.3
     yallist: ^4.0.0
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -30036,6 +30198,9 @@ __metadata:
 =======
   checksum: a04c07bb9e2d8f46776517d4618f2406fb977a74d914ad98b264fc3db0fe8224da5bec11e5f8902c5b9bcb8ace22d95fbe3c7b36b8593b7dfc8391a25898f32f
 >>>>>>> parent of edd3d71 (having some problems. hope I can resolve them)
+=======
+  checksum: 49d72e4420944e7ede2782d6b0826a6ede6cdab23c7de63470917e7a78166bc4d5b1a96279d3d79a85f1ba5a17cd37c0acbb3cbff19a07447691445b8b051c55
+>>>>>>> parent of 7abd33f (having some problems. hope I can resolve them)
   languageName: node
   linkType: hard
 
