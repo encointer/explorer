@@ -143,9 +143,7 @@ export function GetCurrentCeremonyRegistry (props) {
       }
     });
   }, [api, cid, currentPhase]);
-  return (currentPhase.phase === 0)
-    ? getRegisteredParticipantsComponent(ceremonyRegistry)
-    : getAssignedParticipantsComponent(ceremonyRegistry);
+  return ceremonyRegistry;
 }
 
 /**
@@ -181,25 +179,4 @@ export function GetNominalIncome (props) {
     });
   }, [api, cid]);
   return nominalIncome;
-}
-
-function getRegisteredParticipantsComponent (ceremonyRegistry) {
-  return (<div>
-    <h4>Registered participants for this ceremony:</h4>
-    <li>Bootstrapper: {ceremonyRegistry.bootstrappers.toString()}</li>
-    <li>Reputables: {ceremonyRegistry.reputables.toString()}</li>
-    <li>Endorsees: {ceremonyRegistry.endorsees.toString()}</li>
-    <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
-  </div>);
-}
-
-function getAssignedParticipantsComponent (ceremonyRegistry) {
-  return (<div>
-    <h4>Assigned Participants for this ceremony:</h4>
-    <li>Bootstrapper: {ceremonyRegistry.bootstrappers.toString()}</li>
-    <li>Reputables: {ceremonyRegistry.reputables.toString()}</li>
-    <li>Endorsees: {ceremonyRegistry.endorsees.toString()}</li>
-    <li>Newbies: {ceremonyRegistry.newbies.toString()}</li>
-    <li color='red'>Unassigned Newbies: {ceremonyRegistry.unassignedNewbies.toString()}</li>
-  </div>);
 }
