@@ -144,11 +144,15 @@ function MapSidebarMain (props) {
       const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
-      const endorsees = await api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony);
+
+      const [assignmentCounts, endorsees] = await Promise.all([
+        api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony),
+        api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony)
+      ]);
 
       const newbies = assignmentCounts.newbies;
       // round to 2 digits
-      return Math.round((newbies + endorsees) / allReputableNumber * 100) / 100;
+      return Math.round(((newbies.toNumber() + endorsees.toNumber()) / allReputableNumber) * 100);
     }
 
     getTentativeGrowth(allReputableNumber).then(data => {
