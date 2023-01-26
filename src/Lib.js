@@ -9,11 +9,18 @@ const apiReady = (api, queryName = '') => {
   return query && queryName ? (!!query[queryName]) : !!query;
 };
 const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
+/**
+ * This is not intuitive.
+ * See explanation https://polkadot.js.org/docs/api/start/api.query.other/#map-keys--entries.
+ */
+function extractAccountIdFromParticipantReputationMapKeys (keys) {
+  return keys.map(({ args: [_cc, accountId] }) => accountId);
+}
 
 /**
- * Gets the Meetup Date and Time and returns it
+ * This is a Component that shows the Meetup Date and Time
  */
-export function GetNextMeetupDate (props) {
+export function ShowNextMeetupDate (props) {
   const { api, cid } = props;
   const [nextMeetupTime, setNextMeetupTime] = useState([]);
   useEffect(() => {
@@ -32,10 +39,24 @@ export function GetNextMeetupDate (props) {
 }
 
 /**
-* Gets the relative tentative growth based on the current meetups registrations.
+ * This is a function that gets the Meetup Date and Time
+ * This function can only be called in a useEffect Hook
+ */
+export async function getNextMeetupDate (api, cid) {
+  const meetupLocations = await api.rpc.encointer.getLocations(cid);
+  const tempLocation = locationFromJson(api, meetupLocations[0]);
+  const tempTime = await getNextMeetupTime(api, tempLocation);
+  if (!apiReady(api, 'encointerCeremonies')) {
+    return;
+  }
+  return formatDate(tempTime.toNumber()).split(',')[0];
+}
+
+/**
+* This is a Component that shows the relative tentative growth based on the current meetups registrations.
 * Returns the max allowed growth if the number of registered newbies exceeds the allowed newbie seats.
 */
-export function GetTentativeGrowth (props) {
+export function ShowTentativeGrowth (props) {
   const { allReputableNumber, api, cid } = props;
   const [tentativeGrowth, setTentativeGrowth] = useState([]);
   useEffect(() => {
@@ -65,14 +86,38 @@ export function GetTentativeGrowth (props) {
 }
 
 /**
- * gets the current number of Reputables
+ * This is a function that gets the relative tentative growth based on the current meetups registrations.
+ * Returns the max allowed growth if the number of registered newbies exceeds the allowed newbie seats.
+ * This function can only be called in a useEffect Hook
  */
-export function GetReputableCount (props) {
+export async function getTentativeGrowth (allReputableNumber, api, cid) {
+  if (!allReputableNumber || allReputableNumber === 0) {
+    return 0;
+  }
+
+  const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+  const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+  const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+  const [assignmentCounts, endorsees] = await Promise.all([
+    api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony),
+    api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony)
+  ]);
+
+  const newbies = assignmentCounts.newbies;
+  // round to 2 digits
+  return Math.round(((newbies.toNumber() + endorsees.toNumber()) / allReputableNumber) * 100);
+}
+
+/**
+ * This is a Component that shows the current number of Reputables in a given Community
+ */
+export function ShowReputableCount (props) {
   const { api, cid } = props;
   const [allReputableNumber, setAllReputableNumber] = useState([]);
   useEffect(() => {
     async function getReputableCount () {
       const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+
       const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
         api.query.encointerCeremonies.reputationLifetime(),
         api.query.encointerScheduler.currentCeremonyIndex()
@@ -83,14 +128,17 @@ export function GetReputableCount (props) {
 
       for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
         const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
-        promises.push(api.query.encointerCeremonies.participantReputation.keys(communityCeremony));
+        promises.push(
+          api.query.encointerCeremonies.participantReputation.keys(communityCeremony)
+            .then(extractAccountIdFromParticipantReputationMapKeys)
+        );
       }
+
       const arrayOfReputablesArray = await Promise.all(promises);
+      const arrayOfReputables = arrayOfReputablesArray.flat();
 
-      // reduce the array of arrays to a single set.
-      const allReputablesSet = new Set(arrayOfReputablesArray.reduce((all, nextArray) => [...all, ...nextArray]));
-
-      setAllReputableNumber(allReputablesSet.size);
+      // JSON.stringify is needed because objects are only equal if they point to the same reference.
+      setAllReputableNumber([...new Set(arrayOfReputables.map((account) => JSON.stringify(account)))].length);
     }
     getReputableCount();
   }, [api, cid]);
@@ -98,10 +146,40 @@ export function GetReputableCount (props) {
 }
 
 /**
- * Gets the Bootstrapper count, Reputable count, Endorsee count, Newbie count that registered for a Ceremony
+ * This is a function that gets the reputable Count of a given Community
+ * This function can only be called in a useEffect Hook
+ */
+export async function getReputableCount (api, cid) {
+  const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+
+  const [reputationLifetime, currentCeremonyIndex] = await Promise.all([
+    api.query.encointerCeremonies.reputationLifetime(),
+    api.query.encointerScheduler.currentCeremonyIndex()
+  ]);
+
+  const promises = [];
+  const lowerIndex = Math.max(0, currentCeremonyIndex - reputationLifetime);
+
+  for (let cIndex = lowerIndex; cIndex <= currentCeremonyIndex; cIndex++) {
+    const communityCeremony = new CommunityCeremony(api.registry, [cid, cIndex]);
+    promises.push(
+      api.query.encointerCeremonies.participantReputation.keys(communityCeremony)
+        .then(extractAccountIdFromParticipantReputationMapKeys)
+    );
+  }
+
+  const arrayOfReputablesArray = await Promise.all(promises);
+  const arrayOfReputables = arrayOfReputablesArray.flat();
+
+  // JSON.stringify is needed because objects are only equal if they point to the same reference.
+  return [...new Set(arrayOfReputables.map((account) => JSON.stringify(account)))].length;
+}
+
+/**
+ * This is a Component that shows the Bootstrapper count, Reputable count, Endorsee count, Newbie count that registered for a Ceremony of a given Community.
  * The Assignment counts variable stores how many of them got assigned to a Ceremony
  */
-export function GetCurrentCeremonyRegistry (props) {
+export function ShowCurrentCeremonyRegistry (props) {
   const { api, cid, currentPhase } = props;
   const [ceremonyRegistry, setRegistry] = useState({
     bootstrappers: 0,
@@ -148,9 +226,33 @@ export function GetCurrentCeremonyRegistry (props) {
 }
 
 /**
- * Gets the Community Logo
+ * This is a function that gets the Bootstrapper count, Reputable count, Endorsee count, Newbie count that registered for a Ceremony of a given Community.
+ * This function can only be called in a useEffect Hook
+ * The returned Array has the following Ordering:
+ * Bootstrapper
+ * Reputables
+ * Endorsees
+ * Newbies
+ * Assignment Count (from the various groups how many that registered for a ceremony actually got assigned)
  */
-export function GetCommunityLogo (props) {
+export async function getCurrentCeremonyRegistry (api, cid, currentPhase) {
+  const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+  const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+  const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+
+  return Promise.all([
+    api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
+    api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
+    api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
+    api.query.encointerCeremonies.newbieCount(currentCommunityCeremony),
+    api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony)
+  ]);
+}
+
+/**
+ * This is a Component that shows the Community Logo
+ */
+export function ShowCommunityLogo (props) {
   const { api, cid } = props;
   const [ipfsUrl, setIpfsUrl] = useState([]);
   useEffect(() => {
@@ -167,10 +269,11 @@ export function GetCommunityLogo (props) {
   }, [api, cid]);
   return <img src ={ipfsUrl} alt= ""/>;
 }
+
 /**
- * gets the nominal Income of a Community
+ * This is a Component that shows the nominal Income of a Community
  */
-export function GetNominalIncome (props) {
+export function ShowNominalIncome (props) {
   const { api, cid } = props;
   const [nominalIncome, setNominalIncome] = useState([]);
   useEffect(() => {
@@ -186,6 +289,18 @@ export function GetNominalIncome (props) {
     });
   }, [api, cid]);
   return nominalIncome;
+}
+
+/**
+ * This is a function that gets the nominal Income of a Community
+ * This function can only be called in a useEffect Hook
+ */
+export async function getNominalIncome (api, cid) {
+  if (!apiReady(api, 'encointerScheduler') || cid === undefined) {
+    return;
+  }
+  const nominalIncome = await getCeremonyIncome(api, cid);
+  return parseI64F64(nominalIncome);
 }
 
 function getRegisteredParticipantsComponent (ceremonyRegistry) {
