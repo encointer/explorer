@@ -479,7 +479,7 @@ export default function Map (props) {
     setPosition(e.latlng);
     const map = mapRef.current.leafletElement;
     map.flyTo(e.latlng);
-    map.setZoom(8);
+    map.setZoom(2);
   };
 
   /// Handler for click on Community marker
