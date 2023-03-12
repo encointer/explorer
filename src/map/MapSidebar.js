@@ -125,12 +125,18 @@ function MapSidebarMain (props) {
       const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
       const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
 
-      const [assignmentCounts, endorsees] = await Promise.all([
+      const [assignmentCounts, endorsees, tempNewbies] = await Promise.all([
         api.query.encointerCeremonies.assignmentCounts(currentCommunityCeremony),
-        api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony)
+        api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
+        api.query.encointerCeremonies.newbieCount(currentCommunityCeremony)
       ]);
+      let newbies;
+      if (currentPhase === 0) {
+        newbies = assignmentCounts.newbies;
+      } else {
+        newbies = tempNewbies;
+      }
 
-      const newbies = assignmentCounts.newbies;
       // round to 2 digits
       return Math.round(((newbies.toNumber() + endorsees.toNumber()) / allReputableNumber) * 100);
     }
@@ -138,7 +144,7 @@ function MapSidebarMain (props) {
     getTentativeGrowth(allReputableNumber).then(data => {
       setTentativeGrowth(data);
     });
-  }, [allReputableNumber, api, cid]);
+  }, [allReputableNumber, api, cid, currentPhase]);
 
   // gets the nominal Income of a Community
   const [nominalIncome, setNominalIncome] = useState([]);
@@ -230,6 +236,79 @@ function MapSidebarMain (props) {
       </div>
     );
   }
+  const [newLastMeetupCount, setNewLastMeetupCount] = useState([]);
+  // gets the number of meetups assigned in the last Ceremony
+  useEffect(() => {
+    if (lastMeetupCount <= 0) {
+      async function getLastMeetupCount () {
+        const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+        const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+        const lastCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex - 1]);
+        const previousMeetupCount = await api.query.encointerCeremonies.meetupCount(lastCommunityCeremony);
+        setNewLastMeetupCount(previousMeetupCount.toNumber());
+      }
+      getLastMeetupCount();
+    }
+  }, [api, cid, lastMeetupCount]);
+
+  const [newMeetupCount, setNewMeetupCount] = useState([]);
+  // gets the number of meetups assigned in the current Ceremony
+  useEffect(() => {
+    if (meetupCount <= 0) {
+      async function getMeetupCount () {
+        const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+        const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+        const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+        const currentMeetupCount = await api.query.encointerCeremonies.meetupCount(currentCommunityCeremony);
+        setNewMeetupCount(currentMeetupCount.toNumber());
+      }
+      getMeetupCount();
+    } else {
+      setNewMeetupCount(meetupCount);
+    }
+  }, [api, cid, meetupCount]);
+
+  const [newLastParticipantCount, setNewLastParticipantCount] = useState([]);
+  // gets the number participants in the last Ceremony
+  useEffect(() => {
+    if (lastParticipantCount <= 0) {
+      async function getLastParticipantCount () {
+        const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+        const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+        const lastCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex - 1]);
+        return Promise.all([
+          api.query.encointerCeremonies.bootstrapperCount(lastCommunityCeremony),
+          api.query.encointerCeremonies.reputableCount(lastCommunityCeremony),
+          api.query.encointerCeremonies.endorseeCount(lastCommunityCeremony),
+          api.query.encointerCeremonies.newbieCount(lastCommunityCeremony)
+        ]);
+      }
+      getLastParticipantCount().then((data) => {
+        setNewLastParticipantCount(data[0].toNumber() + data[1].toNumber() + data[2].toNumber() + data[3].toNumber());
+      });
+    }
+  }, [api, cid, lastParticipantCount]);
+
+  const [newParticipantCount, setNewParticipantCount] = useState([]);
+  // gets the number participants in the current Ceremony
+  useEffect(() => {
+    if (participantCount <= 0) {
+      async function getParticipantCount () {
+        const CommunityCeremony = api.registry.getOrUnknown('CommunityCeremony');
+        const currentCeremonyIndex = await api.query.encointerScheduler.currentCeremonyIndex();
+        const currentCommunityCeremony = new CommunityCeremony(api.registry, [cid, currentCeremonyIndex]);
+        return Promise.all([
+          api.query.encointerCeremonies.bootstrapperCount(currentCommunityCeremony),
+          api.query.encointerCeremonies.reputableCount(currentCommunityCeremony),
+          api.query.encointerCeremonies.endorseeCount(currentCommunityCeremony),
+          api.query.encointerCeremonies.newbieCount(currentCommunityCeremony)
+        ]);
+      }
+      getParticipantCount().then((data) => {
+        setNewParticipantCount(data[0].toNumber() + data[1].toNumber() + data[2].toNumber() + data[3].toNumber());
+      });
+    }
+  }, [api, cid, participantCount]);
 
   return (
     <Sidebar
@@ -275,21 +354,21 @@ function MapSidebarMain (props) {
             <Header sub>Demurrage rate (per month):</Header>
             {demurrage && demurrage.toFixed(2)}%
             <Header sub>participants registered:</Header>
-            {participantCount}
+            {participantCount > 0 ? participantCount : newParticipantCount}
             <Header sub>Number of Reputables:</Header>
             {allReputableNumber}
             <Header sub>participants registered in last ceremony:</Header>
-            {lastParticipantCount}
+            {lastParticipantCount > 0 ? lastParticipantCount : newLastParticipantCount}
           </Segment>
           <Segment>
             <Header sub>Money supply:</Header>
             <p>{!isNaN(moneySupply) && (new BigFormat(moneySupply)).toFormat(2)}</p>
-            <Header sub>meetups assigned:</Header>
-            {meetupCount}
+            <Header sub>meetups assigned: </Header>
+            {newMeetupCount > 0 ? newMeetupCount : 'awaiting...'}
             <Header sub>tentative Community Growth: </Header>
             {tentativeGrowth}%
             <Header sub>meetups assigned in last ceremony:</Header>
-            {lastMeetupCount}
+            {lastMeetupCount > 0 ? lastMeetupCount : newLastMeetupCount}
             <Header sub></Header>
             {(currentPhase.phase === 2)
               ? showNumberOfSubmittedAttesters()
