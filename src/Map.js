@@ -42,7 +42,7 @@ import { getDemurrage } from '@encointer/node-api';
 // const mediaStyles = AppMedia.createMediaStyle();
 // const { Media, MediaContextProvider } = AppMedia;
 
-const initialPosition = L.latLng(47.166168, 8.515495);
+const initialPosition = L.latLng(0, 0);
 
 const blocksPerMonth = blockProductionTime => (86400 / blockProductionTime) * (365 / 12);
 
@@ -444,6 +444,7 @@ export default function Map (props) {
     const map = mapRef.current;
     if (map != null && position === initialPosition) {
       map.leafletElement.locate();
+      map.leafletElement.setZoom(3);
     }
   }, [mapRef, position]);
 
@@ -479,7 +480,7 @@ export default function Map (props) {
     setPosition(e.latlng);
     const map = mapRef.current.leafletElement;
     map.flyTo(e.latlng);
-    map.setZoom(2);
+    map.setZoom(8);
   };
 
   /// Handler for click on Community marker
