@@ -4,9 +4,10 @@ import Big from 'big.js';
 import toFormat from 'toformat';
 import { parseEncointerBalance } from '@encointer/types';
 
-import { getCeremonyIncome } from '@encointer/node-api';
+import { getCeremonyIncome, getNextMeetupTime } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
-import { ipfsCidFromHex } from '../utils';
+import { ipfsCidFromHex, locationFromJson } from '../utils';
+import timespace from '@mapbox/timespace';
 
 const BigFormat = toFormat(Big);
 
@@ -310,6 +311,20 @@ function MapSidebarMain (props) {
     }
   }, [api, cid, participantCount]);
 
+  const [nextMeetupTime, setNextMeetupTime] = useState([]);
+  // gets the date of the next Meetup
+  useEffect(() => {
+    async function getNextMeetupDate () {
+      const meetupLocations = await api.rpc.encointer.getLocations(cid);
+      const referenceLocation = locationFromJson(api, meetupLocations[0]);
+      const meetupTimeUtc = await getNextMeetupTime(api, referenceLocation);
+
+      const localTime = timespace.getFuzzyLocalTimeFromPoint(meetupTimeUtc.toNumber(), [meetupLocations[0].lon, meetupLocations[0].lat]);
+      setNextMeetupTime(localTime.toString());
+    }
+    getNextMeetupDate();
+  }, [api, cid, debug]);
+
   return (
     <Sidebar
       className='details-sidebar'
@@ -334,6 +349,7 @@ function MapSidebarMain (props) {
         <Header sub textAlign='left'>Currency ID:</Header>
         <Message size='small' color='blue'>{hash}</Message>
         <p>{name}</p>
+        <div>Next ceremony: {nextMeetupTime}</div>
       </Segment>
 
       <Segment.Group textalign='left'>
