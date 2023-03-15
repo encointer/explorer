@@ -7,9 +7,9 @@ import { parseEncointerBalance } from '@encointer/types';
 import { getCeremonyIncome, getNextMeetupTime } from '@encointer/node-api';
 import { parseI64F64 } from '@encointer/util';
 import { ipfsCidFromHex, locationFromJson } from '../utils';
+import timespace from '@mapbox/timespace';
 
 const BigFormat = toFormat(Big);
-const formatDate = (timestamp) => (new Date(timestamp)).toLocaleString();
 
 function MapSidebarMain (props) {
   const {
@@ -315,16 +315,12 @@ function MapSidebarMain (props) {
   // gets the date of the next Meetup
   useEffect(() => {
     async function getNextMeetupDate () {
-      const tilebelt = require('@mapbox/tilebelt');
-      const timespace = require('@mapbox/timespace');
       const meetupLocations = await api.rpc.encointer.getLocations(cid);
-      const tempLocation = locationFromJson(api, meetupLocations[0]);
-      const tile = tilebelt.pointToTile(meetupLocations[0].lon, meetupLocations[0].lat, 8);
-      const temptimespace = timespace.getFuzzyTimezoneFromTile(tile);
-      const tempTime = await getNextMeetupTime(api, tempLocation);
-      debug && console.log('the date is: ' + formatDate(tempTime.toNumber()));
-      const nextMeetupDate = formatDate(tempTime.toNumber()).split(',');
-      setNextMeetupTime(nextMeetupDate[0] + ' ' + nextMeetupDate[1] + ' ' + temptimespace);
+      const referenceLocation = locationFromJson(api, meetupLocations[0]);
+      const meetupTimeUtc = await getNextMeetupTime(api, referenceLocation);
+
+      const localTime = timespace.getFuzzyLocalTimeFromPoint(meetupTimeUtc.toNumber(), [meetupLocations[0].lon, meetupLocations[0].lat]);
+      setNextMeetupTime(localTime.toString());
     }
     getNextMeetupDate();
   }, [api, cid, debug]);
