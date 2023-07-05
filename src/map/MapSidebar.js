@@ -194,7 +194,10 @@ function MapSidebarMain (props) {
       } else {
         setRegistry({
           unassignedNewbies: data[3] - data[4].newbies,
-          ...data[4]
+          bootstrappers: data[4].bootstrappers,
+          reputables: data[4].reputables,
+          endorsees: data[4].endorsees,
+          newbies: data[4].newbies
         });
       }
     });
