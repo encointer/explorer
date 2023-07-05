@@ -197,7 +197,7 @@ function MapSidebarMain (props) {
           bootstrappers: data[4].bootstrappers,
           reputables: data[4].reputables,
           endorsees: data[4].endorsees,
-          newbies: data[4].newbies,
+          newbies: data[4].newbies
         });
       }
     });
