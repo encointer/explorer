@@ -76,8 +76,8 @@ function MapNodeInfoMain (props) {
   return (
     <Card className='encointer-map-node-info' style={props.style || {}}>
       <Card.Content className='info' onClick={onClickNode}>
-        <Card.Header>{nodeInfo.nodeName} <Icon name='chevron down' /></Card.Header>
-        <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion || ''}`}</Card.Meta>
+        <Card.Header>{nodeName(nodeInfo)} <Icon name='chevron down' /></Card.Header>
+        <Card.Meta>{chainInfo(nodeInfo)}</Card.Meta>
       </Card.Content>
       {
         apiState === 'READY'
@@ -107,6 +107,14 @@ function MapNodeInfoMain (props) {
       }
     </Card>
   );
+}
+
+function nodeName (nodeInfo) {
+  return nodeInfo.nodeName !== undefined ? nodeInfo.nodeName : '...getting node name';
+}
+
+function chainInfo (nodeInfo) {
+  return nodeInfo.chain !== undefined ? `${nodeInfo.chain} v${nodeInfo.nodeVersion}` : '';
 }
 
 export default function MapNodeInfo (props) {
