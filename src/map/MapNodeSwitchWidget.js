@@ -43,6 +43,20 @@ function createEndpoints () {
       value: 'wss://kusama.api.encointer.org'
     },
     {
+      info: 'encointer',
+      text: 'Mainnet on Kusama',
+      icon: 'encointer-notee.svg',
+      provider: 'IBP1',
+      value: 'wss://sys.ibp.network/encointer-kusama'
+    },
+    {
+      info: 'encointer',
+      text: 'Mainnet on Kusama',
+      icon: 'encointer-notee.svg',
+      provider: 'IBP2',
+      value: 'wss://sys.dotters.network/encointer-kusama'
+    },
+    {
       isHeader: true,
       text: 'Public Test Networks',
       value: ''
