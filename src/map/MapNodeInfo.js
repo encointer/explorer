@@ -74,14 +74,14 @@ function MapNodeInfoMain (props) {
   }, [system]);
 
   return (
-    <Card className='encointer-map-node-info' style={props.style || {}}>{
-      apiState === 'READY'
-        ? <React.Fragment>
-          <Card.Content className='info' onClick={onClickNode}>
-            <Card.Header>{nodeInfo.nodeName} <Icon name='chevron down' /></Card.Header>
-            <Card.Meta>{`${nodeInfo.chain || ''} v${nodeInfo.nodeVersion}`}</Card.Meta>
-          </Card.Content>
-          <Card.Content className='blocks'>
+    <Card className='encointer-map-node-info' style={props.style || {}}>
+      <Card.Content className='info' onClick={onClickNode}>
+        <Card.Header>{nodeName(nodeInfo)} <Icon name='chevron down' /></Card.Header>
+        <Card.Meta>{chainInfo(nodeInfo)}</Card.Meta>
+      </Card.Content>
+      {
+        apiState === 'READY'
+          ? <Card.Content className='blocks'>
             {
               getCurrentCeremonyIndex
                 ? <React.Fragment>
@@ -97,16 +97,24 @@ function MapNodeInfoMain (props) {
                 </React.Fragment>
             }
           </Card.Content>
-        </React.Fragment>
-        : <Card.Content className='loading'>
-          {
-            apiState !== 'ERROR'
-              ? <Card.Meta><Loader active size='small' inline /> Connecting to the blockchain</Card.Meta>
-              : <Card.Meta className='error'>Error connecting to the blockchain</Card.Meta>
-          }
-        </Card.Content>
-    }</Card>
+          : <Card.Content className='loading'>
+            {
+              apiState !== 'ERROR'
+                ? <Card.Meta><Loader active size='small' inline /> Connecting to the blockchain</Card.Meta>
+                : <Card.Meta className='error'>Error connecting to the blockchain</Card.Meta>
+            }
+          </Card.Content>
+      }
+    </Card>
   );
+}
+
+function nodeName (nodeInfo) {
+  return nodeInfo.nodeName !== undefined ? nodeInfo.nodeName : '...getting node name';
+}
+
+function chainInfo (nodeInfo) {
+  return nodeInfo.chain !== undefined ? `${nodeInfo.chain} v${nodeInfo.nodeVersion}` : '';
 }
 
 export default function MapNodeInfo (props) {
